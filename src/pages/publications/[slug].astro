@@ -1,21 +1,26 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import { siteHref } from '../../lib/siteHref';
+import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('publications');
 	return entries.map((entry) => ({
 		params: { slug: entry.id },
-		props: { entry },
 	}));
 }
 
-interface Props {
-	entry: CollectionEntry<'publications'>;
+const { slug } = Astro.params;
+const entry =
+	slug !== undefined
+		? ((await getEntry('publications', slug)) as CollectionEntry<'publications'> | undefined)
+		: undefined;
+
+if (entry === undefined) {
+	return Astro.redirect(siteHref('/publications/'));
 }
 
-const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 ---

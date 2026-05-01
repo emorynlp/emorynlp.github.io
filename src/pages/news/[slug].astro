@@ -5,21 +5,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatNewsDate } from '../../lib/dates';
 import { resolveNewsParticipants } from '../../lib/newsParticipants';
 import { siteHref } from '../../lib/siteHref';
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('news');
 	return entries.map((entry) => ({
 		params: { slug: entry.id },
-		props: { entry },
 	}));
 }
 
-interface Props {
-	entry: CollectionEntry<'news'>;
+const { slug } = Astro.params;
+const entry =
+	slug !== undefined ? ((await getEntry('news', slug)) as CollectionEntry<'news'> | undefined) : undefined;
+
+if (entry === undefined) {
+	return Astro.redirect(siteHref('/news/'));
 }
 
-const { entry } = Astro.props;
 const { Content } = await render(entry);
 const labels = entry.data.labels ?? [];
 const peopleAll = await getCollection('people');
