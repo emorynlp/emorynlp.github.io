@@ -1,0 +1,49 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('people');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<'people'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const links: { label: string; href: string }[] = [];
+if (entry.data.website) links.push({ label: 'Website', href: entry.data.website });
+if (entry.data.github) links.push({ label: 'GitHub', href: entry.data.github });
+---
+
+<BaseLayout title={entry.data.name}>
+	<article class="container-narrow" style="padding-block: 2rem 4rem;">
+		<header class="detail-header">
+			<h1>{entry.data.name}</h1>
+			<p class="meta-line">
+				<span>{entry.data.role}</span>
+				{entry.data.cohort ? <span>{entry.data.cohort}</span> : null}
+				<span class="tag">{entry.data.current ? 'Current member' : 'Past member'}</span>
+			</p>
+			{
+				links.length > 0 && (
+					<p class="meta-line" style="margin-top: 0.85rem;">
+						{links.map((l) => (
+							<a href={l.href}>{l.label}</a>
+						))}
+					</p>
+				)
+			}
+		</header>
+		<div class="prose-slot">
+			<Content />
+		</div>
+	</article>
+</BaseLayout>

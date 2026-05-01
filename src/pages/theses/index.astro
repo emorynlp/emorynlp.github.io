@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { getCollection } from 'astro:content';
+import { formatDate } from '../../lib/dates';
+
+const items = await getCollection('theses');
+items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="Theses & dissertations" description="Student theses defended with Emory NLP.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">Theses &amp; dissertations</h1>
+		<p class="page-intro">
+			Use <code class="muted">degree</code> plus author and defense date fields in{' '}
+			<code class="muted">src/content/theses/</code>.
+		</p>
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No thesis entries yet.</div>
+			) : (
+				<div class="grid-cards">
+					{items.map((t) => (
+						<ContentCard
+							href={`/theses/${t.id}/`}
+							title={t.data.title}
+							subtitle={`${t.data.author} — ${t.data.degree}`}
+							meta={formatDate(t.data.date)}
+						/>
+					))}
+				</div>
+			)
+		}
+	</div>
+</BaseLayout>

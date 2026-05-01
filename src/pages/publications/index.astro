@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { getCollection } from 'astro:content';
+
+const papers = await getCollection('publications');
+papers.sort((a, b) => {
+	if (b.data.year !== a.data.year) return b.data.year - a.data.year;
+	return a.data.title.localeCompare(b.data.title);
+});
+---
+
+<BaseLayout title="Publications" description="Papers from Emory NLP.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">Publications</h1>
+		<p class="page-intro">
+			Entries live in <code class="muted">src/content/publications/</code>; each file is one paper or preprint with
+			venue metadata and optional PDF / code links.
+		</p>
+		{
+			papers.length === 0 ? (
+				<div class="empty-state surface">No publication entries yet.</div>
+			) : (
+				<div class="grid-cards">
+					{papers.map((p) => (
+						<ContentCard
+							href={`/publications/${p.id}/`}
+							title={p.data.title}
+							subtitle={`${p.data.authors.join(', ')} — ${p.data.venue}`}
+							meta={String(p.data.year)}
+							tags={p.data.publicationType ? [p.data.publicationType] : undefined}
+						/>
+					))}
+				</div>
+			)
+		}
+	</div>
+</BaseLayout>

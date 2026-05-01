@@ -1,0 +1,621 @@
+:root {
+	color-scheme: light;
+
+	/* Neutrals — quiet editorial base */
+	--ink: #111827;
+	--muted: #6b7280;
+	--bg: #f4f6f9;
+	--surface: #ffffff;
+	--border: #e5e7eb;
+
+	/* Blue accent — links, focus, tags (distinct from gray body text) */
+	--accent: #2563eb;
+	--accent-hover: #1d4ed8;
+	--accent-soft: rgb(37 99 235 / 0.12);
+	--highlight: #3b82f6;
+
+	/* Sticky header — same gradient slab as landing hero */
+	--header-bg: var(--banner);
+
+	/* Hero / home news strip — dark slab on light page */
+	--banner: linear-gradient(158deg, #111827 0%, #1e293b 52%, #0f172a 100%);
+	--on-banner: #f9fafb;
+	--on-banner-muted: rgb(249 250 251 / 0.9);
+	--on-banner-card: rgb(255 255 255 / 0.1);
+	--on-banner-card-hover: rgb(255 255 255 / 0.16);
+	--on-banner-border: rgb(255 255 255 / 0.22);
+	--banner-meta: rgb(226 232 240 / 0.94);
+
+	--shadow: 0 1px 3px rgb(15 23 42 / 0.05), 0 12px 28px rgb(15 23 42 / 0.035);
+	--radius: 11px;
+	--nav-h: 3.75rem;
+	--font: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+		Helvetica, Arial, sans-serif;
+	--narrow: clamp(720px, 92vw, 1080px);
+
+	/* News event labels (social, etc.) — light yellow on cards & article */
+	--news-label-bg: #fefce8;
+	--news-label-border: #fde68a;
+	--news-label-ink: #713f12;
+	--news-label-radius: 5px;
+	--news-label-gap: 0.22rem;
+
+	/* Labels on dark home news strip */
+	--banner-label-bg: rgb(254 249 195 / 0.22);
+	--banner-label-border: rgb(250 204 21 / 0.45);
+	--banner-label-ink: #fef9c3;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100%;
+	font-family: var(--font);
+	color: var(--ink);
+	background: var(--bg);
+	line-height: 1.65;
+	font-size: 1rem;
+	text-rendering: optimizeLegibility;
+}
+
+a {
+	color: var(--accent);
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--accent-hover);
+	text-decoration: none;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	vertical-align: middle;
+}
+
+main#main {
+	min-height: calc(100vh - 12rem);
+}
+
+.container-narrow {
+	width: min(100%, var(--narrow));
+	margin-inline: auto;
+	padding-inline: 1.25rem;
+}
+
+.surface {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+}
+
+.card-link {
+	display: block;
+	padding: 1rem 1.15rem;
+	color: inherit;
+	text-decoration: none;
+	border-radius: var(--radius);
+	border: 1px solid transparent;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.card-link:hover {
+	border-color: var(--border);
+	box-shadow: var(--shadow);
+}
+
+.card-link:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.muted {
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+.eyebrow {
+	font-size: 0.82rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.page-title {
+	margin: 0 0 0.35rem;
+	font-size: clamp(1.75rem, 3.5vw, 2.2rem);
+	font-weight: 700;
+}
+
+.page-intro {
+	margin: 0 0 1.5rem;
+	color: var(--muted);
+	max-width: 54ch;
+}
+
+.page-intro--fill {
+	max-width: none;
+}
+
+.grid-cards {
+	display: grid;
+	/* auto-fit collapses empty tracks so one or two cards span the row instead of sitting in a skinny first column */
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1rem;
+}
+
+.empty-state {
+	margin: 2rem 0;
+	padding: 1.5rem;
+	text-align: center;
+	color: var(--muted);
+	background: var(--surface);
+	border: 1px dashed var(--border);
+	border-radius: var(--radius);
+}
+
+.tag {
+	display: inline-block;
+	font-size: 0.75rem;
+	font-weight: 600;
+	padding: 0.2rem 0.45rem;
+	border-radius: 6px;
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.hero {
+	background: var(--banner);
+	color: var(--on-banner);
+	padding: 3rem 0 3.25rem;
+	margin-bottom: 2rem;
+}
+
+.hero-inner {
+	width: min(100%, var(--narrow));
+	margin-inline: auto;
+	padding-inline: 1.25rem;
+}
+
+.hero h1 {
+	margin: 0 0 0.6rem;
+	font-size: clamp(1.85rem, 4.2vw, 2.65rem);
+	font-weight: 800;
+	line-height: 1.18;
+	color: inherit;
+}
+
+.hero-sub {
+	margin: 0;
+	font-size: 1.055rem;
+	max-width: 46ch;
+	color: var(--on-banner-muted);
+	line-height: 1.55;
+}
+
+.section-block {
+	padding: 2rem 0 2.75rem;
+}
+
+/* Full-bleed dark strip so frosted banner cards stay legible */
+.news-banner-section {
+	background: var(--banner);
+	color: var(--on-banner);
+	padding-block: 2.5rem 3.25rem;
+	margin-inline: 0;
+}
+
+.news-banner-section .news-banner-heading {
+	color: var(--on-banner);
+	margin-bottom: 0.85rem;
+}
+
+.news-banner-section .news-banner-intro {
+	color: var(--on-banner-muted);
+	max-width: none;
+	margin-bottom: 1.35rem;
+}
+
+.news-banner-section .news-banner-intro a {
+	color: var(--banner-meta);
+}
+
+.news-banner-section .news-banner-intro a:hover {
+	color: var(--on-banner);
+	text-decoration: none;
+}
+
+.empty-state--on-dark {
+	background: var(--on-banner-card);
+	border-color: var(--on-banner-border);
+	color: var(--on-banner-muted);
+}
+
+.banner-row {
+	overflow: hidden;
+}
+
+.banner-row-inner {
+	overflow-x: auto;
+	display: flex;
+	align-items: stretch;
+	gap: 0.85rem;
+	padding-bottom: 0.65rem;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: thin;
+}
+
+.banner-card {
+	--banner-card-width: min(88vw, 300px);
+	flex: 0 0 var(--banner-card-width);
+	width: var(--banner-card-width);
+	scroll-snap-align: start;
+	display: flex;
+	flex-direction: column;
+	background: var(--on-banner-card);
+	border: 1px solid var(--on-banner-border);
+	border-radius: var(--radius);
+	padding: 0;
+	overflow: hidden;
+	text-decoration: none;
+	color: var(--on-banner);
+	transition: background 0.15s;
+	box-sizing: border-box;
+}
+
+.banner-card-media {
+	height: 11.75rem;
+	flex-shrink: 0;
+	width: 100%;
+	background: rgb(0 0 0 / 0.25);
+}
+
+.banner-card-media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.banner-card-body {
+	padding: 0.82rem 1.05rem 1rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	gap: 0.25rem;
+}
+
+.banner-card:hover {
+	background: var(--on-banner-card-hover);
+	color: inherit;
+}
+
+.banner-card:focus-visible {
+	outline: 2px solid var(--highlight);
+	outline-offset: 2px;
+}
+
+.banner-meta {
+	display: block;
+	font-size: 0.76rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--banner-meta);
+	font-weight: 700;
+	margin-bottom: 0;
+}
+
+.banner-title-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.35rem 0.5rem;
+	min-width: 0;
+	margin: 0;
+}
+
+.banner-title {
+	font-weight: 700;
+	font-size: 1.02rem;
+	margin: 0;
+	line-height: 1.35;
+	display: -webkit-box;
+	line-clamp: 3;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.banner-teaser {
+	margin: 0;
+	font-size: 0.865rem;
+	line-height: 1.42;
+	opacity: 0.9;
+	display: -webkit-box;
+	line-clamp: 3;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.detail-header {
+	padding: 2rem 0 1rem;
+	border-bottom: 1px solid var(--border);
+	margin-bottom: 1.75rem;
+}
+
+.detail-header h1 {
+	margin: 0 0 0.5rem;
+	font-size: clamp(1.4rem, 3vw, 1.95rem);
+}
+
+.meta-line {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 1rem;
+	align-items: center;
+	color: var(--muted);
+	font-size: 0.92rem;
+}
+
+/* Hero on news detail pages (same asset as listing thumbnail; avoids duplicating inside markdown body) */
+/* News article (detail page) — text first, imagery below */
+.news-detail {
+	padding-block: 2rem 4.5rem;
+}
+
+.news-detail-back {
+	margin: 0 0 1.25rem;
+	font-size: 0.895rem;
+}
+
+.news-detail-back a {
+	color: var(--muted);
+	font-weight: 500;
+}
+
+.news-detail-back a:hover {
+	color: var(--accent);
+}
+
+.news-detail-header {
+	margin: 0 0 2rem;
+	padding-bottom: 1.35rem;
+	border-bottom: 1px solid var(--border);
+}
+
+.news-detail-title-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.35rem 0.65rem;
+	min-width: 0;
+	margin: 0 0 0.95rem;
+}
+
+.news-detail-title {
+	font-size: clamp(1.75rem, 4.2vw, 2.5rem);
+	font-weight: 800;
+	letter-spacing: -0.035em;
+	line-height: 1.15;
+	margin: 0;
+	color: var(--ink);
+}
+
+.news-featured-star {
+	display: inline-flex;
+	justify-self: end;
+	align-self: center;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	font-size: 0.85rem;
+	/* Emoji color comes from the system font — size only here */
+	font-style: normal;
+	font-variant-emoji: emoji;
+}
+
+.news-detail-title-row .news-featured-star {
+	font-size: clamp(0.92rem, 2.2vw, 1.1rem);
+}
+
+.news-featured-star--on-banner {
+	filter: drop-shadow(0 1px 3px rgb(15 23 42 / 0.55));
+}
+
+.news-detail-meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.35rem 0.6rem;
+	color: var(--muted);
+	font-size: 0.94rem;
+}
+
+/* Tight spacing only between multiple label pills */
+.news-label-group {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--news-label-gap);
+}
+
+.news-detail-meta .tag {
+	vertical-align: middle;
+}
+
+.news-card-heading {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.35rem 0.5rem;
+	min-width: 0;
+	margin: 0;
+}
+
+.news-label-pill {
+	display: inline-flex;
+	align-items: center;
+	font-size: 0.75rem;
+	font-weight: 650;
+	line-height: 1.2;
+	padding: 0.18rem 0.45rem;
+	border-radius: var(--news-label-radius);
+	border: 1px solid var(--news-label-border);
+	background: var(--news-label-bg);
+	color: var(--news-label-ink);
+}
+
+.news-detail-meta .news-label-pill {
+	vertical-align: middle;
+}
+
+.banner-label-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--news-label-gap);
+	margin: 0;
+}
+
+.banner-label-pill {
+	display: inline-block;
+	font-size: 0.65rem;
+	font-weight: 700;
+	line-height: 1;
+	padding: 0.16rem 0.38rem;
+	border-radius: var(--news-label-radius);
+	border: 1px solid var(--banner-label-border);
+	background: var(--banner-label-bg);
+	color: var(--banner-label-ink);
+}
+
+/* Same column as .prose-slot (body + embedded images); not full container width */
+.news-detail-participants {
+	margin-top: 2rem;
+	padding-top: 1.35rem;
+	border-top: 1px solid var(--border);
+	max-width: 68ch;
+	width: 100%;
+}
+
+.news-detail-participants-disclosure {
+	margin: 0;
+}
+
+.news-detail-participants-summary {
+	cursor: pointer;
+	list-style-position: inside;
+	font-size: 0.78rem;
+	font-weight: 500;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--muted);
+	padding: 0.2rem 0;
+	padding-inline-start: 0;
+	user-select: none;
+}
+
+.news-detail-participants-summary:hover {
+	color: var(--ink);
+}
+
+.news-detail-participants-summary:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 4px;
+	border-radius: 4px;
+}
+
+.news-detail-participants-count {
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: normal;
+	opacity: 0.9;
+	margin-left: 0.2rem;
+}
+
+/* Comma + space between entries only (`', '` string); commas sit flush after each name */
+.news-detail-participant-roster {
+	display: block;
+	margin: 0.5rem 0 0;
+	padding: 0;
+	font-size: 0.8rem;
+	line-height: 1.7;
+	font-weight: 400;
+	color: var(--muted);
+	width: 100%;
+	text-wrap: pretty;
+}
+
+.news-detail-participant-roster .news-detail-participant-link {
+	font-weight: 400;
+	font-size: inherit;
+	text-decoration: none;
+	color: inherit;
+	border-bottom: 1px solid transparent;
+	display: inline;
+}
+
+.news-detail-participant-roster .news-detail-participant-link:hover {
+	border-bottom-color: rgb(148 163 184 / 0.9);
+	color: var(--accent);
+}
+
+.news-detail-participant-roster .news-participant-unlinked {
+	font-weight: 400;
+	font-size: inherit;
+	color: inherit;
+	display: inline;
+}
+
+.news-detail-body {
+	margin-bottom: 0.35rem;
+}
+
+.prose-slot {
+	line-height: 1.72;
+	max-width: 68ch;
+}
+
+/* Links in body copy: default weight; avoids bold from **[]()** or inherited heading styles */
+.prose-slot :where(p, li) a {
+	font-weight: 400;
+}
+
+.prose-slot :first-child {
+	margin-top: 0;
+}
+
+.prose-slot img {
+	display: block;
+	max-width: min(100%, 960px);
+	height: auto;
+	margin: 1rem 0;
+	border-radius: var(--radius);
+	border: 1px solid var(--border);
+}
+
+.prose-slot pre {
+	overflow-x: auto;
+	padding: 1rem;
+	background: var(--accent-soft);
+	border-radius: 8px;
+	font-size: 0.825rem;
+}

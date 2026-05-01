@@ -1,0 +1,58 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/dates';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('seminars');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<'seminars'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<BaseLayout title={d.title}>
+	<article class="container-narrow" style="padding-block: 2rem 4rem;">
+		<header class="detail-header">
+			<h1>{d.title}</h1>
+			<p class="meta-line">
+				<span>{d.term}</span>
+				<span>{formatDate(d.date)}</span>
+			</p>
+			{
+				d.speakers && d.speakers.length > 0 ? (
+					<p class="muted" style="margin: 0.5rem 0 0;">
+						<strong>Speakers:</strong> {d.speakers.join(', ')}
+					</p>
+				) : null
+			}
+			<p class="meta-line" style="margin-top: 0.85rem;">
+				{d.videoUrl ? <a href={d.videoUrl}>Recording</a> : null}
+				{d.slidesUrl ? <a href={d.slidesUrl}>Slides</a> : null}
+			</p>
+		</header>
+		{
+			d.abstract ? (
+				<>
+					<h2 class="page-title" style="font-size: 1.15rem;">Abstract</h2>
+					<p class="prose-slot" style="margin-top: 0;">
+						{d.abstract}
+					</p>
+				</>
+			) : null
+		}
+		<div class="prose-slot">
+			<Content />
+		</div>
+	</article>
+</BaseLayout>

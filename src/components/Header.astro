@@ -1,0 +1,138 @@
+---
+function navActive(linkHref: string, pathname: string): boolean {
+	if (linkHref === '/') {
+		return pathname === '/' || pathname === '';
+	}
+	const pn = pathname.replace(/\/+$/, '');
+	const href = linkHref.replace(/\/+$/, '');
+	return pn === href || pn.startsWith(`${href}/`);
+}
+
+const links = [
+	{ href: '/', label: 'Home' },
+	{ href: '/people/', label: 'People' },
+	{ href: '/publications/', label: 'Publications' },
+	{ href: '/theses/', label: 'Theses' },
+	{ href: '/projects/', label: 'Projects' },
+	{ href: '/seminars/', label: 'Seminars' },
+	{ href: '/news/', label: 'News' },
+	{ href: '/gallery/', label: 'Gallery' },
+];
+---
+
+<header class="site-header">
+	<div class="site-header-inner container-narrow">
+		<a class="brand" href="/">
+			<img
+				class="brand-logo"
+				src="/emorynlp-logo.png"
+				alt=""
+				width="44"
+				height="44"
+				loading="eager"
+				decoding="async"
+				aria-hidden="true"
+			/>
+			<span class="brand-text">
+				<span class="brand-title">Emory NLP</span>
+				<span class="brand-tag">Natural Language Processing</span>
+			</span>
+		</a>
+		<nav aria-label="Primary">
+			<ul class="nav-list">
+				{
+					links.map((l) => (
+						<li>
+							<a href={l.href} class:list={[{ active: navActive(l.href, Astro.url.pathname) }]}>
+								{l.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: var(--header-bg);
+		border-bottom: 1px solid var(--on-banner-border);
+		box-shadow: 0 4px 24px rgb(15 23 42 / 0.35);
+	}
+	.site-header-inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem 1.5rem;
+		min-height: var(--nav-h);
+		padding-block: 0.65rem;
+	}
+	.brand {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 0.7rem;
+		text-decoration: none;
+		color: var(--on-banner);
+	}
+	.brand:hover .brand-title {
+		color: #f9dab9;
+	}
+	.brand:hover .brand-logo {
+		opacity: 0.92;
+	}
+	.brand-logo {
+		height: 2.75rem;
+		width: auto;
+		max-width: 8rem;
+		object-fit: contain;
+		flex-shrink: 0;
+	}
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0;
+		min-width: 0;
+	}
+	.brand-title {
+		font-weight: 800;
+		font-size: 1.14rem;
+		letter-spacing: -0.02em;
+	}
+	.brand-tag {
+		font-size: 0.75rem;
+		color: var(--on-banner-muted);
+		font-weight: 500;
+	}
+	.nav-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem 0.85rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		align-items: center;
+	}
+	.nav-list a {
+		font-size: 0.885rem;
+		font-weight: 600;
+		color: var(--banner-meta);
+		text-decoration: none;
+		padding: 0.35rem 0;
+		border-bottom: 2px solid transparent;
+		transition: color 0.15s ease, border-color 0.15s ease;
+	}
+	.nav-list a:hover {
+		color: var(--on-banner);
+		border-bottom-color: rgb(147 197 253 / 0.85);
+	}
+	.nav-list a.active {
+		color: var(--on-banner);
+		border-bottom-color: var(--highlight);
+	}
+</style>

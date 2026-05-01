@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/dates';
+import { getCollection } from 'astro:content';
+
+const items = await getCollection('gallery');
+items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+
+<BaseLayout title="Gallery" description="Photos from lab life and events.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">Gallery</h1>
+		<p class="page-intro">
+			Images should sit in <code class="muted">public/</code> (for example <code class="muted">public/photos/lunch.jpg</code>) and
+			be referenced with site-root paths in frontmatter.
+		</p>
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No gallery entries yet.</div>
+			) : (
+				<ul class="gallery-grid" role="list">
+					{items.map((g) => (
+						<li class="gallery-tile surface">
+							<a href={`/gallery/${g.id}/`} class="gallery-link">
+								<img src={g.data.image} alt={g.data.title} loading="lazy" width="400" height="260" />
+								<span class="gallery-caption">
+									<strong>{g.data.title}</strong>
+									<span class="muted">{formatDate(g.data.date)}</span>
+								</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			)
+		}
+	</div>
+</BaseLayout>
+
+<style>
+	.gallery-grid {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		gap: 1rem;
+	}
+	.gallery-tile {
+		overflow: hidden;
+		padding: 0;
+	}
+	.gallery-link {
+		display: flex;
+		flex-direction: column;
+		text-decoration: none;
+		color: inherit;
+	}
+	.gallery-link:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
+	}
+	.gallery-link img {
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+		background: var(--bg);
+	}
+	.gallery-caption {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		padding: 0.75rem 0.85rem 0.9rem;
+		font-size: 0.9rem;
+	}
+</style>

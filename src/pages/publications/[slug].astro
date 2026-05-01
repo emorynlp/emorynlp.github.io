@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('publications');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<'publications'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<BaseLayout title={d.title}>
+	<article class="container-narrow" style="padding-block: 2rem 4rem;">
+		<header class="detail-header">
+			<h1>{d.title}</h1>
+			<p class="meta-line">
+				<span>{d.year}</span>
+				{d.publicationType ? <span class="tag">{d.publicationType}</span> : null}
+			</p>
+			<p class="meta-line">{d.authors.join(', ')}</p>
+			<p class="muted" style="margin: 0.5rem 0 0;"><strong>Venue:</strong> {d.venue}</p>
+			<p class="meta-line" style="margin-top: 0.85rem;">
+				{d.pdfUrl ? <a href={d.pdfUrl}>Paper / PDF</a> : null}
+				{d.codeUrl ? <a href={d.codeUrl}>Code</a> : null}
+			</p>
+		</header>
+		{
+			d.abstract ? (
+				<section aria-labelledby="abs-h">
+					<h2 id="abs-h" class="page-title" style="font-size: 1.15rem;">
+						Abstract
+					</h2>
+					<p class="prose-slot" style="margin-top: 0;">
+						{d.abstract}
+					</p>
+				</section>
+			) : null
+		}
+		<div class="prose-slot">
+			<Content />
+		</div>
+		{
+			d.bibtex ? (
+				<section aria-labelledby="bib-h">
+					<h2 id="bib-h" class="page-title" style="font-size: 1.15rem;">
+						BibTeX
+					</h2>
+					<pre>{d.bibtex}</pre>
+				</section>
+			) : null
+		}
+	</article>
+</BaseLayout>

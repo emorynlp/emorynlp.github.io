@@ -1,0 +1,16 @@
+---
+interface Props {
+	/** Slightly stronger backdrop shadow on dark home strip cards */
+	variant?: 'surface' | 'on-banner';
+}
+
+const { variant = 'surface' } = Astro.props;
+---
+
+<span
+	class:list={['news-featured-star', { 'news-featured-star--on-banner': variant === 'on-banner' }]}
+	role="img"
+	aria-label="Featured"
+>
+	⭐️
+</span>

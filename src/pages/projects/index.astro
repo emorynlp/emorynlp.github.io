@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { getCollection } from 'astro:content';
+
+const rows = await getCollection('projects');
+rows.sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<BaseLayout title="Projects" description="Research projects at Emory NLP.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">Projects</h1>
+		<p class="page-intro">
+			Imported titles and summaries from the public listings on{' '}
+			<a href="https://emorynlp.org">emorynlp.org</a>; fuller pages can migrate over time. Sources live in{' '}
+			<code class="muted">src/content/projects/</code>.
+		</p>
+		{
+			rows.length === 0 ? (
+				<div class="empty-state surface">No project entries yet.</div>
+			) : (
+				<div class="grid-cards">
+					{rows.map((row) => (
+						<ContentCard
+							href={`/projects/${row.id}/`}
+							title={row.data.title}
+							subtitle={row.data.summary ?? undefined}
+							tags={
+								row.data.status
+									? [row.data.status === 'completed' ? 'Completed' : 'Current']
+									: undefined
+							}
+						/>
+					))}
+				</div>
+			)
+		}
+	</div>
+</BaseLayout>

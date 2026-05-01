@@ -1,0 +1,85 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FeaturedStar from '../../components/FeaturedStar.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatNewsDate } from '../../lib/dates';
+import { resolveNewsParticipants } from '../../lib/newsParticipants';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('news');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<'news'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const labels = entry.data.labels ?? [];
+const peopleAll = await getCollection('people');
+const participantRefs = resolveNewsParticipants(peopleAll, entry.data.participants, {
+	slug: entry.id,
+	title: entry.data.title,
+});
+---
+
+<BaseLayout title={entry.data.title}>
+	<article class="news-detail container-narrow">
+		<p class="news-detail-back">
+			<a href="/news/">← News</a>
+		</p>
+		<header class="news-detail-header">
+			<div class="news-detail-title-row">
+				<h1 class="news-detail-title">{entry.data.title}</h1>
+				{entry.data.featured ? <FeaturedStar /> : null}
+			</div>
+			<div class="news-detail-meta">
+				<time datetime={entry.data.date.toISOString()}>{formatNewsDate(entry.data.date)}</time>
+				{labels.length ? (
+					<span class="news-label-group">
+						{labels.map((label) => (
+							<span class="news-label-pill">{label}</span>
+						))}
+					</span>
+				) : null}
+			</div>
+		</header>
+
+		<div class="news-detail-body prose-slot">
+			<Content />
+		</div>
+
+		{
+			participantRefs.length ? (
+				<section
+					class="news-detail-participants"
+					aria-label={`Participants, ${participantRefs.length}${participantRefs.length === 1 ? ' person' : ' people'}`}
+				>
+					<details class="news-detail-participants-disclosure">
+						<summary class="news-detail-participants-summary">
+							Participants
+							<span class="news-detail-participants-count">({participantRefs.length})</span>
+						</summary>
+						<p class="news-detail-participant-roster">
+							{
+								participantRefs.flatMap((p, i) => {
+									const slot = p.href ? (
+										<a class="news-detail-participant-link" href={p.href}>{p.name}</a>
+									) : (
+										<span class="news-participant-unlinked">{p.name}</span>
+									);
+									return i === 0 ? [slot] : [', ', slot];
+								})
+							}
+						</p>
+					</details>
+				</section>
+			) : null
+		}
+	</article>
+</BaseLayout>

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { getCollection } from 'astro:content';
+import { formatDate } from '../../lib/dates';
+
+const seminars = await getCollection('seminars');
+seminars.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const groups = new Map<string, typeof seminars>();
+for (const s of seminars) {
+	const t = s.data.term;
+	if (!groups.has(t)) groups.set(t, []);
+	groups.get(t)!.push(s);
+}
+
+const terms = [...groups.keys()].sort(
+	(a, b) =>
+		Math.max(...groups.get(b)!.map((x) => x.data.date.valueOf())) -
+		Math.max(...groups.get(a)!.map((x) => x.data.date.valueOf())),
+);
+---
+
+<BaseLayout title="Seminars" description="Weekly Emory NLP seminar series.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">Seminars</h1>
+		<p class="page-intro">
+			Grouped by semester using the <code class="muted">term</code> field (for example{' '}
+			<code class="muted">Fall 2025</code>). Entries are Markdown under <code class="muted">src/content/seminars/</code>.
+		</p>
+		{
+			seminars.length === 0 ? (
+				<div class="empty-state surface">No seminar entries yet.</div>
+			) : (
+				terms.map((term) => (
+					<section style="margin-bottom: 2.5rem;">
+						<h2 class="page-title" style="font-size: 1.25rem; margin-bottom: 0.85rem;">
+							{term}
+						</h2>
+						<div class="grid-cards">
+							{(groups.get(term) ?? []).map((s) => (
+								<ContentCard
+									href={`/seminars/${s.id}/`}
+									title={s.data.title}
+									subtitle={[...(s.data.speakers ?? [])].join(', ') || undefined}
+									meta={formatDate(s.data.date)}
+								/>
+							))}
+						</div>
+					</section>
+				))
+			)
+		}
+	</div>
+</BaseLayout>

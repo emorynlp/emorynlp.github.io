@@ -1,0 +1,49 @@
+---
+interface Props {
+	href: string;
+	title: string;
+	subtitle?: string;
+	meta?: string;
+	tags?: string[];
+}
+
+const { href, title, subtitle, meta, tags } = Astro.props;
+---
+
+<a class="content-card surface card-link" href={href}>
+	<h2 class="card-title">{title}</h2>
+	{subtitle && <p class="card-sub muted">{subtitle}</p>}
+	{meta && <p class="card-meta muted">{meta}</p>}
+	{
+		tags && tags.length > 0 && (
+			<p class="card-tags">
+				{tags.map((t) => (
+					<span class="tag">{t}</span>
+				))}
+			</p>
+		)
+	}
+</a>
+
+<style>
+	.content-card .card-title {
+		margin: 0 0 0.35rem;
+		font-size: 1.05rem;
+		font-weight: 700;
+		line-height: 1.35;
+	}
+	.card-sub {
+		margin: 0 0 0.35rem;
+		line-height: 1.45;
+	}
+	.card-meta {
+		margin: 0;
+		font-size: 0.82rem;
+	}
+	.card-tags {
+		margin: 0.65rem 0 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+</style>

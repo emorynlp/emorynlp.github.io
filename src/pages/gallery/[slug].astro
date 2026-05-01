@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/dates';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('gallery');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<'gallery'>;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={entry.data.title}>
+	<article class="container-narrow" style="padding-block: 2rem 4rem;">
+		<header class="detail-header">
+			<h1>{entry.data.title}</h1>
+			<p class="meta-line">
+				<span>{formatDate(entry.data.date)}</span>
+				{entry.data.credit ? <span>{entry.data.credit}</span> : null}
+			</p>
+		</header>
+		<figure class="gallery-figure">
+			<img src={entry.data.image} alt={entry.data.title} width="960" height="640" />
+		</figure>
+		<div class="prose-slot">
+			<Content />
+		</div>
+	</article>
+</BaseLayout>
+
+<style>
+	.gallery-figure {
+		margin: 0 0 1.5rem;
+		border-radius: var(--radius);
+		overflow: hidden;
+		border: 1px solid var(--border);
+		background: var(--bg);
+	}
+	.gallery-figure img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>

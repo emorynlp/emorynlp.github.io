@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { rosterForNewsTags } from '../../lib/newsParticipants';
+import { getCollection } from 'astro:content';
+
+const all = await getCollection('people');
+const current = all
+	.filter((p) => p.data.current)
+	.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const past = all
+	.filter((p) => !p.data.current)
+	.sort((a, b) => a.data.name.localeCompare(b.data.name));
+
+const newsTagRoster = rosterForNewsTags(all);
+---
+
+<BaseLayout title="People" description="Faculty, students, and collaborators at Emory NLP.">
+	<div class="container-narrow" style="padding-block: 2rem 3rem;">
+		<h1 class="page-title">People</h1>
+		<p class="page-intro">
+			Add or edit Markdown files under <code class="muted">src/content/people/</code>. Use{' '}
+			<code class="muted">current: false</code> for alumni / past affiliates.
+		</p>
+
+		{
+			newsTagRoster.length > 0 ? (
+				<details class="participant-roster-hint muted">
+					<summary>Student / postdoc slugs for tagging news events</summary>
+					<p>
+						Use these file-name stems under <code>news</code> frontmatter as <code>participants:</code> (list of
+						slugs). Set <code>labRole</code> to <code>student</code> or <code>postdoc</code> on each profile.
+					</p>
+					<pre class="participant-roster-pre">{`${newsTagRoster.map((p) => `  - ${p.id}`).join('\n')}\n`}</pre>
+				</details>
+			) : (
+				<p class="participant-roster-hint muted roster-empty-hint">
+					To tag attendees on lab news posts, add people profiles with <kbd class="kbd-soft">labRole: student</kbd>{' '}
+					or <kbd class="kbd-soft">labRole: postdoc</kbd> and they will appear in the roster snippet here.
+				</p>
+			)
+		}
+
+		{
+			current.length === 0 && past.length === 0 ? (
+				<div class="empty-state surface">No people entries yet.</div>
+			) : (
+				<>
+					{current.length > 0 ? (
+						<section aria-labelledby="current-heading">
+							<h2 id="current-heading" class="page-title" style="font-size: 1.25rem;">
+								Current
+							</h2>
+							<div class="grid-cards">
+								{current.map((p) => (
+									<ContentCard
+										href={`/people/${p.id}/`}
+										title={p.data.name}
+										subtitle={p.data.role}
+										meta={p.data.cohort || undefined}
+									/>
+								))}
+							</div>
+						</section>
+					) : null}
+
+					{past.length > 0 ? (
+						<section aria-labelledby="past-heading" style="margin-top: 2.5rem;">
+							<h2 id="past-heading" class="page-title" style="font-size: 1.25rem;">
+								Past
+							</h2>
+							<div class="grid-cards">
+								{past.map((p) => (
+									<ContentCard
+										href={`/people/${p.id}/`}
+										title={p.data.name}
+										subtitle={p.data.role}
+										meta={[p.data.cohort].filter(Boolean).join(' · ') || undefined}
+										tags={['Past']}
+									/>
+								))}
+							</div>
+						</section>
+					) : null}
+				</>
+			)
+		}
+	</div>
+</BaseLayout>
+
+<style>
+	.participant-roster-hint {
+		margin-bottom: 1.75rem;
+		padding: 0.85rem 1rem 1rem;
+		background: rgb(249 250 251);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		font-size: 0.9rem;
+		line-height: 1.55;
+		max-width: 62rem;
+	}
+
+	.participant-roster-hint summary {
+		cursor: pointer;
+		font-weight: 650;
+		color: var(--ink);
+	}
+
+	.roster-empty-hint {
+		border: none;
+		background: transparent;
+		padding: 0;
+		line-height: 1.62;
+	}
+
+	.participant-roster-pre {
+		margin: 0.65rem 0 0;
+		padding: 0.85rem 1rem;
+		background: rgb(255 255 255);
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		font-size: 0.8rem;
+		line-height: 1.55;
+		overflow-x: auto;
+	}
+
+	.kbd-soft {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 0.86em;
+		padding: 0.12rem 0.35rem;
+		border-radius: 5px;
+		background: rgb(229 231 235 / 0.85);
+		color: rgb(51 65 85);
+	}
+</style>
