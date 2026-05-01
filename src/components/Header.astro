@@ -1,31 +1,32 @@
 ---
+import { siteHref } from '../lib/siteHref';
+
 function navActive(linkHref: string, pathname: string): boolean {
-	if (linkHref === '/') {
-		return pathname === '/' || pathname === '';
-	}
-	const pn = pathname.replace(/\/+$/, '');
-	const href = linkHref.replace(/\/+$/, '');
+	const pn = pathname.replace(/\/+$/, '') || '/';
+	const href = linkHref.replace(/\/+$/, '') || '/';
 	return pn === href || pn.startsWith(`${href}/`);
 }
 
-const links = [
-	{ href: '/', label: 'Home' },
-	{ href: '/people/', label: 'People' },
-	{ href: '/publications/', label: 'Publications' },
-	{ href: '/theses/', label: 'Theses' },
-	{ href: '/projects/', label: 'Projects' },
-	{ href: '/seminars/', label: 'Seminars' },
-	{ href: '/news/', label: 'News' },
-	{ href: '/gallery/', label: 'Gallery' },
+const linkDefs = [
+	{ path: '/', label: 'Home' },
+	{ path: '/people/', label: 'People' },
+	{ path: '/publications/', label: 'Publications' },
+	{ path: '/theses/', label: 'Theses' },
+	{ path: '/projects/', label: 'Projects' },
+	{ path: '/seminars/', label: 'Seminars' },
+	{ path: '/news/', label: 'News' },
+	{ path: '/gallery/', label: 'Gallery' },
 ];
+
+const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 ---
 
 <header class="site-header">
 	<div class="site-header-inner container-narrow">
-		<a class="brand" href="/">
+		<a class="brand" href={siteHref('/')}>
 			<img
 				class="brand-logo"
-				src="/emorynlp-logo.png"
+				src={siteHref('/emorynlp-logo.png')}
 				alt=""
 				width="44"
 				height="44"

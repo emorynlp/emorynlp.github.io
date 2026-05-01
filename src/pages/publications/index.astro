@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
 import { getCollection } from 'astro:content';
+import { siteHref } from '../../lib/siteHref';
 
 const papers = await getCollection('publications');
 papers.sort((a, b) => {
@@ -24,7 +25,7 @@ papers.sort((a, b) => {
 				<div class="grid-cards">
 					{papers.map((p) => (
 						<ContentCard
-							href={`/publications/${p.id}/`}
+							href={siteHref(`/publications/${p.id}/`)}
 							title={p.data.title}
 							subtitle={`${p.data.authors.join(', ')} — ${p.data.venue}`}
 							meta={String(p.data.year)}

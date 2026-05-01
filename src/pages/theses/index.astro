@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../lib/dates';
+import { siteHref } from '../../lib/siteHref';
 
 const items = await getCollection('theses');
 items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -22,7 +23,7 @@ items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 				<div class="grid-cards">
 					{items.map((t) => (
 						<ContentCard
-							href={`/theses/${t.id}/`}
+							href={siteHref(`/theses/${t.id}/`)}
 							title={t.data.title}
 							subtitle={`${t.data.author} — ${t.data.degree}`}
 							meta={formatDate(t.data.date)}

@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { formatNewsDate } from '../../lib/dates';
 import { teaserFromNewsBody } from '../../lib/newsTeaser';
+import { siteHref } from '../../lib/siteHref';
 
 const items = await getCollection('news');
 items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -26,12 +27,12 @@ items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 				<ul class="news-cards" role="list">
 					{items.map((n) => (
 						<li class="news-cards-item">
-							<a class="news-card" href={`/news/${n.id}/`}>
+							<a class="news-card" href={siteHref(`/news/${n.id}/`)}>
 								{
 									n.data.coverImage ? (
 										<div class="news-card-media">
 											<img
-												src={n.data.coverImage}
+												src={siteHref(n.data.coverImage)}
 												alt=""
 												width={640}
 												height={360}

@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
+import { siteHref } from './siteHref';
 
 const ROSTER_LAB_ROLES = new Set(['student', 'postdoc']);
 
@@ -50,7 +51,7 @@ export function resolveNewsParticipants(
 	for (const slug of participantSlugs ?? []) {
 		const entry = map[slug];
 		if (entry) {
-			refs.push({ slug, name: entry.data.name, href: `/people/${slug}/` });
+			refs.push({ slug, name: entry.data.name, href: siteHref(`/people/${slug}/`) });
 		} else {
 			stubs.push(slug);
 			refs.push({

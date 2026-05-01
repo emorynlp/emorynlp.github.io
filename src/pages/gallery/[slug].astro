@@ -2,6 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/dates';
+import { publicAssetUrl } from '../../lib/siteHref';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -30,7 +31,7 @@ const { Content } = await render(entry);
 			</p>
 		</header>
 		<figure class="gallery-figure">
-			<img src={entry.data.image} alt={entry.data.title} width="960" height="640" />
+			<img src={publicAssetUrl(entry.data.image)} alt={entry.data.title} width="960" height="640" />
 		</figure>
 		<div class="prose-slot">
 			<Content />

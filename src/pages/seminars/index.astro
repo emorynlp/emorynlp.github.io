@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../lib/dates';
+import { siteHref } from '../../lib/siteHref';
 
 const seminars = await getCollection('seminars');
 seminars.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -40,7 +41,7 @@ const terms = [...groups.keys()].sort(
 						<div class="grid-cards">
 							{(groups.get(term) ?? []).map((s) => (
 								<ContentCard
-									href={`/seminars/${s.id}/`}
+									href={siteHref(`/seminars/${s.id}/`)}
 									title={s.data.title}
 									subtitle={[...(s.data.speakers ?? [])].join(', ') || undefined}
 									meta={formatDate(s.data.date)}

@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
 import { rosterForNewsTags } from '../../lib/newsParticipants';
+import { siteHref } from '../../lib/siteHref';
 import { getCollection } from 'astro:content';
 
 const all = await getCollection('people');
@@ -54,7 +55,7 @@ const newsTagRoster = rosterForNewsTags(all);
 							<div class="grid-cards">
 								{current.map((p) => (
 									<ContentCard
-										href={`/people/${p.id}/`}
+										href={siteHref(`/people/${p.id}/`)}
 										title={p.data.name}
 										subtitle={p.data.role}
 										meta={p.data.cohort || undefined}
@@ -72,7 +73,7 @@ const newsTagRoster = rosterForNewsTags(all);
 							<div class="grid-cards">
 								{past.map((p) => (
 									<ContentCard
-										href={`/people/${p.id}/`}
+										href={siteHref(`/people/${p.id}/`)}
 										title={p.data.name}
 										subtitle={p.data.role}
 										meta={[p.data.cohort].filter(Boolean).join(' · ') || undefined}

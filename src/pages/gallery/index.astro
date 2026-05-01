@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/dates';
 import { getCollection } from 'astro:content';
+import { publicAssetUrl, siteHref } from '../../lib/siteHref';
 
 const items = await getCollection('gallery');
 items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -21,8 +22,14 @@ items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 				<ul class="gallery-grid" role="list">
 					{items.map((g) => (
 						<li class="gallery-tile surface">
-							<a href={`/gallery/${g.id}/`} class="gallery-link">
-								<img src={g.data.image} alt={g.data.title} loading="lazy" width="400" height="260" />
+							<a href={siteHref(`/gallery/${g.id}/`)} class="gallery-link">
+								<img
+									src={publicAssetUrl(g.data.image)}
+									alt={g.data.title}
+									loading="lazy"
+									width="400"
+									height="260"
+								/>
 								<span class="gallery-caption">
 									<strong>{g.data.title}</strong>
 									<span class="muted">{formatDate(g.data.date)}</span>

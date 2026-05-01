@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { formatNewsDate } from '../lib/dates';
 import { teaserFromNewsBody } from '../lib/newsTeaser';
+import { siteHref } from '../lib/siteHref';
 
 const newsEntries = await getCollection('news');
 const byDesc = (
@@ -34,7 +35,7 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 			</h2>
 			<p class="page-intro news-banner-intro">
 				Snapshots of lab highlights. Older items live on the{' '}
-				<a href="/news/">news</a> page.
+				<a href={siteHref('/news/')}>news</a> page.
 			</p>
 			{
 				bannerNews.length === 0 ? (
@@ -44,13 +45,13 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 						<div class="banner-row-inner" tabindex="0">
 							{bannerNews.map((entry) => (
 								<a class="banner-card"
-									href={`/news/${entry.id}/`}
+									href={siteHref(`/news/${entry.id}/`)}
 								>
 									{
 										entry.data.coverImage ? (
 											<div class="banner-card-media">
 												<img
-													src={entry.data.coverImage}
+													src={siteHref(entry.data.coverImage)}
 													alt=""
 													width="640"
 													height="400"
@@ -92,22 +93,22 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 		<h2 id="explore-heading" class="page-title">Explore</h2>
 		<ul class="grid-cards" role="list" style="list-style: none; margin: 0; padding: 0;">
 			<li>
-				<a class="surface card-link" href="/people/">People</a>
+				<a class="surface card-link" href={siteHref('/people/')}>People</a>
 			</li>
 			<li>
-				<a class="surface card-link" href="/publications/">Publications</a>
+				<a class="surface card-link" href={siteHref('/publications/')}>Publications</a>
 			</li>
 			<li>
-				<a class="surface card-link" href="/theses/">Theses</a>
+				<a class="surface card-link" href={siteHref('/theses/')}>Theses</a>
 			</li>
 			<li>
-				<a class="surface card-link" href="/projects/">Projects</a>
+				<a class="surface card-link" href={siteHref('/projects/')}>Projects</a>
 			</li>
 			<li>
-				<a class="surface card-link" href="/seminars/">Seminars</a>
+				<a class="surface card-link" href={siteHref('/seminars/')}>Seminars</a>
 			</li>
 			<li>
-				<a class="surface card-link" href="/gallery/">Gallery</a>
+				<a class="surface card-link" href={siteHref('/gallery/')}>Gallery</a>
 			</li>
 		</ul>
 	</section>
