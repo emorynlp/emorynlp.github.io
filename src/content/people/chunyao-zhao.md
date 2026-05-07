@@ -2,7 +2,6 @@
 name: Chunyao Zhao
 role: MS in Computer Science
 peopleTier: ms
-labRole: student
 current: false
 startTerm: Spring 2025
 endTerm: Spring 2026
@@ -15,7 +14,6 @@ achievements:
 education:
   - degree: MS in Computer Science
     institution: Emory University
-    endTerm: Spring 2026
     endYear: 2026
   - degree: BS in Computer Science
     institution: McGill University

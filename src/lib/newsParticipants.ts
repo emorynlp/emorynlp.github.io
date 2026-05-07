@@ -2,8 +2,6 @@ import type { CollectionEntry } from 'astro:content';
 import { comparePeopleDirectory } from './peopleDirectory';
 import { siteHref } from './siteHref';
 
-const ROSTER_LAB_ROLES = new Set(['student', 'postdoc']);
-
 export type ParticipantRef = {
 	slug: string;
 	name: string;
@@ -24,19 +22,13 @@ export function participantNameFromSlug(slug: string): string {
 
 export function rosterForNewsTags(
 	people: CollectionEntry<'people'>[],
-): { id: string; name: string; role: string; labRole: string | undefined }[] {
+): { id: string; name: string; role: string }[] {
 	return people
-		.filter(
-			(p) =>
-				p.data.current &&
-				p.data.labRole !== undefined &&
-				ROSTER_LAB_ROLES.has(p.data.labRole),
-		)
+		.filter((p) => p.data.current)
 		.map((p) => ({
 			id: p.id,
 			name: p.data.name,
 			role: p.data.role,
-			labRole: p.data.labRole,
 			startTerm: p.data.startTerm,
 		}))
 		.sort((a, b) =>

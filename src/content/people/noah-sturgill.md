@@ -2,13 +2,13 @@
 name: Noah Sturgill
 role: PhD in Computer Science and Informatics
 peopleTier: phd
-labRole: student
 current: true
 startTerm: Fall 2025
 github: 'https://github.com/nsturgill78'
 linkedin: 'https://www.linkedin.com/in/noah-sturgill-69642b265/'
 achievements:
-  - title: George W. Woodruff Fellowship (08/2025)
+  - title: George W. Woodruff Fellowship
+    when: 08/2025
 education:
   - degree: PhD in Computer Science and Informatics
     institution: Emory University

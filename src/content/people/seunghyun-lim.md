@@ -2,7 +2,6 @@
 name: Seunghyun Lim
 role: BS in Computer Science
 peopleTier: undergrad
-labRole: student
 current: false
 startTerm: Summer 2019
 endTerm: Spring 2020
@@ -14,9 +13,6 @@ aliases:
 education:
   - degree: BS in Computer Science
     institution: Emory University
-    endTerm: Spring 2020
     endYear: 2020
-afterEmory:
-  - "Software Engineer at Naver"
 ---
-**Seunghyun (Shaun) Lim** earned a BS in Computer Science from Emory University (Spring 2020). **After Emory:** Software Engineer at Naver.
+**Seunghyun (Shaun) Lim** earned a BS in Computer Science from Emory University (Spring 2020). After Emory, Seunghyun moved to [Naver](https://www.naver.com) as a software engineer.

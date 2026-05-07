@@ -3,7 +3,6 @@ name: Jinho Choi
 role: Associate Professor of Computer Science, Data & Decision Sciences, and Linguistics
 directoryMeta: Director / Founder
 peopleTier: faculty
-labRole: pi
 current: true
 linkedin: 'https://www.linkedin.com/in/jinho-choi/'
 github: 'https://github.com/emorynlp'

@@ -2,7 +2,6 @@
 name: Benjamin Ascoli
 role: PhD in Computer Science and Informatics
 peopleTier: phd
-labRole: student
 current: true
 startTerm: Fall 2022
 github: 'https://github.com/bossben'

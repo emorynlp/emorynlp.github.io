@@ -10,9 +10,10 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "people:bios": "PEOPLE_BIO_YEAR=2026 node scripts/compose-people-bios.mjs",
     "people:education-end-terms": "node scripts/backfill-education-end-terms.mjs",
     "people:after-emory": "node scripts/merge-people-after-emory.mjs",
+    "people:resize-photo": "node scripts/resize-people-photo.mjs",
+    "media:resize-photo": "node scripts/resize-media-photo.mjs",
     "astro": "astro"
   },
   "dependencies": {

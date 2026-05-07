@@ -2,7 +2,6 @@
 name: Seongmin Oh
 role: MS in Computer Science
 peopleTier: ms
-labRole: student
 current: true
 startTerm: Fall 2025
 education:

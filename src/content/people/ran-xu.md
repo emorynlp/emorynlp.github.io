@@ -2,7 +2,6 @@
 name: Ran Xu
 role: BS in Computer Science and Applied Mathematics
 peopleTier: undergrad
-labRole: student
 current: false
 startTerm: Spring 2020
 endTerm: Spring 2021
@@ -11,14 +10,15 @@ github: 'https://github.com/ritaranx'
 aliases:
   - Rita Xu
 achievements:
-  - title: "Chair's Award (2021), Emory Computer Science (04/2021)"
-  - title: "Chair's Award (2020), Emory Computer Science (04/2020)"
+  - title: "Chair's Award"
+    when: 04/2021
+    issuer: Emory Computer Science
+  - title: "Chair's Award"
+    when: 04/2020
+    issuer: Emory Computer Science
 education:
   - degree: BS in Computer Science and Applied Mathematics
     institution: Emory University
-    endTerm: Spring 2021
     endYear: 2021
-afterEmory:
-  - "PhD in Computer Science at Emory University"
 ---
-**Ran (Rita) Xu** earned a BS in Computer Science and Applied Mathematics from Emory University (Spring 2021). **After Emory:** PhD in Computer Science at Emory University.
+**Ran (Rita) Xu** earned a BS in Computer Science and Applied Mathematics from Emory University (Spring 2021). After Emory, Ran moved to [Emory University](https://www.emory.edu) to pursue a PhD in Computer Science.

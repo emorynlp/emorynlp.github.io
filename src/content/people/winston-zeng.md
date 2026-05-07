@@ -2,7 +2,6 @@
 name: Winston Zeng
 role: PhD in Computer Science and Informatics
 peopleTier: phd
-labRole: student
 current: true
 startTerm: Fall 2025
 github: 'https://github.com/wczeng01'

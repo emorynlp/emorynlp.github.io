@@ -2,7 +2,6 @@
 name: Taeun Kim
 role: BS in Computer Science
 peopleTier: undergrad
-labRole: student
 current: true
 startTerm: Fall 2025
 linkedin: 'https://www.linkedin.com/in/taeeunnkim/'

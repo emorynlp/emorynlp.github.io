@@ -155,20 +155,6 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 					<Content />
 				</div>
 
-				{
-					d.afterEmory && d.afterEmory.length > 0 ? (
-						<section class="people-profile-after-emory" aria-labelledby={`after-${entry.id}`}>
-							<h2 id={`after-${entry.id}`} class="people-profile-section-title">
-								After Emory
-							</h2>
-							<ul class="people-profile-after-emory-list">
-								{d.afterEmory.map((line) => (
-									<li class="people-profile-after-emory-item">{line.trim()}</li>
-								))}
-							</ul>
-						</section>
-					) : null
-				}
 
 				{
 					educationSorted.length > 0 ? (

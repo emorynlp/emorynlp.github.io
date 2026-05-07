@@ -16,8 +16,6 @@ const people = defineCollection({
 		peopleTier: z
 			.enum(['faculty', 'postdoc', 'phd', 'ms', 'undergrad', 'research_assistant', 'visitor'])
 			.default('visitor'),
-		/** Helps group the directory and drives the People-page “participant slugs” helper for lab events */
-		labRole: z.enum(['pi', 'student', 'postdoc', 'staff', 'visitor', 'other']).optional(),
 		current: z.boolean().default(true),
 		/** Cohort / program label shown when term range isn’t used */
 		cohort: z.string().optional(),
@@ -73,16 +71,6 @@ const people = defineCollection({
 				}),
 			)
 			.optional(),
-		/**
-		 * Where they headed after Emory (role, school, employer), from department advising records — shown on `/people/[slug]` only.
-		 * Order matches CV progression when multiple bullets are listed. Omit when no next destination is recorded yet.
-		 */
-		afterEmory: z.array(z.string()).optional(),
-		/**
-		 * When false, `npm run people:bios` does not overwrite the Markdown body — use for hand-written bios.
-		 * Omitted behaves like true (auto-composed from education / role / afterEmory).
-		 */
-		composeBio: z.boolean().optional(),
 	}),
 });
 

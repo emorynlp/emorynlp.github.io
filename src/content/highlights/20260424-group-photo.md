@@ -1,7 +1,7 @@
 ---
 title: Annual Group Photo
 date: '2026-04-24-15:30'
-coverImage: /highlights/20260424-group-photo.jpg
+coverImage: /highlights/20260424-group-photo.webp
 labels:
   - photo
 participants:
@@ -26,4 +26,4 @@ participants:
 
 We took an annual group photo at the Emory gate.
 
-![Emory NLP annual group photo, April 24, 2026](/highlights/20260424-group-photo.jpg)
+![Emory NLP annual group photo, April 24, 2026](/highlights/20260424-group-photo.webp)

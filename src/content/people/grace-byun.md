@@ -2,7 +2,6 @@
 name: Grace Byun
 role: PhD in Computer Science and Informatics
 peopleTier: phd
-labRole: student
 current: true
 startTerm: Fall 2024
 github: 'https://github.com/byunsj'
