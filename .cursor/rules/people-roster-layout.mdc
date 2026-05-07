@@ -1,0 +1,47 @@
+---
+description: People / Alumni roster layout and ContentCard — do not regress
+globs:
+  - src/pages/people/**/*.astro
+  - src/components/ContentCard.astro
+  - src/styles/global.css
+alwaysApply: false
+---
+
+# People roster (do not revert)
+
+When editing **`src/pages/people/`**, **`ContentCard`**, or **`.people-grid`** in global CSS:
+
+## Page chrome
+
+- People and Alumni listing pages use **`people-page container-narrow`** — same **`--narrow`** max width and **`padding-inline`** as News (**`news-page container-narrow`**). **`news-page`** and **`people-page`** share **`padding-block: 2rem 4rem`** in **`global.css`** so **`h1`** starts on the same vertical offset as News. The main **`h1`** / intro use **`index-page-title`** and **`index-page-intro`**.
+
+## Routes
+
+- **`/people/`** — `current: true` only + link/count to alumni + Openings section.
+- **`/people/former-members/`** — `current: false` only + back link to People.
+- Shared tier bucketing:**`src/lib/peopleDirectoryPage.ts`**. Listing meta line:**`formatPeopleListingMeta`** in **`src/lib/peopleDirectory.ts`** (not raw `formatPeopleTermRange` alone unless intentionally matching profile precedence). Within each tier, rosters sort with **`comparePeopleDirectoryByEndThenName`**: **`endTerm` descending** (**year desc**, then **Fall→Summer→Spring** within a year); **`current`** members without parsable **`endTerm`** (**open-ended**) before dated ends; **`current: false`** without parsable **`endTerm`** last; then **`directoryFamilySortKey`** (**last name**/slug stem) ascending, full **`name`**. (**`newsParticipants`** still uses **`comparePeopleDirectory`** by **`startTerm`**.)
+
+## Tier section headings (`h2.people-tier-heading`)
+
+- **Same size for every tier** (Faculty, PhD, MS, Undergrad, etc.) on both People and Alumni: **`font-size: 1.3rem`**. Do not use a larger PhD-only class or smaller alumni-only class.
+
+## Grid
+
+- Rosters MUST use **`class="grid-cards people-grid"`** on the tier grid wrapper.
+- **Do not** use plain **`grid-cards` alone** for people lists — **`auto-fit` collapses empty tracks** and stretches portrait cards across the row (wrong).
+- **`people-grid`** rules live in **`src/styles/global.css`** (four columns Desktop, breakpoints 3→2→1).
+
+## ContentCard props (every roster card)
+
+Always pass all of:
+
+- **`peopleDirectoryLayout`** — centered block: **name → duration/meta → role** (subtitle).
+- **`peopleNeutralLink`** — slate hover/focus links (avoid global amber `a:hover`); required even when **`thumbnailSrc`** is set (**`.people-card`** alone used to miss neutral rules).
+- **`thumbnailSrc`** = **`resolvePeoplePhotoPublicHref(person.id, person.data.photo)`** (or omit when absent).
+- **`href`** = **`siteHref(\`/people/${person.id}/\`)`**.
+
+Do **not** switch roster cards back to default ContentCard stacking (subtitle before meta).
+
+## Portrait card styling
+
+- **`ContentCard`** people portrait styles use **`.people-card`** + **`people-directory-card`** + neutral rules on **`:is(.people-card, .people-directory-card, .people-card-neutral)`** — preserve when touching hover/focus/link color.

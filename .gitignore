@@ -21,7 +21,7 @@ pnpm-debug.log*
 .DS_Store
 
 # Cursor editor config (rules, skills)
-.cursor/
+# .cursor/ is intentionally tracked — skills and rules are project-specific
 
 # Python cache
 __pycache__/
