@@ -10,12 +10,10 @@ function navActive(linkHref: string, pathname: string): boolean {
 const linkDefs = [
 	{ path: '/', label: 'Home' },
 	{ path: '/people/', label: 'People' },
-	{ path: '/publications/', label: 'Publications' },
-	{ path: '/theses/', label: 'Theses' },
 	{ path: '/projects/', label: 'Projects' },
 	{ path: '/seminars/', label: 'Seminars' },
-	{ path: '/news/', label: 'News' },
-	{ path: '/gallery/', label: 'Gallery' },
+	{ path: '/publications/', label: 'Publications' },
+	{ path: '/highlights/', label: 'Highlights' },
 ];
 
 const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
@@ -36,7 +34,7 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 			/>
 			<span class="brand-text">
 				<span class="brand-title">Emory NLP</span>
-				<span class="brand-tag">Natural Language Processing</span>
+				<span class="brand-tag">Atlanta GA, USA</span>
 			</span>
 		</a>
 		<nav aria-label="Primary">
@@ -44,7 +42,15 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 				{
 					links.map((l) => (
 						<li>
-							<a href={l.href} class:list={[{ active: navActive(l.href, Astro.url.pathname) }]}>
+							<a
+								class:list={[
+									'site-nav-link',
+									{
+										'site-nav-link--current': navActive(l.href, Astro.url.pathname),
+									},
+								]}
+								href={l.href}
+							>
 								{l.label}
 							</a>
 						</li>
@@ -81,12 +87,6 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 		text-decoration: none;
 		color: var(--on-banner);
 	}
-	.brand:hover .brand-title {
-		color: #f9dab9;
-	}
-	.brand:hover .brand-logo {
-		opacity: 0.92;
-	}
 	.brand-logo {
 		height: 2.75rem;
 		width: auto;
@@ -104,11 +104,12 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 		font-weight: 800;
 		font-size: 1.14rem;
 		letter-spacing: -0.02em;
+		color: var(--brand-warm);
 	}
 	.brand-tag {
 		font-size: 0.75rem;
-		color: var(--on-banner-muted);
 		font-weight: 500;
+		color: var(--brand-warm-dark);
 	}
 	.nav-list {
 		display: flex;
@@ -119,21 +120,47 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 		padding: 0;
 		align-items: center;
 	}
-	.nav-list a {
+	.site-header .site-nav-link:link,
+	.site-header .site-nav-link:visited,
+	.site-header .site-nav-link:any-link {
 		font-size: 0.885rem;
 		font-weight: 600;
 		color: var(--banner-meta);
-		text-decoration: none;
+		text-decoration: none !important;
+		text-decoration-line: none !important;
+		text-underline-offset: 0 !important;
 		padding: 0.35rem 0;
-		border-bottom: 2px solid transparent;
-		transition: color 0.15s ease, border-color 0.15s ease;
+		border: 0 !important;
+		box-shadow: none !important;
+		-webkit-tap-highlight-color: transparent;
+		transition: color 0.15s ease;
 	}
-	.nav-list a:hover {
-		color: var(--on-banner);
-		border-bottom-color: rgb(147 197 253 / 0.85);
+
+	.site-header .site-nav-link:hover {
+		color: var(--brand-warm);
+		text-decoration: none !important;
 	}
-	.nav-list a.active {
-		color: var(--on-banner);
-		border-bottom-color: var(--highlight);
+
+	.site-header .site-nav-link:active {
+		color: var(--brand-warm);
+		text-decoration: none !important;
+		border: 0 !important;
+	}
+
+	.site-header .site-nav-link--current:link,
+	.site-header .site-nav-link--current:visited,
+	.site-header .site-nav-link--current:any-link {
+		color: var(--brand-warm);
+		text-decoration: none !important;
+	}
+
+	.site-header .site-nav-link:focus:not(:focus-visible) {
+		outline: none;
+	}
+
+	.site-header .site-nav-link:focus-visible {
+		outline: 2px solid var(--brand-warm-dark);
+		outline-offset: 4px;
+		border-radius: 4px;
 	}
 </style>

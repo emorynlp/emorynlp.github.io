@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
+import { comparePeopleDirectory } from './peopleDirectory';
 import { siteHref } from './siteHref';
 
 const ROSTER_LAB_ROLES = new Set(['student', 'postdoc']);
@@ -36,8 +37,14 @@ export function rosterForNewsTags(
 			name: p.data.name,
 			role: p.data.role,
 			labRole: p.data.labRole,
+			startTerm: p.data.startTerm,
 		}))
-		.sort((a, b) => a.name.localeCompare(b.name, 'en'));
+		.sort((a, b) =>
+			comparePeopleDirectory(
+				{ name: a.name, startTerm: a.startTerm, sortId: a.id },
+				{ name: b.name, startTerm: b.startTerm, sortId: b.id },
+			),
+		);
 }
 
 export function resolveNewsParticipants(

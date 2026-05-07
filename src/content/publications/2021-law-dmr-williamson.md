@@ -1,0 +1,29 @@
+---
+title: 'Intensionalizing Abstract Meaning Representations: Non-veridicality and Scope'
+authors:
+  - Gregor Williamson
+  - Patrick Elliott
+  - Yuxin Ji
+  - Jinho D. Choi
+venue: EMNLP Workshop on Linguistic Annotation (LAW) and Designing Meaning Representations (DMR)
+year: 2021
+published: '2021-11-11'
+publicationType: workshop
+venueUrl: 'https://sigann.github.io/LAW-DMR-2021/'
+paperUrl: 'https://aclanthology.org/2021.law-1.17/'
+resourceUrl: 'https://github.com/emorynlp/Intensionalizing-AMR'
+abstract: >-
+  Abstract Meaning Representation (AMR) is a graphical meaning representation language
+  designed to represent propositional information about argument structure. However, at
+  present it is unable to satisfyingly represent non-veridical intensional contexts, often
+  licensing inappropriate inferences. In this paper, we show how to resolve the problem of
+  non-veridicality without appealing to layered graphs through a mapping from AMRs into
+  Simply-Typed Lambda Calculus (STLC). At least for some cases, this requires the introduction
+  of a new role :content which functions as an intensional operator. The translation proposed
+  is inspired by the formal linguistics literature on the event semantics of attitude reports.
+  Next, we address the interaction of quantifier scope and intensional operators in so-called
+  de re/de dicto ambiguities. We adopt a scope node from the literature and provide an
+  explicit multidimensional semantics utilizing Cooper storage which allows us to derive the
+  de re and de dicto scope readings as well as intermediate scope readings which prove
+  difficult for accounts without a scope node.
+---

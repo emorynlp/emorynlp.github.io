@@ -5,15 +5,55 @@ interface Props {
 	subtitle?: string;
 	meta?: string;
 	tags?: string[];
+	/** Path under site root e.g. `/people/foo.jpg`; square crop in card */
+	thumbnailSrc?: string;
+	/** People roster: centered name, duration (meta) next, then subtitle (role) */
+	peopleDirectoryLayout?: boolean;
+	/**
+	 * People roster without a thumbnail: keeps slate link colors so hover isn’t amber
+	 * (matches portrait cards visually when combined with thumbnail).
+	 */
+	peopleNeutralLink?: boolean;
 }
 
-const { href, title, subtitle, meta, tags } = Astro.props;
+const { href, title, subtitle, meta, tags, thumbnailSrc, peopleDirectoryLayout, peopleNeutralLink } = Astro.props;
 ---
 
-<a class="content-card surface card-link" href={href}>
-	<h2 class="card-title">{title}</h2>
-	{subtitle && <p class="card-sub muted">{subtitle}</p>}
-	{meta && <p class="card-meta muted">{meta}</p>}
+<a
+	class:list={[
+		'content-card',
+		'surface',
+		'card-link',
+		thumbnailSrc ? 'people-card' : undefined,
+		peopleDirectoryLayout ? 'people-directory-card' : undefined,
+		peopleNeutralLink ? 'people-card-neutral' : undefined,
+	]}
+	href={href}
+>
+	{
+		thumbnailSrc ? (
+			<div class="people-card-media" aria-hidden="true">
+				<div class="people-card-thumb-frame">
+					<img src={thumbnailSrc} alt="" width="320" height="320" loading="lazy" decoding="async" />
+				</div>
+			</div>
+		) : null
+	}
+	<div class="people-card-body">
+		<h2 class="card-title">{title}</h2>
+		{
+			peopleDirectoryLayout ? (
+				<>
+					{meta && <p class="card-meta muted people-card-duration">{meta}</p>}
+					{subtitle && <p class="card-sub muted">{subtitle}</p>}
+				</>
+			) : (
+				<>
+					{subtitle && <p class="card-sub muted">{subtitle}</p>}
+					{meta && <p class="card-meta muted">{meta}</p>}
+				</>
+			)
+		}
 	{
 		tags && tags.length > 0 && (
 			<p class="card-tags">
@@ -23,9 +63,204 @@ const { href, title, subtitle, meta, tags } = Astro.props;
 			</p>
 		)
 	}
+	</div>
 </a>
 
 <style>
+	.content-card.people-card {
+		padding: 0;
+		overflow: visible;
+		display: flex;
+		flex-direction: column;
+		border-radius: calc(var(--radius) + 2px);
+		/* Soft paper tone — quieter than stark white `#fff` */
+		background: linear-gradient(168deg, #f6f8fb 0%, #eef3f9 52%, #e9eff6 100%);
+		border-color: rgb(219 226 237 / 0.95);
+		box-shadow:
+			0 1px 3px rgb(15 23 42 / 0.035),
+			0 12px 28px rgb(15 23 42 / 0.038);
+		transition:
+			transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+			box-shadow 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+			border-color 0.2s ease,
+			background 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	/* Thin inset so the portrait reads larger inside the card */
+	.people-card-media {
+		padding: 0.42rem 0.42rem 0;
+	}
+
+	.people-card-thumb-frame {
+		position: relative;
+		aspect-ratio: 1;
+		overflow: hidden;
+		border-radius: calc(var(--radius) + 3px);
+		background: linear-gradient(152deg, rgb(248 250 252) 0%, rgb(226 232 240 / 0.85) 48%, rgb(241 245 249) 100%);
+		transition: background 0.26s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+		box-shadow:
+			inset 0 1px 0 rgb(255 255 255 / 0.75),
+			0 1px 1px rgb(15 23 42 / 0.04),
+			0 8px 24px rgb(15 23 42 / 0.07),
+			0 0 0 1px rgb(15 23 42 / 0.045);
+	}
+
+	.people-card-thumb-frame::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+		pointer-events: none;
+	}
+
+	/* Subtle vignette toward bottom for depth */
+	.people-card-thumb-frame::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background: linear-gradient(to bottom, transparent 55%, rgb(15 23 42 / 0.05) 100%);
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	.people-card-thumb-frame img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+		transform-origin: center center;
+		transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.content-card.people-card,
+		.content-card.people-card:hover,
+		.content-card.people-card:active {
+			transform: none;
+			transition: none;
+		}
+
+		.people-card-thumb-frame img {
+			transition: none;
+		}
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		/* Hover edge = cool slate/sky (matches cool card fill), not site warm accent */
+		.content-card.people-card:hover {
+			transform: translateY(-5px);
+			/* Darker than default card, softer than deepest slate — cool blue-gray wash */
+			background: linear-gradient(168deg, #e9eff7 0%, #dfebf5 52%, #d6e4ef 100%);
+			box-shadow:
+				0 1px 2px rgb(15 23 42 / 0.05),
+				0 20px 48px rgb(15 23 42 / 0.1),
+				0 10px 26px rgb(100 116 139 / 0.14),
+				0 0 0 1px rgb(148 163 184 / 0.52);
+			border-color: transparent;
+		}
+
+		.content-card.people-card:hover .people-card-thumb-frame img {
+			transform: scale(1.05);
+		}
+
+		.content-card.people-card:hover .people-card-thumb-frame {
+			background: linear-gradient(
+				152deg,
+				rgb(236 241 249) 0%,
+				rgb(218 228 243 / 0.93) 48%,
+				rgb(230 239 251) 100%
+			);
+			box-shadow:
+				inset 0 1px 0 rgb(255 255 255 / 0.82),
+				0 8px 28px rgb(15 23 42 / 0.12),
+				0 2px 8px rgb(71 85 105 / 0.09),
+				0 0 0 1px rgb(148 163 184 / 0.42);
+		}
+
+		.content-card.people-card:active {
+			transform: translateY(-2px);
+			transition-duration: 0.1s;
+		}
+	}
+
+	.people-card-body {
+		padding: 0.72rem 0.8rem 0.85rem;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.content-card.people-directory-card .card-title,
+	.content-card.people-directory-card .people-card-duration {
+		text-align: center;
+		text-wrap: balance;
+	}
+
+	.content-card.people-directory-card .card-title {
+		margin-bottom: 0.18rem;
+	}
+
+	.content-card.people-directory-card .people-card-duration {
+		margin: 0 0 0.42rem;
+		font-size: 0.82rem;
+		line-height: 1.4;
+	}
+
+	/* Role strings: avoid `text-wrap: balance` (see grouped rule above) so phrases like "Computer Science" stay intact. */
+	.content-card.people-directory-card .card-sub {
+		text-align: center;
+		margin: 0;
+		line-height: 1.45;
+	}
+
+	.content-card.people-directory-card .card-tags {
+		justify-content: center;
+	}
+
+	/* Card is an <a>; global `a:hover` uses warm `--accent` — people portrait/directory cards stay slate/neutral */
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral) {
+		color: var(--ink);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):hover,
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):active {
+		color: var(--ink);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral) .muted {
+		color: var(--muted);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):hover .muted,
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):active .muted {
+		color: var(--muted);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):hover .card-title,
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):active .card-title {
+		color: rgb(30 41 59);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral):focus-visible {
+		outline-color: rgb(71 85 105);
+	}
+
+	a.content-card:is(.people-card, .people-directory-card, .people-card-neutral) .tag {
+		background: rgb(100 116 139 / 0.16);
+		color: rgb(51 65 85);
+	}
+
+	/* Text-only roster entries still need gutter when using directory layout */
+	.content-card:not(.people-card):not(.people-directory-card) .people-card-body {
+		padding: 0;
+	}
+
+	.content-card.people-directory-card:not(.people-card) .people-card-body {
+		padding: 0.72rem 0.8rem 0.85rem;
+	}
+
 	.content-card .card-title {
 		margin: 0 0 0.35rem;
 		font-size: 1.05rem;

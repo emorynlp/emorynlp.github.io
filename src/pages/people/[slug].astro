@@ -1,7 +1,24 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import ProfileSocialIcon from '../../components/people/ProfileSocialIcon.astro';
+import type { SocialKind } from '../../components/people/profileSocialKinds';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { siteHref } from '../../lib/siteHref';
+import { resolvePeoplePhotoPublicHref } from '../../lib/peoplePhotos';
+import { formatPeopleTermRange } from '../../lib/peopleDirectory';
+import { formatPeopleProfileDisplayName } from '../../lib/peopleDisplayName';
+import {
+	thesisDegreeSupportsHonorsLevel,
+	thesisPeoplePageWorkLabel,
+	thesisPeopleSectionHeading,
+} from '../../lib/thesisAffiliation';
+import { sortEducationReverseChronological } from '../../lib/peopleEducation';
+import { isLabSiteHttpUrl, siteHref } from '../../lib/siteHref';
+import { buildPublicationAuthorSlugLookup } from '../../lib/publicationAuthorLinks';
+import { formatPublicationVenueLine } from '../../lib/publicationListing';
+import { publicationsForPersonSlug } from '../../lib/publicationsByPersonSlug';
+import { thesesForPersonSlug } from '../../lib/thesesByPersonSlug';
+import { achievementHeadlineAndNote } from '../../lib/achievementTitleNote';
+import { thesisTermNoteLabel } from '../../lib/thesisYear';
 import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -9,6 +26,15 @@ export async function getStaticPaths() {
 	return entries.map((entry) => ({
 		params: { slug: entry.id },
 	}));
+}
+
+function avatarInitials(name: string): string {
+	const parts = name.trim().split(/\s+/).filter(Boolean);
+	if (parts.length === 0) return '?';
+	if (parts.length >= 2) {
+		return `${parts[0].charAt(0)}${parts.at(-1)!.charAt(0)}`.toUpperCase();
+	}
+	return parts[0]!.slice(0, Math.min(2, parts[0].length)).toUpperCase();
 }
 
 const { slug } = Astro.params;
@@ -22,33 +48,560 @@ if (entry === undefined) {
 }
 
 const { Content } = await render(entry);
+const d = entry.data;
 
-const links: { label: string; href: string }[] = [];
-if (entry.data.website) links.push({ label: 'Website', href: entry.data.website });
-if (entry.data.github) links.push({ label: 'GitHub', href: entry.data.github });
+const profileLinks: { kind: SocialKind; label: string; href: string }[] = [];
+if (d.linkedin) profileLinks.push({ kind: 'linkedin', label: 'LinkedIn', href: d.linkedin });
+if (d.github) profileLinks.push({ kind: 'github', label: 'GitHub', href: d.github });
+if (d.googleScholar)
+	profileLinks.push({ kind: 'googleScholar', label: 'Google Scholar', href: d.googleScholar });
+if (d.semanticScholar)
+	profileLinks.push({
+		kind: 'semanticScholar',
+		label: 'Semantic Scholar',
+		href: d.semanticScholar,
+	});
+if (d.website) profileLinks.push({ kind: 'website', label: 'Website', href: d.website });
+
+const photoHref = resolvePeoplePhotoPublicHref(entry.id, d.photo);
+const termLine = d.directoryMeta?.trim() || formatPeopleTermRange(d) || null;
+const initials = avatarInitials(d.name);
+
+const backHref = siteHref(d.current ? '/people/' : '/people/former-members/');
+const backLabel = d.current ? 'People' : 'Former Members';
+
+const profileHeadingName = formatPeopleProfileDisplayName(d.name, d.aliases);
+
+const educationSorted =
+	d.education && d.education.length > 0 ? sortEducationReverseChronological([...d.education]) : [];
+
+const peopleAll = await getCollection('people');
+const authorSlugLookup = buildPublicationAuthorSlugLookup(peopleAll);
+const thesesColl = await getCollection('theses');
+const linkedTheses = thesesForPersonSlug(thesesColl, entry.id, authorSlugLookup);
+const publicationsColl = await getCollection('publications');
+const linkedPublications = publicationsForPersonSlug(publicationsColl, entry.id, authorSlugLookup);
+const thesisSectionHeading = thesisPeopleSectionHeading(linkedTheses.map((t) => t.data.degree));
+const thesisWorkLabelsUnique = [...new Set(linkedTheses.map((t) => thesisPeoplePageWorkLabel(t.data.degree)))];
+const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 ---
 
-<BaseLayout title={entry.data.name}>
-	<article class="container-narrow" style="padding-block: 2rem 4rem;">
-		<header class="detail-header">
-			<h1>{entry.data.name}</h1>
-			<p class="meta-line">
-				<span>{entry.data.role}</span>
-				{entry.data.cohort ? <span>{entry.data.cohort}</span> : null}
-				<span class="tag">{entry.data.current ? 'Current member' : 'Past member'}</span>
-			</p>
-			{
-				links.length > 0 && (
-					<p class="meta-line" style="margin-top: 0.85rem;">
-						{links.map((l) => (
-							<a href={l.href}>{l.label}</a>
-						))}
-					</p>
-				)
-			}
-		</header>
-		<div class="prose-slot">
-			<Content />
+<BaseLayout title={profileHeadingName}>
+	<article class="people-profile-shell">
+		<p class="people-profile-back muted">
+			<a href={backHref}>← {backLabel}</a>
+		</p>
+		<div class="people-profile-grid">
+			<aside class="people-profile-aside" aria-label="Profile portrait">
+				{
+					photoHref ? (
+						<div class="people-profile-photo-frame">
+							<img
+								class="people-profile-photo-img"
+								src={photoHref}
+								alt={`Portrait of ${profileHeadingName}`}
+								width="320"
+								height="320"
+								loading="eager"
+								decoding="async"
+							/>
+						</div>
+					) : (
+						<div class="people-profile-photo-placeholder" aria-hidden="true">
+							<span class="people-profile-photo-initials">{initials}</span>
+						</div>
+					)
+				}
+			</aside>
+
+			<div class="people-profile-main">
+				<h1 class="people-profile-name">{profileHeadingName}</h1>
+				{
+					profileHeadingName.trim() !== d.name.trim() ? (
+						<p class="people-profile-legal-name muted">
+							<span class="people-profile-legal-name-label">Directory name:</span> {d.name}
+						</p>
+					) : null
+				}
+
+				<div class="people-profile-meta-plain">
+					<p class="people-profile-role">{d.role}</p>
+					{termLine ? <p class="people-profile-term muted">{termLine}</p> : null}
+				</div>
+
+				{
+					profileLinks.length > 0 ? (
+						<nav class="people-profile-social" aria-label="Profile links">
+							<ul>
+								{profileLinks.map((l) => (
+									<li>
+										<a
+											class="people-profile-social-link surface"
+											href={l.href}
+											target="_blank"
+											rel="noopener noreferrer"
+											aria-label={`${l.label} (opens in new tab)`}
+										>
+											<ProfileSocialIcon kind={l.kind} />
+										</a>
+									</li>
+								))}
+							</ul>
+						</nav>
+					) : null
+				}
+
+				<div class="people-profile-body prose-slot">
+					<Content />
+				</div>
+
+				{
+					d.afterEmory && d.afterEmory.length > 0 ? (
+						<section class="people-profile-after-emory" aria-labelledby={`after-${entry.id}`}>
+							<h2 id={`after-${entry.id}`} class="people-profile-section-title">
+								After Emory
+							</h2>
+							<ul class="people-profile-after-emory-list">
+								{d.afterEmory.map((line) => (
+									<li class="people-profile-after-emory-item">{line.trim()}</li>
+								))}
+							</ul>
+						</section>
+					) : null
+				}
+
+				{
+					educationSorted.length > 0 ? (
+						<section class="people-profile-education" aria-labelledby={`education-${entry.id}`}>
+							<h2 id={`education-${entry.id}`} class="people-profile-section-title">
+								Education
+							</h2>
+							<ul class="people-profile-education-list">
+								{educationSorted.map((e) => (
+									<li class="people-profile-education-item">
+										<span class="people-profile-education-degree">{e.degree.trim()}</span>{`, `}<span>{e.institution.trim()}</span>
+										{e.endYear != null && !e.ongoing ? (
+											<span class="muted">{` (${e.endYear})`}</span>
+										) : null}
+										{e.ongoing ? <span class="muted">{` (in progress)`}</span> : null}
+										{e.notes ? <span class="muted">{` - ${e.notes.trim()}`}</span> : null}
+									</li>
+								))}
+							</ul>
+						</section>
+					) : null
+				}
+
+				{
+					linkedTheses.length > 0 ? (
+						<section class="people-profile-theses" aria-labelledby={`theses-${entry.id}`}>
+							<h2 id={`theses-${entry.id}`} class="people-profile-section-title">
+								{thesisSectionHeading}
+							</h2>
+							<ul class="people-profile-theses-list">
+								{linkedTheses.map((t) => {
+									const honorsLevelDisplay =
+										t.data.honorsLevel?.trim() && thesisDegreeSupportsHonorsLevel(t.data.degree)
+											? t.data.honorsLevel.trim()
+											: '';
+									const termNote = thesisTermNoteLabel(t.data.term, t.id);
+									const noteInner = honorsLevelDisplay
+										? `${termNote} · ${honorsLevelDisplay}`
+										: termNote;
+									return (
+										<li>
+											{thesisShowKindPerLine ? (
+												<>
+													<span class="people-profile-thesis-kind">
+														{thesisPeoplePageWorkLabel(t.data.degree)}
+													</span>
+													{' — '}
+												</>
+											) : null}
+											<a href={siteHref(`/publications/theses/${t.id}/`)}>{t.data.title}</a>
+											<span class="people-profile-thesis-note muted">{` (${noteInner})`}</span>
+										</li>
+									);
+								})}
+							</ul>
+						</section>
+					) : null
+				}
+
+				{
+					linkedPublications.length > 0 ? (
+						<section class="people-profile-publications" aria-labelledby={`publications-${entry.id}`}>
+							<h2 id={`publications-${entry.id}`} class="people-profile-section-title">
+								Publications
+							</h2>
+							<ol class="people-profile-publications-list">
+								{linkedPublications.map((p) => (
+									<li>
+										<a href={siteHref(`/publications/${p.id}/`)}>{p.data.title}</a><span class="people-profile-publication-note muted">{` — ${formatPublicationVenueLine(p.data)}${p.data.forthcoming ? ' · Forthcoming' : ''}`}</span>
+									</li>
+								))}
+							</ol>
+						</section>
+					) : null
+				}
+
+				{
+					d.achievements && d.achievements.length > 0 ? (
+						<section class="people-profile-achievements" aria-labelledby={`achievements-${entry.id}`}>
+							<h2 id={`achievements-${entry.id}`} class="people-profile-section-title">
+								Achievements
+							</h2>
+							<ul class="people-profile-achievements-list">
+								{d.achievements.map((a) => {
+									const { headline, issuer, note } = achievementHeadlineAndNote(a);
+									const localUrl =
+										a.url?.trim() && isLabSiteHttpUrl(a.url.trim()) ? a.url.trim() : undefined;
+									return (
+										<li>
+											<span class="people-profile-achievement-title">{localUrl ? <a href={localUrl}>{headline}</a> : headline}</span>{issuer ? `, ${issuer}` : null}{note ? <span class="muted">{` (${note})`}</span> : null}
+										</li>
+									);
+								})}
+							</ul>
+						</section>
+					) : null
+				}
+			</div>
 		</div>
 	</article>
 </BaseLayout>
+
+<style>
+	.people-profile-shell {
+		box-sizing: border-box;
+		width: min(100%, 72rem);
+		margin-inline: auto;
+		padding: clamp(1.75rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem)
+			clamp(2.5rem, 5vw, 4rem);
+	}
+
+	.people-profile-back {
+		margin: 0 0 1rem;
+		font-size: 0.9rem;
+	}
+
+	.people-profile-back a {
+		font-weight: 600;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.people-profile-back a:hover {
+			color: var(--accent);
+			text-decoration: underline;
+			text-underline-offset: 0.15em;
+		}
+	}
+
+	.people-profile-grid {
+		display: grid;
+		grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr);
+		align-items: start;
+		gap: clamp(1.5rem, 4vw, 2.75rem);
+	}
+
+	@media (max-width: 640px) {
+		.people-profile-grid {
+			grid-template-columns: 1fr;
+			justify-items: center;
+			text-align: center;
+		}
+
+		.people-profile-social ul {
+			justify-content: center;
+		}
+
+		.people-profile-main {
+			width: 100%;
+			max-width: 48rem;
+			margin-inline: auto;
+			text-align: left;
+		}
+
+		.people-profile-meta-plain {
+			text-align: center;
+			align-items: center;
+		}
+	}
+
+	.people-profile-aside {
+		position: sticky;
+		top: calc(var(--nav-h, 3.75rem) + 0.75rem);
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.75rem;
+	}
+
+	@media (max-width: 640px) {
+		.people-profile-aside {
+			position: static;
+			align-items: center;
+			max-width: 15rem;
+		}
+	}
+
+	.people-profile-photo-frame,
+	.people-profile-photo-placeholder {
+		width: 100%;
+		max-width: 15rem;
+		aspect-ratio: 1;
+		border-radius: calc(var(--radius) + 6px);
+		overflow: hidden;
+		box-shadow:
+			0 12px 32px rgb(15 23 42 / 0.1),
+			0 2px 8px rgb(71 85 105 / 0.06),
+			0 0 0 2px rgb(255 255 255 / 0.95),
+			0 0 0 3px rgb(148 163 184 / 0.42);
+	}
+
+	.people-profile-photo-placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(145deg, #e9eef6 0%, #dbe4f3 52%, #cfdceb 100%);
+		border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+	}
+
+	.people-profile-photo-initials {
+		font-size: clamp(2.2rem, 7vw, 2.85rem);
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		color: rgb(51 65 85);
+	}
+
+	.people-profile-photo-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.people-profile-name {
+		margin: 0 0 1rem;
+		font-size: clamp(1.65rem, 4vw, 2.1rem);
+		font-weight: 700;
+		line-height: 1.2;
+		letter-spacing: -0.02em;
+	}
+
+	.people-profile-legal-name {
+		margin: -0.5rem 0 0.85rem;
+		font-size: 0.92rem;
+		line-height: 1.35;
+	}
+
+	.people-profile-legal-name-label {
+		font-weight: 600;
+	}
+
+	.people-profile-meta-plain {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		margin-bottom: 1rem;
+	}
+
+	@media (min-width: 641px) {
+		.people-profile-meta-plain {
+			text-align: left;
+			align-items: flex-start;
+		}
+	}
+
+	.people-profile-role {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 600;
+		line-height: 1.45;
+		color: var(--ink);
+	}
+
+	.people-profile-term {
+		margin: 0;
+		font-size: 0.9rem;
+		font-weight: 500;
+		line-height: 1.45;
+	}
+
+	.people-profile-social {
+		margin-bottom: 1.35rem;
+	}
+
+	.people-profile-social ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		align-items: center;
+	}
+
+	.people-profile-social-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.375rem;
+		height: 2.375rem;
+		border-radius: calc(var(--radius) + 2px);
+		text-decoration: none;
+		color: var(--muted);
+		border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+		box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+		transition:
+			border-color 0.15s ease,
+			box-shadow 0.15s ease,
+			color 0.15s ease,
+			transform 0.15s ease;
+	}
+
+	.people-profile-social-link:focus-visible {
+		outline: 2px solid color-mix(in oklab, var(--accent, rgb(59 130 246)) 70%, var(--ink));
+		outline-offset: 2px;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.people-profile-social-link:hover {
+			color: var(--ink);
+			border-color: rgb(148 163 184 / 0.65);
+			box-shadow: 0 4px 14px rgb(15 23 42 / 0.07);
+			transform: translateY(-1px);
+		}
+	}
+
+	.people-profile-body {
+		margin-bottom: 1.75rem;
+	}
+
+	.people-profile-body.prose-slot {
+		max-width: none;
+	}
+
+	/* Markdown from <Content /> has no scoped data-astro attribute — plain h2/ul selectors
+	   would compile to [...] h2[data-astro-*] ... and match nothing without :global. */
+	.people-profile-body.prose-slot :global(h2:has(+ ul)),
+	.people-profile-body.prose-slot :global(h3:has(+ ul)) {
+		margin-bottom: 0.3rem;
+	}
+
+	.people-profile-body.prose-slot :global(h2 + ul),
+	.people-profile-body.prose-slot :global(h3 + ul) {
+		margin-top: 0.5rem;
+	}
+
+	.people-profile-after-emory {
+		margin-bottom: 1.75rem;
+	}
+
+	.people-profile-after-emory-list {
+		margin: 0;
+		padding-left: 1.15rem;
+		line-height: 1.65;
+	}
+
+	.people-profile-after-emory-item {
+		margin-bottom: 0.4rem;
+	}
+
+	.people-profile-education {
+		margin-bottom: 1.75rem;
+	}
+
+	.people-profile-education-list {
+		margin: 0;
+		padding-left: 1.15rem;
+		line-height: 1.65;
+	}
+
+	.people-profile-education-item {
+		margin-bottom: 0.5rem;
+	}
+
+	.people-profile-theses {
+		margin-bottom: 1.75rem;
+	}
+
+	.people-profile-publications {
+		margin-bottom: 1.75rem;
+	}
+
+	.people-profile-publications-list {
+		margin: 0;
+		padding-left: 1.35rem;
+		line-height: 1.65;
+	}
+
+	.people-profile-publications-list li {
+		margin-bottom: 0.4rem;
+	}
+
+	.people-profile-publications-list a {
+		font-weight: 400;
+	}
+
+	.people-profile-theses-list {
+		margin: 0;
+		padding-left: 1.15rem;
+		line-height: 1.65;
+	}
+
+	.people-profile-theses-list li {
+		margin-bottom: 0.4rem;
+	}
+
+	.people-profile-theses-list a {
+		font-weight: 400;
+	}
+
+	.people-profile-thesis-kind {
+		font-weight: 600;
+		color: var(--ink);
+	}
+
+	.people-profile-thesis-note {
+		font-size: 0.92em;
+		font-weight: 400;
+	}
+
+	.people-profile-publication-note {
+		font-size: 0.92em;
+		font-weight: 400;
+	}
+
+	.people-profile-achievement-title {
+		display: inline;
+		font-weight: inherit;
+	}
+
+	.people-profile-education-degree {
+		font-weight: 400;
+	}
+
+	.people-profile-section-title {
+		margin: 0 0 0.65rem;
+		font-size: 1.15rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+	}
+
+	.people-profile-achievements-list {
+		margin: 0;
+		padding-left: 1.15rem;
+		line-height: 1.65;
+	}
+
+	.people-profile-achievements-list li {
+		margin-bottom: 0.35rem;
+	}
+
+	.people-profile-achievements-list a {
+		font-weight: 500;
+	}
+</style>

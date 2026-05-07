@@ -1,0 +1,31 @@
+---
+title: Analysis of Zero-Shot Crosslingual Learning between English and Korean for Named Entity Recognition
+authors:
+  - Jongin Kim
+  - Nayoung Choi
+  - Seunghyun Lim
+  - Jungwhan Kim
+  - Soojin Chung
+  - Hyunsoo Woo
+  - Min Song
+  - Jinho D. Choi
+venue: EMNLP Workshop on Multilingual Representation Learning (MRL)
+year: 2021
+published: '2021-11-11'
+publicationType: workshop
+venueUrl: 'https://sites.google.com/view/mrl-2021'
+paperUrl: 'https://aclanthology.org/2021.mrl-1.19/'
+resourceUrl: 'https://github.com/emorynlp/MRL-2021'
+abstract: >-
+  This paper presents a English-Korean parallel dataset that collects 381K news articles where
+  1,400 of them, comprising 10K sentences, are manually labeled for crosslingual named entity
+  recognition (NER). The annotation guidelines for the two languages are developed in
+  parallel, that yield the inter-annotator agreement scores of 91 and 88% for English and
+  Korean respectively, indicating sublime quality annotation in our dataset. Three types of
+  crosslingual learning approaches, direct model transfer, embedding projection, and
+  annotation projection, are used to develop zero-shot Korean NER models. Our best model gives
+  the F1-score of 51% that is very encouraging, considering the extremely distinct natures of
+  these two languages. This is pioneering work that explores zero-shot cross-lingual learning
+  between English and Korean and provides rich parallel annotation for a core NLP task such as
+  named entity recognition.
+---

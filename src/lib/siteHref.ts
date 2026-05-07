@@ -15,3 +15,19 @@ export function publicAssetUrl(path: string): string {
 	if (path.startsWith('/')) return siteHref(path);
 	return path;
 }
+
+/**
+ * `http(s)` URLs for this site’s GitHub Pages host (and localhost for dev).
+ * Legacy `emorynlp.org` is excluded — do not treat it as first-party for auto-linking.
+ */
+export function isLabSiteHttpUrl(href: string): boolean {
+	try {
+		const u = new URL(href);
+		if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+		const host = u.hostname.toLowerCase();
+		if (host === 'localhost' || host === '127.0.0.1') return true;
+		return host === 'emorynlp.github.io';
+	} catch {
+		return false;
+	}
+}

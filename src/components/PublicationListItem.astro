@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { siteHref } from '../lib/siteHref';
+import { slugForPublicationAuthor } from '../lib/publicationAuthorLinks';
+import {
+	formatPublicationVenueLine,
+	publicationListingKind,
+} from '../lib/publicationListing';
+
+interface Props {
+	entry: CollectionEntry<'publications'>;
+	authorSlugLookup: Map<string, string>;
+}
+
+const { entry, authorSlugLookup } = Astro.props;
+const d = entry.data;
+const listingKind = publicationListingKind(d);
+const href = siteHref(`/publications/${entry.id}/`);
+---
+
+<article class:list={['publication-card', `publication-card--kind-${listingKind}`]}>
+	<div class="publication-card-body">
+		<h2 class="publication-card-title">
+			<a href={href}>{d.title}</a>
+		</h2>
+		<p class="publication-card-venue">
+			{formatPublicationVenueLine(d)}
+			{
+				d.forthcoming ? (
+					<>
+						{' '}
+						<span class="publication-card-forthcoming muted">· Forthcoming</span>
+					</>
+				) : null
+			}
+		</p>
+		<p class="publication-card-authors">
+			{
+				d.authors.map((a, i) => {
+					const slug = slugForPublicationAuthor(a, authorSlugLookup);
+					const peopleHref = slug ? siteHref(`/people/${slug}/`) : undefined;
+					return (
+						<>
+							{i > 0 ? ', ' : ''}{peopleHref ? (
+								<a class="publication-card-author-link" href={peopleHref}>{a}</a>
+							) : (
+								<span>{a}</span>
+							)}
+						</>
+					);
+				})
+			}
+		</p>
+	</div>
+</article>

@@ -1,0 +1,29 @@
+---
+title: 'FCC: Fusing Conversation History and Candidate Provenance for Contextual Response Ranking in Dialogue Systems'
+authors:
+  - Zihao Wang
+  - Jinho D. Choi
+  - Eugene Agichtein
+venue: International Workshop on Spoken Dialogue Systems Technology (IWSDS)
+year: 2023
+published: '2023-02-21'
+publicationType: workshop
+venueUrl: 'https://sites.google.com/view/iwsds2023/'
+paperUrl: 'https://arxiv.org/abs/2304.00180'
+abstract: >-
+  Response ranking in dialogues plays a crucial role in retrieval-based conversational
+  systems. In a multi-turn dialogue, to capture the gist of a conversation, contextual
+  information serves as essential knowledge to achieve this goal. In this paper, we present a
+  flexible neural framework that can integrate contextual information from multiple channels.
+  Specifically for the current task, our approach is to provide two information channels in
+  parallel,Fusing Conversation history and domain knowledge extracted from Candidate
+  provenance (FCC), where candidate responses are curated, as contextual information to
+  improve the performance of multi-turn dialogue response ranking. The proposed approach can
+  be generalized as a module to incorporate miscellaneous contextual features for other
+  context-oriented tasks.&nbsp;We evaluate our model on the MSDialog dataset widely used for
+  evaluating conversational response ranking tasks. Our experimental results show that our
+  framework significantly outperforms the previous state-of-the-art models, improving Recall@1
+  by 7% and MAP by 4%. Furthermore, we conduct ablation studies to evaluate the contributions
+  of each information channel, and of the framework components, to the overall ranking
+  performance, providing additional insights and directions for further improvements.
+---

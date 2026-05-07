@@ -1,4 +1,5 @@
 ---
+import FeaturedNewsSlideshow from '../components/FeaturedNewsSlideshow.astro';
 import FeaturedStar from '../components/FeaturedStar.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
@@ -6,18 +7,23 @@ import { formatNewsDate } from '../lib/dates';
 import { teaserFromNewsBody } from '../lib/newsTeaser';
 import { siteHref } from '../lib/siteHref';
 
-const newsEntries = await getCollection('news');
+const newsEntries = await getCollection('highlights');
 const byDesc = (
 	a: (typeof newsEntries)[number],
 	b: (typeof newsEntries)[number],
 ) => b.data.date.valueOf() - a.data.date.valueOf();
 
 const featured = newsEntries.filter((n) => n.data.featured).sort(byDesc);
+/** Home carousel = most recent news by date (`SLIDESHOW_MAX` items). Increase if you want more slides (more dots / longer rotations). */
+const SLIDESHOW_MAX = 5;
+const slideshowEntries = [...newsEntries].sort(byDesc).slice(0, SLIDESHOW_MAX);
 const rest = newsEntries.filter((n) => !n.data.featured).sort(byDesc);
 const bannerNews = [...featured, ...rest].slice(0, 8);
 ---
 
 <BaseLayout title="Home">
+	<FeaturedNewsSlideshow entries={slideshowEntries} />
+
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero-inner">
 			<h1 id="hero-title">Challenging the limit of language technology</h1>
@@ -35,7 +41,7 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 			</h2>
 			<p class="page-intro news-banner-intro">
 				Snapshots of lab highlights. Older items live on the{' '}
-				<a href={siteHref('/news/')}>news</a> page.
+				<a href={siteHref('/highlights/')}>news</a> page.
 			</p>
 			{
 				bannerNews.length === 0 ? (
@@ -45,7 +51,7 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 						<div class="banner-row-inner" tabindex="0">
 							{bannerNews.map((entry) => (
 								<a class="banner-card"
-									href={siteHref(`/news/${entry.id}/`)}
+									href={siteHref(`/highlights/${entry.id}/`)}
 								>
 									{
 										entry.data.coverImage ? (
@@ -99,16 +105,10 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 				<a class="surface card-link" href={siteHref('/publications/')}>Publications</a>
 			</li>
 			<li>
-				<a class="surface card-link" href={siteHref('/theses/')}>Theses</a>
-			</li>
-			<li>
 				<a class="surface card-link" href={siteHref('/projects/')}>Projects</a>
 			</li>
 			<li>
 				<a class="surface card-link" href={siteHref('/seminars/')}>Seminars</a>
-			</li>
-			<li>
-				<a class="surface card-link" href={siteHref('/gallery/')}>Gallery</a>
 			</li>
 		</ul>
 	</section>

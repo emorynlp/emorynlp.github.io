@@ -1,13 +1,29 @@
 ---
 name: Jinho Choi
-role: Professor, Computer Science
+role: Associate Professor of Computer Science, Data & Decision Sciences, and Linguistics
+directoryMeta: Director / Founder
+peopleTier: faculty
 labRole: pi
 current: true
-cohort: Faculty
-website: 'https://sites.google.com/site/jinhochoi/'
-github: 'https://github.com/jchoi07'
+linkedin: 'https://www.linkedin.com/in/jinho-choi/'
+github: 'https://github.com/emorynlp'
+googleScholar: 'https://scholar.google.com/citations?user=xdddblAAAAAJ'
+semanticScholar: 'https://www.semanticscholar.org/author/4724587'
 aliases:
+  - Jinho D. Choi
   - J. Choi
+education:
+  - degree: Postdoc in Natural Language Processing
+    institution: University of Massachusetts Amherst
+    endYear: 2014
+  - degree: PhD in Computer Science and Cognitive Science
+    institution: University of Colorado Boulder
+    endYear: 2012
+  - degree: MS in Computer and Information Science
+    institution: University of Pennsylvania
+    endYear: 2003
+  - degree: BA in Computer Science and Mathematics
+    institution: Coe College
+    endYear: 2002
 ---
-
-Jinho Choi directs Emory NLP and works on dialogue systems, commonsense reasoning in language models, and NLP for social good. This is a **sample entry** for the people collection; replace body text with a full bio and add more members as Markdown files in `src/content/people/`.
+**Jinho Choi** is Associate Professor of Computer Science, Data & Decision Sciences, and Linguistics at Emory University.

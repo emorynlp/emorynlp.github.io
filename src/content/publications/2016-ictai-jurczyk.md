@@ -1,0 +1,23 @@
+---
+title: 'SelQA: A New Benchmark for Selection-Based Question Answering'
+authors:
+  - Tomasz Jurczyk
+  - Michael Zhai
+  - Jinho D. Choi
+venue: International Conference on Tools with Artificial Intelligence (ICTAI)
+year: 2016
+published: '2016-11-06'
+publicationType: conference
+venueUrl: 'https://www.computer.org/csdl/proceedings/ictai/2016/12OmNAR1b0Y'
+paperUrl: 'https://ieeexplore.ieee.org/document/7814688'
+abstract: >-
+  This paper presents a new selection-based question answering dataset, SelQA. The dataset
+  consists of questions generated through crowdsourcing and sentence length answers that are
+  drawn from the ten most prevalent topics in the English Wikipedia. We introduce a corpus
+  annotation scheme that enhances the generation of large, diverse, and challenging datasets
+  by explicitly aiming to reduce word co-occurrences between the question and answers. Our
+  annotation scheme is composed of a series of crowdsourcing tasks with a view to more
+  effectively utilize crowdsourcing in the creation of question answering datasets in various
+  domains. Several systems are compared on the tasks of answer sentence selection and answer
+  triggering, providing strong baseline results for future work to improve upon.
+---

@@ -1,136 +1,134 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
-import { rosterForNewsTags } from '../../lib/newsParticipants';
-import { siteHref } from '../../lib/siteHref';
 import { getCollection } from 'astro:content';
+import { siteHref } from '../../lib/siteHref';
+import { resolvePeoplePhotoPublicHref } from '../../lib/peoplePhotos';
+import { formatPeopleListingMeta } from '../../lib/peopleDirectory';
+import {
+	TIER_ORDER,
+	CURRENT_TIER_HEADINGS,
+	bucketByTier,
+	tierSectionId,
+	type PeopleTier,
+} from '../../lib/peopleDirectoryPage';
 
-const all = await getCollection('people');
-const current = all
-	.filter((p) => p.data.current)
-	.sort((a, b) => a.data.name.localeCompare(b.data.name));
-const past = all
-	.filter((p) => !p.data.current)
-	.sort((a, b) => a.data.name.localeCompare(b.data.name));
+const rows = await getCollection('people');
+const current = rows.filter((p) => p.data.current);
+const past = rows.filter((p) => !p.data.current);
 
-const newsTagRoster = rosterForNewsTags(all);
+const currentByTier = bucketByTier(current);
+
+function tierUrl(tier: PeopleTier): string {
+	return '#' + tierSectionId('current', tier);
+}
 ---
 
-<BaseLayout title="People" description="Faculty, students, and collaborators at Emory NLP.">
-	<div class="container-narrow" style="padding-block: 2rem 3rem;">
-		<h1 class="page-title">People</h1>
-		<p class="page-intro">
-			Add or edit Markdown files under <code class="muted">src/content/people/</code>. Use{' '}
-			<code class="muted">current: false</code> for alumni / past affiliates.
+<BaseLayout title="People" description="Meet the faculty, students, and collaborators at Emory NLP.">
+	<div class="people-page container-narrow">
+		<h1 class="index-page-title">People</h1>
+		<p class="index-page-intro">
+			Faculty members, postdoctoral researchers, graduate and undergraduate students, and visiting scholars who are currently active.
+			{
+				past.length > 0 ? (
+					<>
+						{' '}
+						For former members and alumni, visit{' '}
+						<a href={siteHref('/people/former-members/')}>Former Members</a>.
+					</>
+				) : null
+			}
 		</p>
 
 		{
-			newsTagRoster.length > 0 ? (
-				<details class="participant-roster-hint muted">
-					<summary>Student / postdoc slugs for tagging news events</summary>
-					<p>
-						Use these file-name stems under <code>news</code> frontmatter as <code>participants:</code> (list of
-						slugs). Set <code>labRole</code> to <code>student</code> or <code>postdoc</code> on each profile.
-					</p>
-					<pre class="participant-roster-pre">{`${newsTagRoster.map((p) => `  - ${p.id}`).join('\n')}\n`}</pre>
-				</details>
-			) : (
-				<p class="participant-roster-hint muted roster-empty-hint">
-					To tag attendees on lab news posts, add people profiles with <kbd class="kbd-soft">labRole: student</kbd>{' '}
-					or <kbd class="kbd-soft">labRole: postdoc</kbd> and they will appear in the roster snippet here.
-				</p>
-			)
-		}
-
-		{
 			current.length === 0 && past.length === 0 ? (
-				<div class="empty-state surface">No people entries yet.</div>
+				<p class="empty-state muted">No people entries yet.</p>
+			) : current.length === 0 && past.length > 0 ? (
+				<p class="empty-state muted">
+					There are no current members listed.{' '}
+					<a href={siteHref('/people/former-members/')}>Browse the former members directory</a>.
+				</p>
 			) : (
-				<>
-					{current.length > 0 ? (
-						<section aria-labelledby="current-heading">
-							<h2 id="current-heading" class="page-title" style="font-size: 1.25rem;">
-								Current
-							</h2>
-							<div class="grid-cards">
-								{current.map((p) => (
-									<ContentCard
-										href={siteHref(`/people/${p.id}/`)}
-										title={p.data.name}
-										subtitle={p.data.role}
-										meta={p.data.cohort || undefined}
-									/>
-								))}
-							</div>
-						</section>
-					) : null}
+				TIER_ORDER.map((tier) => {
+					const list = currentByTier.get(tier) ?? [];
+					if (list.length === 0) return null;
 
-					{past.length > 0 ? (
-						<section aria-labelledby="past-heading" style="margin-top: 2.5rem;">
-							<h2 id="past-heading" class="page-title" style="font-size: 1.25rem;">
-								Past
+					const headingBase = CURRENT_TIER_HEADINGS[tier];
+					const titleText = headingBase;
+					const countSuffix = tier === 'phd' ? null : list.length > 10 ? ` (${list.length})` : null;
+
+					return (
+						<section class="people-tier-band" aria-labelledby={tierSectionId('current', tier)}>
+							<h2 id={tierSectionId('current', tier)} class="people-tier-heading">
+								<a class="muted people-tier-anchor" tabindex={-1} href={tierUrl(tier)} title="Link to this section">
+									#
+								</a>{' '}
+								{titleText}
+								{countSuffix}
+								{tier === 'visitor' ? <span class="muted people-tier-note">Guest researchers & visiting scholars</span> : null}
 							</h2>
-							<div class="grid-cards">
-								{past.map((p) => (
+
+							<div class="grid-cards people-grid">
+								{list.map((person) => (
 									<ContentCard
-										href={siteHref(`/people/${p.id}/`)}
-										title={p.data.name}
-										subtitle={p.data.role}
-										meta={[p.data.cohort].filter(Boolean).join(' · ') || undefined}
-										tags={['Past']}
+										href={siteHref(`/people/${person.id}/`)}
+										title={person.data.name}
+										subtitle={person.data.role}
+										meta={formatPeopleListingMeta(person.data)}
+										thumbnailSrc={resolvePeoplePhotoPublicHref(person.id, person.data.photo)}
+										peopleDirectoryLayout
+										peopleNeutralLink
 									/>
 								))}
 							</div>
 						</section>
-					) : null}
-				</>
+					);
+				})
 			)
 		}
 	</div>
 </BaseLayout>
 
 <style>
-	.participant-roster-hint {
-		margin-bottom: 1.75rem;
-		padding: 0.85rem 1rem 1rem;
-		background: rgb(249 250 251);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		font-size: 0.9rem;
-		line-height: 1.55;
-		max-width: 62rem;
+	.section-divider {
+		border: 0;
+		border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+		margin-block: clamp(28px, 4vw, 40px);
 	}
 
-	.participant-roster-hint summary {
-		cursor: pointer;
-		font-weight: 650;
-		color: var(--ink);
+	.section-divider.muted {
+		opacity: 0.72;
 	}
 
-	.roster-empty-hint {
-		border: none;
-		background: transparent;
-		padding: 0;
-		line-height: 1.62;
+	.people-openings p {
+		line-height: 1.65;
 	}
 
-	.participant-roster-pre {
-		margin: 0.65rem 0 0;
-		padding: 0.85rem 1rem;
-		background: rgb(255 255 255);
-		border: 1px solid var(--border);
-		border-radius: 8px;
-		font-size: 0.8rem;
-		line-height: 1.55;
-		overflow-x: auto;
+	.people-tier-band + .people-tier-band {
+		margin-top: clamp(26px, 4vw, 48px);
 	}
 
-	.kbd-soft {
-		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-		font-size: 0.86em;
-		padding: 0.12rem 0.35rem;
-		border-radius: 5px;
-		background: rgb(229 231 235 / 0.85);
-		color: rgb(51 65 85);
+	.people-tier-heading {
+		font-size: 1.3rem;
+		font-weight: 700;
+		margin: 0 0 0.85rem;
+		line-height: 1.35;
+	}
+
+	.people-tier-anchor {
+		text-decoration: none;
+		font-weight: 600;
+		opacity: 0.42;
+	}
+
+	.people-tier-anchor:hover {
+		opacity: 0.85;
+	}
+
+	.people-tier-note {
+		display: block;
+		font-size: 0.88rem;
+		font-weight: 500;
+		margin-top: 0.35rem;
 	}
 </style>

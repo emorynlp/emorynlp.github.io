@@ -1,8 +1,15 @@
 ---
 name: Taeun Kim
-role: Graduate student, Computer Science
+role: BS in Computer Science
+peopleTier: undergrad
 labRole: student
 current: true
+startTerm: Fall 2025
+linkedin: 'https://www.linkedin.com/in/taeeunnkim/'
+github: 'https://github.com/esunn0412'
+education:
+  - degree: BS in Computer Science
+    institution: Emory University
+    ongoing: true
 ---
-
-Member of Emory NLP.
+**Taeun Kim** is pursuing a BS in Computer Science at Emory University (in progress).

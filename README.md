@@ -32,8 +32,7 @@ Content is Markdown with YAML frontmatter, typed via [`src/content.config.ts`](s
 | Theses & diss. | [`src/content/theses/`](src/content/theses/) | `degree` and defense `date` are required in the schema. |
 | Projects       | [`src/content/projects/`](src/content/projects/) | Optional `externalUrl`; `status: current \| completed`. |
 | Seminars       | [`src/content/seminars/`](src/content/seminars/) | `term` drives grouping on the seminars index page. |
-| News           | [`src/content/news/`](src/content/news/) | `featured: true` prioritizes the home strip; optional `coverImage: /gallery/your.jpg` shows a photo on that card. |
-| Gallery        | [`src/content/gallery/`](src/content/gallery/) | Put assets in [`public/`](public/) (e.g. `public/photos/...`). |
+| News           | [`src/content/news/`](src/content/news/) | `featured: true` prioritizes the home strip; optional `coverImage: /news/your.jpg` shows a photo on that card (images live under [`public/news/`](public/news/)). |
 
 Filenames identify the URL slug (`jinho-choi.md` → `/people/jinho-choi/`).
 

@@ -1,0 +1,221 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteHref } from '../../../lib/siteHref';
+import { publicationAbstractParagraphs } from '../../../lib/publicationAbstract';
+import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../../../lib/publicationAuthorLinks';
+import { thesisAwardingUnitRow } from '../../../lib/thesisAffiliation';
+import { thesisSortYear } from '../../../lib/thesisYear';
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('theses');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+	}));
+}
+
+const { slug } = Astro.params;
+const entry =
+	slug !== undefined
+		? ((await getEntry('theses', slug)) as CollectionEntry<'theses'> | undefined)
+		: undefined;
+
+if (entry === undefined) {
+	return Astro.redirect(siteHref('/publications/theses/'));
+}
+
+const people = await getCollection('people');
+const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
+
+const { Content } = await render(entry);
+const d = entry.data;
+const termDisplay = d.term ?? String(thesisSortYear(undefined, entry.id));
+
+const abstractBlocks = publicationAbstractParagraphs(d.abstract);
+
+const authorSlug = slugForPublicationAuthor(d.author, authorSlugLookup);
+const authorHref = authorSlug ? siteHref(`/people/${authorSlug}/`) : undefined;
+
+const linkItems = [
+	d.paperUrl?.trim() && { href: d.paperUrl.trim(), label: 'Paper' },
+	d.slidesUrl?.trim() && { href: d.slidesUrl.trim(), label: 'Slides' },
+].filter(Boolean) as { href: string; label: string }[];
+
+const description = `${d.author} · ${d.degree} · ${termDisplay}`;
+const awardingUnit = thesisAwardingUnitRow(d.degree, d.department);
+
+/** Resolved public asset (same prose-slot `<img>` pattern as `/publications/[slug]/`). */
+const photoHref = d.photo?.trim() ? siteHref(d.photo.trim()) : undefined;
+---
+
+<BaseLayout title={d.title} description={description}>
+	<div class="publications-page container-narrow">
+		<p class="publications-detail-back muted">
+			<a href={siteHref('/publications/theses/')}>← Theses &amp; Dissertations</a>
+		</p>
+
+		<article class="publications-detail-article">
+			<header class="publications-detail-header">
+				<h1 class="publications-detail-title">{d.title}</h1>
+
+				<p class="publications-detail-authors">
+					{authorHref ? (
+						<a class="publication-card-author-link" href={authorHref}>
+							{d.author}
+						</a>
+					) : (
+						<span>{d.author}</span>
+					)}
+				</p>
+			</header>
+
+			{
+				abstractBlocks.length > 0 ? (
+					<section class="publications-detail-abstract-wrap" aria-labelledby="thesis-abs-h">
+						<h2 id="thesis-abs-h" class="publications-detail-field-label">
+							Abstract
+						</h2>
+						<div class="publications-detail-abstract">
+							{abstractBlocks.map((block) => (
+								<p class="publications-detail-abstract-p">{block}</p>
+							))}
+						</div>
+					</section>
+				) : null
+			}
+
+			<div class="publications-detail-paper-meta" role="region" aria-label="Thesis details">
+				{
+					awardingUnit ? (
+						<>
+							<span
+								class="publications-detail-field-label publications-detail-meta-row-label"
+								id="thesis-awarding-unit-label"
+							>
+								{awardingUnit.label}
+							</span>
+							<div
+								class="publications-detail-meta-value publications-detail-meta-value-cell"
+								aria-labelledby="thesis-awarding-unit-label"
+							>
+								{awardingUnit.value}
+							</div>
+						</>
+					) : null
+				}
+
+				<span class="publications-detail-field-label publications-detail-meta-row-label" id="thesis-term-label">Term</span>
+				<div class="publications-detail-meta-value publications-detail-meta-value-cell" aria-labelledby="thesis-term-label">
+					{termDisplay}
+				</div>
+
+				<span class="publications-detail-field-label publications-detail-meta-row-label" id="thesis-degree-label">Degree</span>
+				<div class="publications-detail-meta-value publications-detail-meta-value-cell" aria-labelledby="thesis-degree-label">
+					{d.degree}
+				</div>
+
+				{
+					d.honorsLevel ? (
+						<>
+							<span
+								class="publications-detail-field-label publications-detail-meta-row-label"
+								id="thesis-honors-label"
+							>
+								Honors
+							</span>
+							<div
+								class="publications-detail-meta-value publications-detail-meta-value-cell"
+								aria-labelledby="thesis-honors-label"
+							>
+								{d.honorsLevel}
+							</div>
+						</>
+					) : null
+				}
+
+				{
+					d.committee?.length ? (
+						<>
+							<span
+								class="publications-detail-field-label publications-detail-meta-row-label"
+								id="thesis-committee-label"
+							>
+								Committee
+							</span>
+							<div
+								class="publications-detail-meta-value publications-detail-meta-value-cell"
+								aria-labelledby="thesis-committee-label"
+							>
+								{d.committee.map((member, i) => {
+									const comma = member.indexOf(',');
+									const head = comma >= 0 ? member.slice(0, comma).trim() : member.trim();
+									const tail = comma >= 0 ? member.slice(comma) : '';
+									const mSlug = slugForPublicationAuthor(head, authorSlugLookup);
+									return (
+										<>
+											{i > 0 ? <br /> : null}
+											{mSlug ? (
+												<>
+													<a class="publication-card-author-link" href={siteHref(`/people/${mSlug}/`)}>
+														{head}
+													</a>
+													{tail}
+												</>
+											) : (
+												member
+											)}
+										</>
+									);
+								})}
+							</div>
+						</>
+					) : null
+				}
+
+				{
+					linkItems.length > 0 ? (
+						<>
+							<h2
+								id="thesis-links-h"
+								class="publications-detail-field-label publications-detail-meta-row-label publications-detail-links-heading"
+							>
+								Links
+							</h2>
+							<nav
+								class="publications-detail-linkbar publications-detail-meta-value-cell"
+								aria-label="Thesis documents"
+								aria-labelledby="thesis-links-h"
+							>
+								{linkItems.map((lnk, i) => (
+									<>
+										{i > 0 ? (
+											<span class="publications-detail-linkbar-sep" aria-hidden="true">·</span>
+										) : null}
+										<a class="publications-detail-linkbar-a" href={lnk.href} target="_blank" rel="noopener noreferrer">
+											{lnk.label}
+										</a>
+									</>
+								))}
+							</nav>
+						</>
+					) : null
+				}
+			</div>
+
+			<div class="publications-detail-body prose-slot">
+				{
+					photoHref ? (
+						<img
+							src={photoHref}
+							alt={`Photo of ${d.author}`}
+							loading="lazy"
+							decoding="async"
+						/>
+					) : null
+				}
+				<Content />
+			</div>
+		</article>
+	</div>
+</BaseLayout>

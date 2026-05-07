@@ -10,6 +10,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "people:bios": "PEOPLE_BIO_YEAR=2026 node scripts/compose-people-bios.mjs",
+    "people:education-end-terms": "node scripts/backfill-education-end-terms.mjs",
+    "people:after-emory": "node scripts/merge-people-after-emory.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -17,6 +20,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@types/node": "^25.6.0",
     "to-ico": "^1.1.5",
     "typescript": "^5.9.3"
   }

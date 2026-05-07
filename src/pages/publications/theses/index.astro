@@ -1,0 +1,455 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../../../lib/publicationAuthorLinks';
+import { thesisAwardingSubtitle } from '../../../lib/thesisAffiliation';
+import { compareThesesListingOrder, thesisSortYear, thesisTermNoteLabel } from '../../../lib/thesisYear';
+import { siteHref } from '../../../lib/siteHref';
+import { resolvePeoplePhotoPublicHref } from '../../../lib/peoplePhotos';
+
+const people = await getCollection('people');
+const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
+const peopleById = new Map(people.map((p) => [p.id, p]));
+
+const items = await getCollection('theses');
+items.sort(compareThesesListingOrder);
+
+const yearRangeMax =
+	items.length > 0 ? Math.max(...items.map((t) => thesisSortYear(t.data.term, t.id))) : new Date().getFullYear();
+const pickerYearMin = 2015;
+const pickerYearMax = new Date().getFullYear();
+const startYearOptions: number[] = [];
+for (let y = pickerYearMin; y <= pickerYearMax; y++) startYearOptions.push(y);
+const defaultStartYear = Math.min(pickerYearMax, Math.max(pickerYearMin, pickerYearMax - 3));
+const defaultEndYear = Math.min(pickerYearMax, Math.max(defaultStartYear, yearRangeMax));
+const endYearOptions: number[] = [];
+for (let y = defaultStartYear; y <= pickerYearMax; y++) endYearOptions.push(y);
+
+const degreeOrder = [
+	'PhD',
+	'MS',
+	'Undergrad',
+	'Undergraduate Honors',
+	'Undergraduate Thesis',
+	'Masters Thesis',
+	'Dissertation',
+	'Other',
+];
+const degreeSet = new Set(items.map((t) => t.data.degree));
+const degreeOptions = degreeOrder.filter((d) => {
+	if (d === 'Undergrad') {
+		return degreeSet.has('BS') || degreeSet.has('BA');
+	}
+	return degreeSet.has(d);
+});
+
+function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' {
+	if (degree === 'PhD' || degree === 'Dissertation') return 'phd';
+	if (degree === 'MS' || degree === 'Masters Thesis') return 'ms';
+	if (
+		degree === 'Undergraduate Honors' ||
+		degree === 'Undergraduate Thesis' ||
+		degree === 'BS' ||
+		degree === 'BA'
+	) {
+		return 'undergrad';
+	}
+	return 'other';
+}
+
+---
+
+<BaseLayout title="Theses & Dissertations" description="Student theses defended with Emory NLP.">
+	<div class="publications-page container-narrow">
+		<p class="index-page-back muted">
+			<a href={siteHref('/publications/')}>← Publications</a>
+		</p>
+		<h1 class="index-page-title">Theses &amp; Dissertations</h1>
+		<p class="index-page-intro">
+			PhD dissertations, MS theses, and undergraduate honors theses.
+			Use the year range, degree, and search box to narrow results.
+			For conference and journal papers, visit{' '}
+			<a href={siteHref('/publications/')}>Publications</a>.
+		</p>
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No thesis entries yet.</div>
+			) : (
+				<div class="theses-list-wrap" data-picker-min={String(pickerYearMin)} data-picker-max={String(pickerYearMax)}>
+					<div class="publications-filters-pane">
+						<div class="publications-year-filter" role="group" aria-label="Filter by year">
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="thesis-year-start">Start</label>
+								<select class="publications-year-filter-select" id="thesis-year-start" name="yearStart">
+									{startYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultStartYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="thesis-year-end">End</label>
+								<select class="publications-year-filter-select" id="thesis-year-end" name="yearEnd">
+									{endYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultEndYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
+						<div class="publications-year-filter-field">
+							<label class="publications-year-filter-label" for="thesis-degree-filter">Degree</label>
+							<select class="publications-year-filter-select" id="thesis-degree-filter" name="degree">
+								<option value="">All degrees</option>
+								{
+									degreeOptions.map((d) => (
+										<option value={d}>{d}</option>
+									))
+								}
+							</select>
+						</div>
+						<div class="publications-title-search-field">
+							<label class="publications-year-filter-label" for="thesis-search">Search</label>
+							<input
+								type="search"
+								class="publications-title-search-input"
+								id="thesis-search"
+								name="search"
+								placeholder="Search title or author…"
+								spellcheck="false"
+								autocomplete="off"
+								enterkeyhint="search"
+							/>
+						</div>
+					</div>
+					<p class="publications-filter-stats" id="thesis-filter-stats" role="status" aria-live="polite">
+						<span class="publications-filter-stats-summary">
+							Total <strong id="thesis-stat-total" class="publications-filter-stats-num">0</strong>
+						</span>
+						<span class="publications-filter-stats-sep publications-filter-stats-sep--em" aria-hidden="true">—</span>
+						<span class="publications-filter-stats-kind thesis-filter-stats-kind--phd">
+							PhD <strong id="thesis-stat-phd" class="publications-filter-stats-num">0</strong>
+						</span>
+						<span class="publications-filter-stats-sep publications-filter-stats-sep--dot" aria-hidden="true">·</span>
+						<span class="publications-filter-stats-kind thesis-filter-stats-kind--ms">
+							MS <strong id="thesis-stat-ms" class="publications-filter-stats-num">0</strong>
+						</span>
+						<span class="publications-filter-stats-sep publications-filter-stats-sep--dot" aria-hidden="true">·</span>
+						<span class="publications-filter-stats-kind thesis-filter-stats-kind--undergrad">
+							Undergrad <strong id="thesis-stat-undergrad" class="publications-filter-stats-num">0</strong>
+						</span>
+					</p>
+					<p id="thesis-filter-empty" class="publications-year-filter-empty muted" hidden>
+						No theses/dissertations match these filters.
+					</p>
+					<ul class="theses-list" role="list" id="theses-list">
+						{items.map((t) => {
+							const authorSlug = slugForPublicationAuthor(t.data.author, authorSlugLookup);
+							const rawPeoplePhoto =
+								authorSlug !== undefined
+									? resolvePeoplePhotoPublicHref(authorSlug, peopleById.get(authorSlug)?.data.photo)
+									: undefined;
+							const listThumbHref = rawPeoplePhoto ? siteHref(rawPeoplePhoto) : undefined;
+							const authorNode =
+								authorSlug !== undefined ? (
+									<a class="theses-list-author-link" href={siteHref(`/people/${authorSlug}/`)}>
+										{t.data.author}
+									</a>
+								) : (
+									<span>{t.data.author}</span>
+								);
+							const affiliation = thesisAwardingSubtitle(t.data.degree, t.data.department);
+							return (
+								<li
+									class:list={[
+										'theses-list-item',
+										'surface',
+										`theses-list-item--kind-${thesisDegreeKind(t.data.degree)}`,
+									]}
+									data-year={String(thesisSortYear(t.data.term, t.id))}
+									data-degree={t.data.degree}
+									data-degree-kind={thesisDegreeKind(t.data.degree)}
+									data-search={`${t.data.title} ${t.data.author}`.toLowerCase()}
+								>
+									<div class="theses-list-item-inner">
+										<a
+											class="theses-list-thumb-link"
+											href={siteHref(`/publications/theses/${t.id}/`)}
+											aria-hidden="true"
+											tabindex="-1"
+										>
+											{listThumbHref ? (
+												<img
+													class="theses-list-thumb"
+													src={listThumbHref}
+													alt=""
+													width="144"
+													height="144"
+													loading="lazy"
+													decoding="async"
+												/>
+											) : (
+												<span class="theses-list-thumb-placeholder" />
+											)}
+										</a>
+										<div class="theses-list-main">
+											<h2 class="theses-list-title">
+												<a href={siteHref(`/publications/theses/${t.id}/`)}>{t.data.title}</a>
+											</h2>
+											<p class="theses-list-meta">
+												{authorNode} · {t.data.degree} · {thesisTermNoteLabel(t.data.term, t.id)}
+											</p>
+											{affiliation ? <p class="theses-list-sub muted">{affiliation}</p> : null}
+										</div>
+									</div>
+								</li>
+							);
+						})}
+					</ul>
+				</div>
+			)
+		}
+	</div>
+	<script is:inline>
+		(function () {
+			const wrap = document.querySelector('.theses-list-wrap');
+			if (!wrap) return;
+			const pickerMin = Number(wrap.dataset.pickerMin);
+			const pickerMax = Number(wrap.dataset.pickerMax);
+			const startSelect = document.getElementById('thesis-year-start');
+			const endSelect = document.getElementById('thesis-year-end');
+			const degreeSelect = document.getElementById('thesis-degree-filter');
+			const searchInput = document.getElementById('thesis-search');
+			const items = wrap.querySelectorAll('.theses-list-item[data-year]');
+			const emptyEl = document.getElementById('thesis-filter-empty');
+			const statTotal = document.getElementById('thesis-stat-total');
+			const statPhd = document.getElementById('thesis-stat-phd');
+			const statMs = document.getElementById('thesis-stat-ms');
+			const statUndergrad = document.getElementById('thesis-stat-undergrad');
+			if (!startSelect || !endSelect || !degreeSelect) return;
+
+			function clamp(n, a, b) {
+				if (Number.isNaN(n)) return a;
+				return Math.min(b, Math.max(a, n));
+			}
+
+			function rebuildEndOptions(startVal) {
+				const lo = clamp(startVal, pickerMin, pickerMax);
+				const prevEnd = parseInt(endSelect.value, 10);
+				endSelect.innerHTML = '';
+				for (let y = lo; y <= pickerMax; y++) {
+					const opt = document.createElement('option');
+					opt.value = String(y);
+					opt.textContent = String(y);
+					endSelect.appendChild(opt);
+				}
+				const endVal = clamp(Number.isNaN(prevEnd) ? lo : prevEnd, lo, pickerMax);
+				endSelect.value = String(endVal);
+			}
+
+			function apply() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				const selectedDegree = String(degreeSelect.value || '');
+				const query = String((searchInput && searchInput.value) || '').trim().toLowerCase();
+				startSelect.value = String(lo);
+				endSelect.value = String(Math.max(lo, hi));
+				let visible = 0;
+				let nPhd = 0;
+				let nMs = 0;
+				let nUndergrad = 0;
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					const degree = li.getAttribute('data-degree') || '';
+					const degreeKind = li.getAttribute('data-degree-kind') || 'other';
+					const hay = li.getAttribute('data-search') || '';
+					const yearOk = !Number.isNaN(y) && y >= lo && y <= hi;
+					const degreeOk =
+						!selectedDegree ||
+						(selectedDegree === 'Undergrad'
+							? degree === 'BS' || degree === 'BA'
+							: degree === selectedDegree);
+					const queryOk = !query || hay.indexOf(query) !== -1;
+					const show = yearOk && degreeOk && queryOk;
+					li.toggleAttribute('hidden', !show);
+					if (!show) return;
+					visible += 1;
+					if (degreeKind === 'phd') nPhd += 1;
+					else if (degreeKind === 'ms') nMs += 1;
+					else if (degreeKind === 'undergrad') nUndergrad += 1;
+				});
+				if (emptyEl) emptyEl.hidden = visible > 0;
+				if (statTotal) statTotal.textContent = String(visible);
+				if (statPhd) statPhd.textContent = String(nPhd);
+				if (statMs) statMs.textContent = String(nMs);
+				if (statUndergrad) statUndergrad.textContent = String(nUndergrad);
+			}
+
+			function onStartChange() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				rebuildEndOptions(lo);
+				apply();
+			}
+
+			startSelect.addEventListener('change', onStartChange);
+			endSelect.addEventListener('change', apply);
+			startSelect.addEventListener('input', onStartChange);
+			endSelect.addEventListener('input', apply);
+			degreeSelect.addEventListener('change', apply);
+			if (searchInput) {
+				searchInput.addEventListener('input', apply);
+				searchInput.addEventListener('search', apply);
+			}
+			apply();
+		})();
+	</script>
+</BaseLayout>
+
+<style>
+	.theses-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.theses-list-item {
+		padding: 0.6rem 0.6rem;
+		border-inline-start: 6px solid transparent;
+	}
+
+	.theses-list-item-inner {
+		display: grid;
+		grid-template-columns: 92px minmax(0, 1fr);
+		gap: 0.64rem;
+		align-items: center;
+	}
+
+	.theses-list-thumb-link {
+		display: block;
+		width: 92px;
+		height: 92px;
+		border-radius: 0.5rem;
+		overflow: hidden;
+		background: color-mix(in srgb, var(--muted) 16%, transparent);
+		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 74%, transparent);
+	}
+
+	.theses-list-thumb {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.theses-list-thumb-placeholder {
+		display: block;
+		width: 100%;
+		height: 100%;
+		background:
+			linear-gradient(145deg, color-mix(in srgb, var(--muted) 22%, transparent), color-mix(in srgb, var(--muted) 10%, transparent));
+	}
+
+	.theses-list-main {
+		min-width: 0;
+	}
+
+	.theses-list-item--kind-phd {
+		border-inline-start-color: color-mix(in srgb, var(--pub-venue-journal) 88%, transparent);
+		background:
+			linear-gradient(90deg, rgb(253 246 246 / 0.5) 0%, rgb(253 246 246 / 0) 46%),
+			rgb(252 251 249 / 0.98);
+	}
+
+	.theses-list-item--kind-ms {
+		border-inline-start-color: color-mix(in srgb, var(--pub-venue-conference) 88%, transparent);
+		background:
+			linear-gradient(90deg, rgb(243 248 254 / 0.45) 0%, rgb(243 248 254 / 0) 46%),
+			rgb(252 251 249 / 0.98);
+	}
+
+	.theses-list-item--kind-undergrad {
+		border-inline-start-color: color-mix(in srgb, var(--pub-venue-workshop) 85%, transparent);
+		background:
+			linear-gradient(90deg, rgb(242 250 245 / 0.48) 0%, rgb(242 250 245 / 0) 46%),
+			rgb(252 251 249 / 0.98);
+	}
+
+	.theses-list-item--kind-other {
+		border-inline-start-color: color-mix(in srgb, var(--pub-venue-other) 82%, transparent);
+	}
+
+	.thesis-filter-stats-kind--phd {
+		font-weight: 600;
+		color: color-mix(in srgb, var(--pub-venue-journal) 62%, rgb(72 38 42) 38%);
+	}
+
+	.thesis-filter-stats-kind--phd .publications-filter-stats-num {
+		color: color-mix(in srgb, var(--pub-venue-journal) 48%, rgb(58 32 36) 52%);
+	}
+
+	.thesis-filter-stats-kind--ms {
+		font-weight: 600;
+		color: color-mix(in srgb, var(--pub-venue-conference) 58%, rgb(38 52 92) 42%);
+	}
+
+	.thesis-filter-stats-kind--ms .publications-filter-stats-num {
+		color: color-mix(in srgb, var(--pub-venue-conference) 44%, rgb(32 46 78) 56%);
+	}
+
+	.thesis-filter-stats-kind--undergrad {
+		font-weight: 600;
+		color: color-mix(in srgb, var(--pub-venue-workshop) 58%, rgb(28 62 44) 42%);
+	}
+
+	.thesis-filter-stats-kind--undergrad .publications-filter-stats-num {
+		color: color-mix(in srgb, var(--pub-venue-workshop) 42%, rgb(22 52 36) 58%);
+	}
+
+	.theses-list-title {
+		margin: 0;
+		font-size: 0.98rem;
+		line-height: 1.32;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.theses-list-meta {
+		margin: 0.28rem 0 0;
+		font-size: 0.86rem;
+		color: var(--muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.theses-list-author-link {
+		text-decoration-thickness: 1px;
+		text-underline-offset: 2px;
+	}
+
+	.theses-list-sub {
+		margin: 0.2rem 0 0;
+		font-size: 0.82rem;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	@media (max-width: 640px) {
+		.theses-list-item-inner {
+			grid-template-columns: 78px minmax(0, 1fr);
+			gap: 0.54rem;
+		}
+
+		.theses-list-thumb-link {
+			width: 78px;
+			height: 78px;
+		}
+	}
+</style>

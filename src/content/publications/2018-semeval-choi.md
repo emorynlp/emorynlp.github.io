@@ -1,0 +1,25 @@
+---
+title: 'SemEval 2018 Task 4: Character Identification on Multiparty Dialogues'
+authors:
+  - Jinho D. Choi
+  - Henry Y. Chen
+venue: 'International Workshop on Semantic Evaluation (SemEval)'
+year: 2018
+published: '2018-06-01'
+publicationType: workshop
+venueUrl: 'http://alt.qcri.org/semeval2018/'
+paperUrl: 'https://aclanthology.org/S18-1007/'
+abstract: >-
+  Character identification is a task of entity linking that finds the global entity of each
+  personal mention in multiparty dialogue. For this task, the first two seasons of the popular
+  TV show Friends are annotated, comprising a total of 448 dialogues, 15,709 mentions, and 401
+  entities. The personal mentions are detected from nominals referring to certain characters
+  in the show, and the entities are collected from the list of all characters in those two
+  seasons of the show. This task is challenging because it requires the identification of
+  characters that are mentioned but may not be active during the conversation. Among 90+
+  participants, four of them submitted their system outputs and showed strengths in different
+  aspects about the task. Thorough analyses of the distributed datasets, system outputs, and
+  comparative studies are also provided. To facilitate the momentum, we create an open-source
+  project for this task and publicly release a larger and cleaner dataset, hoping to support
+  researchers for more enhanced modeling.
+---

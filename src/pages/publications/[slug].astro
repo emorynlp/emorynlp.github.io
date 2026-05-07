@@ -2,7 +2,14 @@
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { siteHref } from '../../lib/siteHref';
+import {
+	canonicalPublicationPaperHref,
+	resolveAclPaperLandingPage,
+} from '../../lib/publicationDetailLinks';
+import { publicationAbstractParagraphs } from '../../lib/publicationAbstract';
+import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../../lib/publicationAuthorLinks';
 import { getCollection, getEntry, render } from 'astro:content';
+import { resolvePublicationPresenterPhotoPublicHref } from '../../lib/publicationPresenterPhotos';
 
 export async function getStaticPaths() {
 	const entries = await getCollection('publications');
@@ -21,49 +28,224 @@ if (entry === undefined) {
 	return Astro.redirect(siteHref('/publications/'));
 }
 
+const people = await getCollection('people');
+const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
+
 const { Content } = await render(entry);
 const d = entry.data;
+
+const aclPageFallback = resolveAclPaperLandingPage(d);
+
+/** Venue name links to `venueUrl` when set; otherwise ACL abstract page when `paperUrl` is anthology-hosted. */
+const venueHref = d.venueUrl?.trim() || aclPageFallback;
+
+const paperHref = canonicalPublicationPaperHref(d.paperUrl);
+const posterHref = d.posterUrl?.trim();
+const slidesHref = d.slidesUrl?.trim();
+
+const resourceLinks = [
+	paperHref && { href: paperHref, label: 'Paper' },
+	(d.resourceUrl?.trim() || d.codeUrl?.trim()) && {
+		href: (d.resourceUrl ?? d.codeUrl)!.trim(),
+		label: 'Resources',
+	},
+	posterHref && { href: posterHref, label: 'Poster' },
+	slidesHref && { href: slidesHref, label: 'Slides' },
+].filter(Boolean) as {
+	href: string;
+	label: string;
+}[];
+
+const presenterRaw = d.presenter?.trim() || '';
+const presenterNames = presenterRaw
+	? presenterRaw
+			.split(',')
+			.map((s) => s.trim())
+			.filter(Boolean)
+	: [];
+
+// Optional thumbnail for the presenter. Resolved from `public/publications/{paper-slug}.{ext}`.
+const presenterPhotoHref = resolvePublicationPresenterPhotoPublicHref(entry.id);
+
+const abstractBlocks = publicationAbstractParagraphs(d.abstract);
+
+const authorFootnote = d.authorFootnote?.trim() || '';
+const authorFootnoteFor = d.authorFootnoteFor?.trim() || '';
 ---
 
-<BaseLayout title={d.title}>
-	<article class="container-narrow" style="padding-block: 2rem 4rem;">
-		<header class="detail-header">
-			<h1>{d.title}</h1>
-			<p class="meta-line">
-				<span>{d.year}</span>
-				{d.publicationType ? <span class="tag">{d.publicationType}</span> : null}
-			</p>
-			<p class="meta-line">{d.authors.join(', ')}</p>
-			<p class="muted" style="margin: 0.5rem 0 0;"><strong>Venue:</strong> {d.venue}</p>
-			<p class="meta-line" style="margin-top: 0.85rem;">
-				{d.pdfUrl ? <a href={d.pdfUrl}>Paper / PDF</a> : null}
-				{d.codeUrl ? <a href={d.codeUrl}>Code</a> : null}
-			</p>
-		</header>
-		{
-			d.abstract ? (
-				<section aria-labelledby="abs-h">
-					<h2 id="abs-h" class="page-title" style="font-size: 1.15rem;">
-						Abstract
-					</h2>
-					<p class="prose-slot" style="margin-top: 0;">
-						{d.abstract}
-					</p>
-				</section>
-			) : null
-		}
-		<div class="prose-slot">
-			<Content />
-		</div>
-		{
-			d.bibtex ? (
-				<section aria-labelledby="bib-h">
-					<h2 id="bib-h" class="page-title" style="font-size: 1.15rem;">
-						BibTeX
-					</h2>
-					<pre>{d.bibtex}</pre>
-				</section>
-			) : null
-		}
-	</article>
+<BaseLayout title={d.title} description={`${d.authors.slice(0, 3).join(', ')}${d.authors.length > 3 ? ', …' : ''} · ${d.venue}`}>
+	<div class="publications-page container-narrow">
+		<p class="publications-detail-back muted">
+			<a href={siteHref('/publications/')}>← Publications</a>
+		</p>
+
+		<article class="publications-detail-article">
+			<header class="publications-detail-header">
+				<h1 class="publications-detail-title">{d.title}</h1>
+
+				<p class="publications-detail-authors">
+					{
+						d.authors.map((a, i) => {
+							const ps = slugForPublicationAuthor(a, authorSlugLookup);
+							const peopleHref = ps ? siteHref(`/people/${ps}/`) : undefined;
+							const showMark = Boolean(
+								authorFootnote && authorFootnoteFor && authorFootnoteFor === a,
+							);
+							const refmark = showMark ? (
+								<span class="publications-detail-author-refmark" aria-hidden="true">
+									*
+								</span>
+							) : null;
+							return (
+								<>
+									{i > 0 ? ', ' : ''}{peopleHref ? (
+										<a
+											class="publication-card-author-link"
+											href={peopleHref}
+											aria-describedby={showMark && authorFootnote ? 'pub-author-footnote' : undefined}
+										>
+											{a}
+											{refmark}
+										</a>
+									) : (
+										<span
+											aria-describedby={showMark && authorFootnote ? 'pub-author-footnote' : undefined}
+										>
+											{a}
+											{refmark}
+										</span>
+									)}
+								</>
+							);
+						})
+					}
+				</p>
+				{
+					authorFootnote ? (
+						<p class="publications-detail-author-footnote muted" id="pub-author-footnote" role="note">
+							*: {authorFootnote}
+						</p>
+					) : null
+				}
+			</header>
+
+			{
+				abstractBlocks.length > 0 ? (
+					<section class="publications-detail-abstract-wrap" aria-labelledby="pub-abs-h">
+						<h2 id="pub-abs-h" class="publications-detail-field-label">
+							Abstract
+						</h2>
+						<div class="publications-detail-abstract">
+							{abstractBlocks.map((block) => (
+								<p class="publications-detail-abstract-p">{block}</p>
+							))}
+						</div>
+					</section>
+				) : null
+			}
+
+			<div class="publications-detail-paper-meta" role="region" aria-label="Publication citation details">
+				<span class="publications-detail-field-label publications-detail-meta-row-label" id="pub-venue-label">Venue</span>
+				<div class="publications-detail-meta-value publications-detail-meta-value-cell" aria-labelledby="pub-venue-label">
+					{
+						venueHref ? (
+							<a class="publications-detail-venue-link" href={venueHref} target="_blank" rel="noopener noreferrer">
+								{d.venue}
+							</a>
+						) : (
+							d.venue
+						)
+					}
+				</div>
+				<span class="publications-detail-field-label publications-detail-meta-row-label" id="pub-year-label">Year</span>
+				<div class="publications-detail-meta-value publications-detail-meta-value--tabular publications-detail-meta-value-cell" aria-labelledby="pub-year-label">
+					{d.year}
+				</div>
+				{
+					d.forthcoming ? (
+						<>
+							<span
+								class="publications-detail-field-label publications-detail-meta-row-label"
+								id="pub-status-label"
+							>
+								Status
+							</span>
+							<div
+								class="publications-detail-meta-value publications-detail-meta-value-cell"
+								aria-labelledby="pub-status-label"
+							>
+								Accepted; not yet published
+							</div>
+						</>
+					) : null
+				}
+				{
+					resourceLinks.length > 0 ? (
+						<>
+							<h2 id="pub-links-h" class="publications-detail-field-label publications-detail-meta-row-label publications-detail-links-heading">
+								Links
+							</h2>
+							<nav
+								class="publications-detail-linkbar publications-detail-meta-value-cell"
+								aria-label="External paper links"
+								aria-labelledby="pub-links-h"
+							>
+								{resourceLinks.map((lnk, i) => (
+									<>
+										{i > 0 ? (
+											<span class="publications-detail-linkbar-sep" aria-hidden="true">·</span>
+										) : null}
+										<a
+											class="publications-detail-linkbar-a"
+											href={lnk.href}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{lnk.label}
+										</a>
+									</>
+								))}
+							</nav>
+						</>
+					) : null
+				}
+				{
+					presenterNames.length > 0 ? (
+						<>
+							<h2 id="pub-present-h" class="publications-detail-field-label publications-detail-meta-row-label publications-detail-presenter-heading">
+								Present
+							</h2>
+							<div class="publications-detail-meta-value publications-detail-presenter-value publications-detail-meta-value-cell" aria-labelledby="pub-present-h">
+								{presenterNames.map((name, i) => {
+									const presenterSlug = slugForPublicationAuthor(name, authorSlugLookup);
+									const presenterHref = presenterSlug ? siteHref(`/people/${presenterSlug}/`) : undefined;
+									return (
+										<>
+											{i > 0 ? ', ' : ''}
+											{presenterHref ? (
+												<a class="publication-card-author-link" href={presenterHref}>
+													{name}
+												</a>
+											) : (
+												<span>{name}</span>
+											)}
+										</>
+									);
+								})}
+							</div>
+						</>
+					) : null
+				}
+			</div>
+
+			<div class="publications-detail-body prose-slot">
+				{
+					presenterPhotoHref ? (
+						<img src={presenterPhotoHref} alt={`Photo of ${presenterNames[0]}`} loading="lazy" decoding="async" />
+					) : null
+				}
+				<Content />
+			</div>
+		</article>
+	</div>
 </BaseLayout>
