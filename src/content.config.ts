@@ -32,6 +32,27 @@ const people = defineCollection({
 		googleScholar: z.string().url().optional(),
 		semanticScholar: z.string().url().optional(),
 		photo: z.string().optional(),
+		/**
+		 * Optional wide photo shown after Education / theses / publications / achievements on the profile page.
+		 * Path under `public/` (e.g. `/highlights/…`).
+		 */
+		footerPhoto: z
+			.object({
+				src: z.string(),
+				alt: z.string().optional(),
+				caption: z.string().optional(),
+			})
+			.optional(),
+		/** Optional extra photos after Education / thesis / publications / achievements (after `footerPhoto` if set). */
+		footerPhotos: z
+			.array(
+				z.object({
+					src: z.string(),
+					alt: z.string().optional(),
+					caption: z.string().optional(),
+				}),
+			)
+			.optional(),
 		aliases: z.array(z.string()).optional(),
 		/**
 		 * Alternate author strings used on papers/theses only (normalized + linked on `/publications/`).
@@ -43,7 +64,7 @@ const people = defineCollection({
 		 * Prefer `title` (what happened) + `when` (timing) + optional `issuer` (who gave it) instead of one long `title` string.
 		 * Legacy entries may still embed dates in `title`; the site splits trailing `(...)` when it looks date-like.
 		 * Editorial style: short noun-first lines; em dash for results (`Contest — 1st place (Team)`); awards as `Award, Emory Computer Science`.
-		 * Do not list undergraduate thesis honor level here (`Highest Honor in …`, etc.) — that belongs on the linked thesis entry (`honorsLevel`).
+		 * Do not list undergraduate thesis honor level here (`Highest Honor in …`, etc.) — use `honorsLevel` on the linked thesis entry for the thesis detail page; the people profile thesis list omits it (see Achievements).
 		 */
 		achievements: z
 			.array(
@@ -51,7 +72,7 @@ const people = defineCollection({
 					title: z.string(),
 					when: z.string().optional(),
 					issuer: z.string().optional(),
-					url: z.string().url().optional(),
+					url: z.string().optional(),
 				}),
 			)
 			.optional(),
@@ -108,7 +129,7 @@ const publications = defineCollection({
 		authorFootnote: z.string().optional(),
 		/** Must match an `authors` entry exactly; that name is shown with a trailing `*`. */
 		authorFootnoteFor: z.string().optional(),
-		/** Detail page metadata row below Links (“Present”: who spoke / exhibited). */
+		/** Detail page row below Links (“Present”). Multiple people: comma-separated (split on commas); each segment is matched to `/people/` like `authors`. */
 		presenter: z.string().optional(),
 		/**
 		 * Calendar date when the paper was published or presented (`YYYY-MM-DD` recommended).
@@ -188,7 +209,9 @@ const highlights = defineCollection({
 		featured: z.boolean().optional(),
 		/** Cover image path under `public/` (e.g. `/highlights/*.jpg`) — listing thumbnails and home carousel */
 		coverImage: z.string().optional(),
-		/** Free-form labels rendered as pills, e.g. `social`, `paper`, `visit` */
+		/** CSS object-position for listing and home cover thumbnails only (cards, carousel). Not applied to images inside the article body. */
+		coverImagePosition: z.string().optional(),
+		/** Free-form labels rendered as pills, e.g. `social`, `paper`, `visit`, `conferences` */
 		labels: z.array(z.string()).optional(),
 		/** People slugs (`src/content/people/{slug}.md`). Missing files still render (name derived from slug); add profiles to enable links + People page listings. */
 		participants: z.array(z.string()).optional(),

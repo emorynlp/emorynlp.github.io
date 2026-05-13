@@ -8,6 +8,7 @@ venue: Annual Meeting of the Association for Computational Linguistics (ACL)
 year: 2023
 published: '2023-07-09'
 publicationType: conference
+presenter: 'Sarah E. Finch, James D. Finch'
 venueUrl: 'http://2023.aclweb.org'
 paperUrl: 'https://aclanthology.org/2023.acl-long.839/'
 resourceUrl: 'https://github.com/emorynlp/ChatEvaluationPlatform'

@@ -69,6 +69,8 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 					class="publications-list-wrap"
 					data-picker-min={String(pickerYearMin)}
 					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
 					data-selected-author=""
 				>
 					<div class="publications-filters-pane">
@@ -218,6 +220,8 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 			if (!wrap) return;
 			const pickerMin = Number(wrap.dataset.pickerMin);
 			const pickerMax = Number(wrap.dataset.pickerMax);
+			const defaultStart = Number(wrap.dataset.defaultStart);
+			const defaultEnd = Number(wrap.dataset.defaultEnd);
 			const startSelect = document.getElementById('pub-year-start');
 			const endSelect = document.getElementById('pub-year-end');
 			if (!startSelect || !endSelect) return;
@@ -242,9 +246,38 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				return Math.min(b, Math.max(a, n));
 			}
 
-			function rebuildEndOptions(startVal) {
+			function readYearRangeFromLocation() {
+				const params = new URLSearchParams(window.location.search);
+				let lo = parseInt(params.get('yearStart') ?? '', 10);
+				let hi = parseInt(params.get('yearEnd') ?? '', 10);
+				if (Number.isNaN(lo)) lo = defaultStart;
+				if (Number.isNaN(hi)) hi = defaultEnd;
+				lo = clamp(lo, pickerMin, pickerMax);
+				hi = clamp(hi, pickerMin, pickerMax);
+				return { lo, hi: Math.max(lo, hi) };
+			}
+
+			function syncYearRangeToLocation(lo, hi) {
+				const params = new URLSearchParams(window.location.search);
+				if (lo === defaultStart) params.delete('yearStart');
+				else params.set('yearStart', String(lo));
+				if (hi === defaultEnd) params.delete('yearEnd');
+				else params.set('yearEnd', String(hi));
+				const qs = params.toString();
+				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
+				const current = window.location.pathname + window.location.search;
+				if (next !== current) {
+					history.replaceState(null, '', next);
+				}
+			}
+
+			function rebuildEndOptions(startVal, preferredEnd) {
 				const lo = clamp(startVal, pickerMin, pickerMax);
-				const prevEnd = parseInt(endSelect.value, 10);
+				let endVal = preferredEnd;
+				if (endVal == null || Number.isNaN(endVal)) {
+					endVal = parseInt(endSelect.value, 10);
+				}
+				endVal = clamp(Number.isNaN(endVal) ? lo : endVal, lo, pickerMax);
 				endSelect.innerHTML = '';
 				for (let y = lo; y <= pickerMax; y++) {
 					const opt = document.createElement('option');
@@ -252,11 +285,6 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 					opt.textContent = String(y);
 					endSelect.appendChild(opt);
 				}
-				const endVal = clamp(
-					Number.isNaN(prevEnd) ? lo : prevEnd,
-					lo,
-					pickerMax
-				);
 				endSelect.value = String(endVal);
 			}
 
@@ -444,9 +472,10 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 			function apply() {
 				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
 				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				const endYear = Math.max(lo, hi);
 				startSelect.value = String(lo);
-				endSelect.value = String(Math.max(lo, hi));
-				rebuildAuthorMenuForYearRange(lo, hi);
+				endSelect.value = String(endYear);
+				rebuildAuthorMenuForYearRange(lo, endYear);
 				const authorSlug = getSelectedAuthorSlug();
 				const titleQ = getTitleQueryNormalized();
 				let visible = 0;
@@ -456,7 +485,7 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				let nPreprint = 0;
 				items.forEach((li) => {
 					const y = parseInt(li.getAttribute('data-year'), 10);
-					const yearOk = !Number.isNaN(y) && y >= lo && y <= hi;
+					const yearOk = !Number.isNaN(y) && y >= lo && y <= endYear;
 					const hay = li.getAttribute('data-search-haystack') || '';
 					const titleOk = !titleQ || hay.indexOf(titleQ) !== -1;
 					const raw = li.getAttribute('data-member-slugs') || '';
@@ -479,11 +508,20 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				if (statWorkshopPlus) statWorkshopPlus.textContent = String(nWorkshopPlus);
 				if (statPreprint) statPreprint.textContent = String(nPreprint);
 				if (authorMenu) syncAuthorTrigger();
+				syncYearRangeToLocation(lo, endYear);
 			}
 
 			function onStartChange() {
 				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
-				rebuildEndOptions(lo);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				rebuildEndOptions(lo, hi);
+				apply();
+			}
+
+			function syncFiltersFromLocation() {
+				const range = readYearRangeFromLocation();
+				startSelect.value = String(range.lo);
+				rebuildEndOptions(range.lo, range.hi);
 				apply();
 			}
 
@@ -523,7 +561,8 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				});
 			}
 
-			apply();
+			syncFiltersFromLocation();
+			window.addEventListener('pageshow', syncFiltersFromLocation);
 		})();
 	</script>
 </BaseLayout>

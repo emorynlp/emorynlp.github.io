@@ -42,6 +42,7 @@ const degreeOptions = degreeOrder.filter((d) => {
 	}
 	return degreeSet.has(d);
 });
+const degreeCatalogForClient = degreeOptions.map((degree) => ({ value: degree, label: degree }));
 
 function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' {
 	if (degree === 'PhD' || degree === 'Dissertation') return 'phd';
@@ -75,7 +76,14 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 			items.length === 0 ? (
 				<div class="empty-state surface">No thesis entries yet.</div>
 			) : (
-				<div class="theses-list-wrap" data-picker-min={String(pickerYearMin)} data-picker-max={String(pickerYearMax)}>
+				<div
+					class="theses-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-degree=""
+				>
 					<div class="publications-filters-pane">
 						<div class="publications-year-filter" role="group" aria-label="Filter by year">
 							<div class="publications-year-filter-field">
@@ -99,16 +107,32 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 								</select>
 							</div>
 						</div>
-						<div class="publications-year-filter-field">
-							<label class="publications-year-filter-label" for="thesis-degree-filter">Degree</label>
-							<select class="publications-year-filter-select" id="thesis-degree-filter" name="degree">
-								<option value="">All degrees</option>
-								{
-									degreeOptions.map((d) => (
-										<option value={d}>{d}</option>
-									))
-								}
-							</select>
+						<div class="publications-author-filter-block">
+							<span class="publications-year-filter-label" id="thesis-degree-filter-heading">
+								Degree
+							</span>
+							<div class="publications-author-filter" id="thesis-degree-filter-root">
+								<button
+									type="button"
+									class="publications-author-filter-trigger publications-author-filter-trigger--text-only"
+									id="thesis-degree-trigger"
+									aria-expanded="false"
+									aria-haspopup="listbox"
+									aria-controls="thesis-degree-menu"
+									aria-labelledby="thesis-degree-filter-heading thesis-degree-trigger-label"
+								>
+									<span class="publications-author-filter-trigger-text" id="thesis-degree-trigger-label">
+										All degrees
+									</span>
+								</button>
+								<div
+									class="publications-author-filter-menu"
+									id="thesis-degree-menu"
+									role="listbox"
+									aria-labelledby="thesis-degree-filter-heading"
+									hidden
+								/>
+							</div>
 						</div>
 						<div class="publications-title-search-field">
 							<label class="publications-year-filter-label" for="thesis-search">Search</label>
@@ -124,6 +148,7 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 							/>
 						</div>
 					</div>
+					<script type="application/json" id="thesis-degree-catalog" set:html={JSON.stringify(degreeCatalogForClient)} />
 					<p class="publications-filter-stats" id="thesis-filter-stats" role="status" aria-live="polite">
 						<span class="publications-filter-stats-summary">
 							Total <strong id="thesis-stat-total" class="publications-filter-stats-num">0</strong>
@@ -218,9 +243,14 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 			if (!wrap) return;
 			const pickerMin = Number(wrap.dataset.pickerMin);
 			const pickerMax = Number(wrap.dataset.pickerMax);
+			const defaultStart = Number(wrap.dataset.defaultStart);
+			const defaultEnd = Number(wrap.dataset.defaultEnd);
 			const startSelect = document.getElementById('thesis-year-start');
 			const endSelect = document.getElementById('thesis-year-end');
-			const degreeSelect = document.getElementById('thesis-degree-filter');
+			const degreeRoot = document.getElementById('thesis-degree-filter-root');
+			const degreeTrigger = document.getElementById('thesis-degree-trigger');
+			const degreeMenu = document.getElementById('thesis-degree-menu');
+			const degreeTriggerLabel = document.getElementById('thesis-degree-trigger-label');
 			const searchInput = document.getElementById('thesis-search');
 			const items = wrap.querySelectorAll('.theses-list-item[data-year]');
 			const emptyEl = document.getElementById('thesis-filter-empty');
@@ -228,16 +258,45 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 			const statPhd = document.getElementById('thesis-stat-phd');
 			const statMs = document.getElementById('thesis-stat-ms');
 			const statUndergrad = document.getElementById('thesis-stat-undergrad');
-			if (!startSelect || !endSelect || !degreeSelect) return;
+			if (!startSelect || !endSelect || !degreeMenu) return;
 
 			function clamp(n, a, b) {
 				if (Number.isNaN(n)) return a;
 				return Math.min(b, Math.max(a, n));
 			}
 
-			function rebuildEndOptions(startVal) {
+			function readYearRangeFromLocation() {
+				const params = new URLSearchParams(window.location.search);
+				let lo = parseInt(params.get('yearStart') ?? '', 10);
+				let hi = parseInt(params.get('yearEnd') ?? '', 10);
+				if (Number.isNaN(lo)) lo = defaultStart;
+				if (Number.isNaN(hi)) hi = defaultEnd;
+				lo = clamp(lo, pickerMin, pickerMax);
+				hi = clamp(hi, pickerMin, pickerMax);
+				return { lo, hi: Math.max(lo, hi) };
+			}
+
+			function syncYearRangeToLocation(lo, hi) {
+				const params = new URLSearchParams(window.location.search);
+				if (lo === defaultStart) params.delete('yearStart');
+				else params.set('yearStart', String(lo));
+				if (hi === defaultEnd) params.delete('yearEnd');
+				else params.set('yearEnd', String(hi));
+				const qs = params.toString();
+				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
+				const current = window.location.pathname + window.location.search;
+				if (next !== current) {
+					history.replaceState(null, '', next);
+				}
+			}
+
+			function rebuildEndOptions(startVal, preferredEnd) {
 				const lo = clamp(startVal, pickerMin, pickerMax);
-				const prevEnd = parseInt(endSelect.value, 10);
+				let endVal = preferredEnd;
+				if (endVal == null || Number.isNaN(endVal)) {
+					endVal = parseInt(endSelect.value, 10);
+				}
+				endVal = clamp(Number.isNaN(endVal) ? lo : endVal, lo, pickerMax);
 				endSelect.innerHTML = '';
 				for (let y = lo; y <= pickerMax; y++) {
 					const opt = document.createElement('option');
@@ -245,17 +304,135 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 					opt.textContent = String(y);
 					endSelect.appendChild(opt);
 				}
-				const endVal = clamp(Number.isNaN(prevEnd) ? lo : prevEnd, lo, pickerMax);
 				endSelect.value = String(endVal);
+			}
+
+			let degreeCatalogCache = null;
+			function getDegreeCatalog() {
+				if (degreeCatalogCache !== null) return degreeCatalogCache;
+				const el = document.getElementById('thesis-degree-catalog');
+				if (!el || !el.textContent) {
+					degreeCatalogCache = [];
+					return degreeCatalogCache;
+				}
+				try {
+					degreeCatalogCache = JSON.parse(el.textContent.trim());
+				} catch (_) {
+					degreeCatalogCache = [];
+				}
+				return degreeCatalogCache;
+			}
+
+			function getSelectedDegree() {
+				return wrap.getAttribute('data-selected-degree') || '';
+			}
+
+			function setSelectedDegree(value) {
+				wrap.setAttribute('data-selected-degree', value || '');
+				apply();
+			}
+
+			function setDegreeMenuOpen(open) {
+				if (!degreeMenu || !degreeTrigger) return;
+				degreeMenu.hidden = !open;
+				degreeTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+			}
+
+			function syncDegreeTrigger() {
+				if (!degreeTrigger || !degreeTriggerLabel || !degreeMenu) return;
+				const cur = getSelectedDegree();
+				let selectedBtn = null;
+				for (const btn of degreeMenu.querySelectorAll('.publications-author-filter-option')) {
+					if ((btn.getAttribute('data-value') ?? '') === cur) {
+						selectedBtn = btn;
+						break;
+					}
+				}
+				if (!selectedBtn) {
+					selectedBtn = degreeMenu.querySelector('.publications-author-filter-option[data-value=""]');
+				}
+				for (const btn of degreeMenu.querySelectorAll('.publications-author-filter-option')) {
+					btn.setAttribute('aria-selected', btn === selectedBtn ? 'true' : 'false');
+				}
+				const label = selectedBtn ? selectedBtn.getAttribute('data-label') || 'All degrees' : 'All degrees';
+				const count = selectedBtn ? selectedBtn.getAttribute('data-count') : null;
+				degreeTriggerLabel.textContent =
+					count && count !== '' ? label + ' (' + count + ')' : label;
+			}
+
+			function appendDegreeMenuOption(menu, value, label, count) {
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.className =
+					'publications-author-filter-option publications-filter-menu-option--text-only';
+				btn.setAttribute('role', 'option');
+				btn.setAttribute('data-value', value);
+				btn.setAttribute('data-label', label);
+				if (count > 0) btn.setAttribute('data-count', String(count));
+				btn.setAttribute('aria-selected', 'false');
+				const main = document.createElement('span');
+				main.className = 'publications-author-filter-option-main';
+				main.appendChild(document.createTextNode(label + (count > 0 ? ' ' : '')));
+				if (count > 0) {
+					const cspan = document.createElement('span');
+					cspan.className = 'publications-author-filter-option-count muted';
+					cspan.textContent = '(' + count + ')';
+					main.appendChild(cspan);
+				}
+				btn.appendChild(main);
+				menu.appendChild(btn);
+				return btn;
+			}
+
+			function itemMatchesDegreeFilter(degree, filterValue) {
+				if (!filterValue) return true;
+				if (filterValue === 'Undergrad') return degree === 'BS' || degree === 'BA';
+				return degree === filterValue;
+			}
+
+			function rebuildDegreeOptions(lo, hi, query) {
+				const catalog = getDegreeCatalog();
+				if (!catalog.length) return;
+				const cur = getSelectedDegree();
+				const countByDegree = {};
+				catalog.forEach(function (entry) {
+					countByDegree[entry.value] = 0;
+				});
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					if (Number.isNaN(y) || y < lo || y > hi) return;
+					const hay = li.getAttribute('data-search') || '';
+					if (query && hay.indexOf(query) === -1) return;
+					const degree = li.getAttribute('data-degree') || '';
+					catalog.forEach(function (entry) {
+						if (itemMatchesDegreeFilter(degree, entry.value)) {
+							countByDegree[entry.value] += 1;
+						}
+					});
+				});
+				if (cur && !countByDegree[cur]) {
+					wrap.setAttribute('data-selected-degree', '');
+				}
+				while (degreeMenu.firstChild) {
+					degreeMenu.removeChild(degreeMenu.firstChild);
+				}
+				appendDegreeMenuOption(degreeMenu, '', 'All degrees', 0);
+				catalog.forEach(function (entry) {
+					const count = countByDegree[entry.value] || 0;
+					if (count <= 0) return;
+					appendDegreeMenuOption(degreeMenu, entry.value, entry.label, count);
+				});
 			}
 
 			function apply() {
 				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
 				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
-				const selectedDegree = String(degreeSelect.value || '');
+				const endYear = Math.max(lo, hi);
 				const query = String((searchInput && searchInput.value) || '').trim().toLowerCase();
+				rebuildDegreeOptions(lo, endYear, query);
+				const selectedDegree = getSelectedDegree();
 				startSelect.value = String(lo);
-				endSelect.value = String(Math.max(lo, hi));
+				endSelect.value = String(endYear);
 				let visible = 0;
 				let nPhd = 0;
 				let nMs = 0;
@@ -265,7 +442,7 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 					const degree = li.getAttribute('data-degree') || '';
 					const degreeKind = li.getAttribute('data-degree-kind') || 'other';
 					const hay = li.getAttribute('data-search') || '';
-					const yearOk = !Number.isNaN(y) && y >= lo && y <= hi;
+					const yearOk = !Number.isNaN(y) && y >= lo && y <= endYear;
 					const degreeOk =
 						!selectedDegree ||
 						(selectedDegree === 'Undergrad'
@@ -285,11 +462,21 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 				if (statPhd) statPhd.textContent = String(nPhd);
 				if (statMs) statMs.textContent = String(nMs);
 				if (statUndergrad) statUndergrad.textContent = String(nUndergrad);
+				syncDegreeTrigger();
+				syncYearRangeToLocation(lo, endYear);
 			}
 
 			function onStartChange() {
 				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
-				rebuildEndOptions(lo);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				rebuildEndOptions(lo, hi);
+				apply();
+			}
+
+			function syncFiltersFromLocation() {
+				const range = readYearRangeFromLocation();
+				startSelect.value = String(range.lo);
+				rebuildEndOptions(range.lo, range.hi);
 				apply();
 			}
 
@@ -297,12 +484,38 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 			endSelect.addEventListener('change', apply);
 			startSelect.addEventListener('input', onStartChange);
 			endSelect.addEventListener('input', apply);
-			degreeSelect.addEventListener('change', apply);
+			if (degreeRoot && degreeTrigger && degreeMenu) {
+				degreeTrigger.addEventListener('click', function (e) {
+					e.stopPropagation();
+					const open = degreeMenu.hidden;
+					setDegreeMenuOpen(open);
+				});
+				degreeMenu.addEventListener('click', function (e) {
+					const btn = e.target.closest('.publications-author-filter-option');
+					if (!btn || !degreeMenu.contains(btn)) return;
+					const value = btn.getAttribute('data-value') ?? '';
+					setSelectedDegree(value);
+					setDegreeMenuOpen(false);
+				});
+				document.addEventListener('click', function () {
+					setDegreeMenuOpen(false);
+				});
+				degreeRoot.addEventListener('click', function (e) {
+					e.stopPropagation();
+				});
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Escape' && degreeMenu && !degreeMenu.hidden) {
+						setDegreeMenuOpen(false);
+					}
+				});
+			}
+
 			if (searchInput) {
 				searchInput.addEventListener('input', apply);
 				searchInput.addEventListener('search', apply);
 			}
-			apply();
+			syncFiltersFromLocation();
+			window.addEventListener('pageshow', syncFiltersFromLocation);
 		})();
 	</script>
 </BaseLayout>

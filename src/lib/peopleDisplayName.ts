@@ -45,3 +45,26 @@ export function formatPeopleProfileDisplayName(
 
 	return `${n} (${firstAlt})`;
 }
+
+/**
+ * Show the muted “Directory name: …” line under the profile `<h1>` only when the heading
+ * does not already visibly include every whitespace-separated token from the canonical {@link name}.
+ * Avoids redundancy for headings like {@code Junzhi (Molly) Han} or {@code Yutong (Natalie) Hu}.
+ */
+export function peopleProfileShowLegalDirectorySubtitle(
+	name: string,
+	displayHeading: string,
+): boolean {
+	const n = name.trim();
+	const h = displayHeading.trim().toLowerCase();
+	if (!n || n.toLowerCase() === h) return false;
+
+	const tokens = n.split(/\s+/).filter((t) => t.length > 0);
+	if (tokens.length === 0) return false;
+
+	for (const t of tokens) {
+		const needle = t.toLowerCase();
+		if (!h.includes(needle)) return true;
+	}
+	return false;
+}

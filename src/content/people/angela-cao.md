@@ -9,6 +9,9 @@ linkedin: 'https://www.linkedin.com/in/angela-cao-697a07141/'
 github: 'https://github.com/angelacao8'
 semanticScholar: 'https://www.semanticscholar.org/author/Angela-Cao/2182246411'
 achievements:
+  - title: 'Highest Honor in Linguistics'
+    when: '05/2022'
+    url: '/highlights/20220508-undergraduate-honors-2022/'
   - title: CSLI Summer Internship
     when: 05/2021 ~ 08/2021
   - title: Undergraduate Research Fellowship

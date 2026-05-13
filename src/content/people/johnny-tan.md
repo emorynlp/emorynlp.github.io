@@ -9,8 +9,10 @@ linkedin: 'https://www.linkedin.com/in/johnny-tan-987a3478'
 # github: 'https://github.com/jtan25'
 semanticScholar: 'https://www.semanticscholar.org/author/3361659'
 achievements:
-  - title: ICPC Southeast USA Region, Division 2 — 2nd place (Null Contest)
+  - title: 'ICPC Southeast USA Region, Division 2: 2nd Place (Null Contest)'
     when: 11/2015
+    issuer: ICPC Foundation
+    url: '/highlights/20151114-icpc-southeast-regional-2015/'
 education:
   - degree: BS in Computer Science
     institution: Emory University

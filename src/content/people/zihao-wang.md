@@ -10,8 +10,12 @@ linkedin: 'https://www.linkedin.com/in/zihao-wang-ph-d-26a66953/'
 semanticScholar: 'https://www.semanticscholar.org/author/Zihao-Wang/2117422663'
 googleScholar: 'https://scholar.google.com/citations?user=Zv0T8pUAAAAJ'
 achievements:
+  - title: 'PhD in Computer Science and Informatics'
+    when: '05/2023'
+    url: '/highlights/20230508-doctor-of-philosophy-2023/'
   - title: Alexa Prize Socialbot Grand Challenge 3 — 1st place (Emora)
     when: 08/2020
+    url: '/highlights/20200804-alexa-prize-winner-2020/'
 education:
   - degree: PhD in Computer Science and Informatics
     institution: Emory University

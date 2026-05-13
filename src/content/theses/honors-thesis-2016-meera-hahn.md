@@ -13,6 +13,5 @@ committee:
   - "Li Xiong, Computer Science, Emory University"
   - "Effrosyni Seitaridou, Physics, Oxford College of Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2016-meera-hahn.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2016-meera-hahn?c=2015-2020"
 ---

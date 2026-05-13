@@ -13,6 +13,5 @@ committee:
   - "Valerie Summet, Computer Science, Emory University"
   - "Phillip Wolff, Psychology, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2016-reid-kilgore.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2016-reid-kilgore?c=2015-2020"
 ---

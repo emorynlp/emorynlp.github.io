@@ -46,7 +46,9 @@ const participantRefs = resolveNewsParticipants(peopleAll, entry.data.participan
 				{labels.length ? (
 					<span class="news-label-group">
 						{labels.map((label) => (
-							<span class="news-label-pill">{label}</span>
+							<a href={siteHref(`/highlights/label/${label}/`)} class="news-label-pill">
+								{label}
+							</a>
 						))}
 					</span>
 				) : null}
@@ -86,3 +88,69 @@ const participantRefs = resolveNewsParticipants(peopleAll, entry.data.participan
 		}
 	</article>
 </BaseLayout>
+
+<style is:global>
+	.news-detail-body .highlight-md-figure {
+		margin: 1.35rem 0;
+		max-width: 100%;
+	}
+
+	.news-detail-body .highlight-md-figure img {
+		display: block;
+		width: 100%;
+		height: auto;
+		margin: 0;
+		border-radius: calc(var(--radius) + 2px);
+	}
+
+	.news-detail-body .highlight-md-caption {
+		margin: 0.25rem 0 0;
+		font-size: 0.94rem;
+		line-height: 1.55;
+		color: var(--muted);
+		text-align: center;
+	}
+
+	/* Optional raw HTML in highlight markdown (YouTube, Vimeo, etc.) */
+	.news-detail-body .highlight-md-embed {
+		position: relative;
+		width: 100%;
+		max-width: min(100%, 960px);
+		margin: 1.35rem 0;
+		aspect-ratio: 16 / 9;
+		border-radius: calc(var(--radius) + 2px);
+		overflow: hidden;
+		border: 1px solid var(--border);
+		background: #0f172a;
+	}
+
+	.news-detail-body .highlight-md-embed iframe {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		display: block;
+	}
+
+	.news-detail-body .highlight-md-embed.highlight-md-embed--audio {
+		aspect-ratio: auto;
+		height: 166px;
+		margin: 1rem 0;
+		border: 0;
+		background: transparent;
+	}
+
+	.news-detail-body .highlight-md-embed.highlight-md-embed--audio:has(iframe[src*='open.spotify.com']) {
+		height: 152px;
+	}
+
+	/* Embed + sibling caption: same vertical rhythm as figure (img → figcaption is 0.25rem; figure margin 1.35rem wraps whole block). */
+	.news-detail-body .highlight-md-embed:has(+ .highlight-md-caption) {
+		margin-bottom: 0;
+	}
+
+	.news-detail-body .highlight-md-embed + .highlight-md-caption {
+		margin: 0.25rem 0 1.35rem 0;
+	}
+</style>

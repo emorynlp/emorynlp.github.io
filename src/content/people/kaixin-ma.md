@@ -9,9 +9,14 @@ github: 'https://github.com/Mayer123'
 linkedin: 'https://www.linkedin.com/in/kaixin-ma-65b947129/'
 semanticScholar: 'https://www.semanticscholar.org/author/22244290'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2018'
+    url: '/highlights/20180508-undergraduate-honors-2018/'
   - title: Trevor Evans Award
     when: 04/2018
-    issuer: Emory Computer Science
+    issuer: Emory Mathematics
+    url: '/highlights/20180430-annual-awards-2018/'
+
 education:
   - degree: MS in Computer Science
     institution: Emory University

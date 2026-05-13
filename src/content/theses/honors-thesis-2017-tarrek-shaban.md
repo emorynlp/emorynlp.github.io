@@ -13,6 +13,5 @@ committee:
   - "James Lu, Computer Science, Emory University"
   - "Alan Abramowitz, Political Science, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2017-tarrek-shaban.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2017-tarrek-shaban?c=2015-2020"
 ---

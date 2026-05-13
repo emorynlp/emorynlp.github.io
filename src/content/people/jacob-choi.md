@@ -8,6 +8,9 @@ endTerm: Spring 2024
 linkedin: 'https://www.linkedin.com/in/jacob-choi-3b6b421b0/'
 github: 'https://github.com/jacobjchoi'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2024'
+    url: '/highlights/20240508-undergraduate-honors-2024/'
   - title: DaVinci Talks — finalist (IDEAS Fellowship)
     when: 02/2024
   - title: REU — deep learning in NLP, bioinformatics & computational medicine (UCCS, Summer 2023)

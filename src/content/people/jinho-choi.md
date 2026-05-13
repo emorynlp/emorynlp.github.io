@@ -11,6 +11,15 @@ semanticScholar: 'https://www.semanticscholar.org/author/4724587'
 aliases:
   - Jinho D. Choi
   - J. Choi
+achievements:
+  - title: Innovation of the Year Award
+    when: 04/2026
+    issuer: Emory Office of Technology Transfer
+    url: '/highlights/20260402-innovation-of-the-year/'
+  - title: Professor of the Year Award
+    when: 08/2020
+    issuer: Emory Computer Science
+    url: '/highlights/20200807-professor-of-the-year-2020/'
 education:
   - degree: Postdoc in Natural Language Processing
     institution: University of Massachusetts Amherst

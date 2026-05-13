@@ -8,6 +8,11 @@ endTerm: Spring 2016
 linkedin: 'https://www.linkedin.com/in/meera-hahn-929b97102'
 github: 'https://github.com/meera1hahn'
 semanticScholar: 'https://www.semanticscholar.org/author/29132542'
+achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2016'
+    url: '/highlights/20160508-undergraduate-honors-2016/'
+
 education:
   - degree: BS in Computer Science
     institution: Emory University

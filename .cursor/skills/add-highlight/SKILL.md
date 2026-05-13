@@ -54,7 +54,7 @@ When the user gives a **complete draft** (or “same structure as wild-heaven �
 | `date`         | Prefer `'YYYY-MM-DD-HH:MM'` (quoted) for Eastern wall time, or `'YYYY-MM-DD'` (UTC midnight). Logic in `src/lib/dates.ts` / `parseNewsFrontmatterDate`. |
 | `coverImage`   | Path under **`public/`** — quote and start with **`/`**. Shown on **`/news/`** thumbnails and the **home** strip only; article photos live in Markdown `![](/news/…)` (often reuse the same image as `coverImage` in the body). |
 | `featured`     | Optional `true`. Star **emoji** beside the **title** on `/news` cards, the **home** strip, and the article header; home strip lists featured entries first (`src/pages/index.astro`). |
-| `labels`       | Optional string array (e.g. `social`, `photo`, `award`, `conference`). Renders pills on listing + article. |
+| `labels`       | Optional string array (e.g. `social`, `photo`, `award`, `conferences`). Renders pills on listing + article. |
 | `participants` | Optional filenames **without `.md`** for `src/content/people/{slug}.md`. Any lab member slug works; add a people file when you want profile links + People listings. Resolver: `src/lib/newsParticipants.ts`. |
 
 4. **Body** — Normal Markdown:

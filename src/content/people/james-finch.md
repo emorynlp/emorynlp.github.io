@@ -12,12 +12,18 @@ googleScholar: 'https://scholar.google.com/citations?user=jJL0tvEAAAAJ'
 aliases:
   - James D. Finch
 achievements:
+  - title: 'PhD in Computer Science and Informatics'
+    when: '05/2024'
+    url: '/highlights/20240512-doctor-of-philosophy-2024/'
   - title: Alexa Prize Socialbot Grand Challenge 4 — finalist (Emora, lead)
     when: 07/2021
+    url: '/highlights/20210719-alexa-prize-finals-2021/'
   - title: Alexa Prize Socialbot Grand Challenge 3 — 1st place (Emora, lead)
     when: 08/2020
+    url: '/highlights/20200804-alexa-prize-winner-2020/'
   - title: George W. Woodruff Fellowship
     when: 09/2018 ~ 05/2023
+
 education:
   - degree: Postdoctoral training in Conversational AI
     institution: Emory University

@@ -5,9 +5,11 @@ import type { SocialKind } from '../../components/people/profileSocialKinds';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { resolvePeoplePhotoPublicHref } from '../../lib/peoplePhotos';
 import { formatPeopleTermRange } from '../../lib/peopleDirectory';
-import { formatPeopleProfileDisplayName } from '../../lib/peopleDisplayName';
 import {
-	thesisDegreeSupportsHonorsLevel,
+	formatPeopleProfileDisplayName,
+	peopleProfileShowLegalDirectorySubtitle,
+} from '../../lib/peopleDisplayName';
+import {
 	thesisPeoplePageWorkLabel,
 	thesisPeopleSectionHeading,
 } from '../../lib/thesisAffiliation';
@@ -117,7 +119,7 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 			<div class="people-profile-main">
 				<h1 class="people-profile-name">{profileHeadingName}</h1>
 				{
-					profileHeadingName.trim() !== d.name.trim() ? (
+					peopleProfileShowLegalDirectorySubtitle(d.name, profileHeadingName) ? (
 						<p class="people-profile-legal-name muted">
 							<span class="people-profile-legal-name-label">Directory name:</span> {d.name}
 						</p>
@@ -186,14 +188,9 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 							</h2>
 							<ul class="people-profile-theses-list">
 								{linkedTheses.map((t) => {
-									const honorsLevelDisplay =
-										t.data.honorsLevel?.trim() && thesisDegreeSupportsHonorsLevel(t.data.degree)
-											? t.data.honorsLevel.trim()
-											: '';
 									const termNote = thesisTermNoteLabel(t.data.term, t.id);
-									const noteInner = honorsLevelDisplay
-										? `${termNote} · ${honorsLevelDisplay}`
-										: termNote;
+									/* Honors level (Highest/High/Honor) is in Achievements and on the thesis page */
+									const noteInner = termNote;
 									return (
 										<li>
 											{thesisShowKindPerLine ? (
@@ -206,6 +203,30 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 											) : null}
 											<a href={siteHref(`/publications/theses/${t.id}/`)}>{t.data.title}</a>
 											<span class="people-profile-thesis-note muted">{` (${noteInner})`}</span>
+										</li>
+									);
+								})}
+							</ul>
+						</section>
+					) : null
+				}
+
+				{
+					d.achievements && d.achievements.length > 0 ? (
+						<section class="people-profile-achievements" aria-labelledby={`achievements-${entry.id}`}>
+							<h2 id={`achievements-${entry.id}`} class="people-profile-section-title">
+								Achievements
+							</h2>
+							<ul class="people-profile-achievements-list">
+								{d.achievements.map((a) => {
+									const { headline, issuer, note } = achievementHeadlineAndNote(a);
+								const localUrl =
+									a.url?.trim() && (a.url.trim().startsWith('/') || isLabSiteHttpUrl(a.url.trim()))
+										? a.url.trim()
+										: undefined;
+									return (
+										<li>
+											<span class="people-profile-achievement-title">{localUrl ? <a href={localUrl}>{headline}</a> : headline}</span>{issuer ? <> &mdash; {issuer}</> : null}{note ? <span class="muted">{` (${note})`}</span> : null}
 										</li>
 									);
 								})}
@@ -232,25 +253,43 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 				}
 
 				{
-					d.achievements && d.achievements.length > 0 ? (
-						<section class="people-profile-achievements" aria-labelledby={`achievements-${entry.id}`}>
-							<h2 id={`achievements-${entry.id}`} class="people-profile-section-title">
-								Achievements
-							</h2>
-							<ul class="people-profile-achievements-list">
-								{d.achievements.map((a) => {
-									const { headline, issuer, note } = achievementHeadlineAndNote(a);
-									const localUrl =
-										a.url?.trim() && isLabSiteHttpUrl(a.url.trim()) ? a.url.trim() : undefined;
-									return (
-										<li>
-											<span class="people-profile-achievement-title">{localUrl ? <a href={localUrl}>{headline}</a> : headline}</span>{issuer ? `, ${issuer}` : null}{note ? <span class="muted">{` (${note})`}</span> : null}
-										</li>
-									);
-								})}
-							</ul>
-						</section>
+					d.footerPhoto?.src ? (
+						<figure class="people-profile-footer-photo">
+							<img
+								class="people-profile-footer-photo-img"
+								src={d.footerPhoto.src}
+								alt={d.footerPhoto.alt ?? ''}
+								loading="lazy"
+								decoding="async"
+							/>
+							{d.footerPhoto.caption?.trim() ? (
+								<figcaption class="people-profile-footer-photo-caption muted">
+									{d.footerPhoto.caption.trim()}
+								</figcaption>
+							) : null}
+						</figure>
 					) : null
+				}
+
+				{
+					d.footerPhotos && d.footerPhotos.length > 0
+						? d.footerPhotos.map((fp) => (
+								<figure class="people-profile-footer-photo">
+									<img
+										class="people-profile-footer-photo-img"
+										src={fp.src}
+										alt={fp.alt ?? ''}
+										loading="lazy"
+										decoding="async"
+									/>
+									{fp.caption?.trim() ? (
+										<figcaption class="people-profile-footer-photo-caption muted">
+											{fp.caption.trim()}
+										</figcaption>
+									) : null}
+								</figure>
+							))
+						: null
 				}
 			</div>
 		</div>
@@ -566,6 +605,10 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 		font-weight: inherit;
 	}
 
+	.people-profile-achievements {
+		margin-bottom: 1.75rem;
+	}
+
 	.people-profile-education-degree {
 		font-weight: 400;
 	}
@@ -588,6 +631,34 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 	}
 
 	.people-profile-achievements-list a {
-		font-weight: 500;
+		font-weight: inherit;
+	}
+
+	.people-profile-footer-photo {
+		margin: 0;
+		margin-top: 1.75rem;
+	}
+
+	.people-profile-footer-photo + .people-profile-footer-photo {
+		margin-top: 1rem;
+	}
+
+	.people-profile-footer-photo-caption {
+		margin-top: 0.55rem;
+		max-width: min(42rem, 100%);
+		font-size: 0.94rem;
+		line-height: 1.5;
+		text-align: center;
+	}
+
+	.people-profile-footer-photo-img {
+		display: block;
+		width: 100%;
+		max-width: min(42rem, 100%);
+		height: auto;
+		border-radius: calc(var(--radius) + 4px);
+		box-shadow:
+			0 12px 32px rgb(15 23 42 / 0.08),
+			0 2px 8px rgb(71 85 105 / 0.06);
 	}
 </style>

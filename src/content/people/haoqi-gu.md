@@ -9,6 +9,11 @@ linkedin: 'https://www.linkedin.com/in/haoqi-gu-268047183/'
 github: 'https://github.com/HaoqiGu'
 aliases:
   - Ricky Gu
+achievements:
+  - title: 'High Honor in Applied Mathematics and Statistics'
+    when: '05/2020'
+    url: '/highlights/20200508-undergraduate-honors-2020/'
+
 education:
   - degree: BS in Computer Science; BS in Applied Mathematics and Statistics
     institution: Emory University

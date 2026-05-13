@@ -12,6 +12,7 @@ achievements:
   - title: Chris Schoettle Graduate Research Award
     when: 04/2020
     issuer: Laney Graduate School
+    url: '/highlights/20200430-annual-awards-2020/'
 education:
   - degree: MS in Computer Science
     institution: Emory University

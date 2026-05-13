@@ -11,11 +11,16 @@ endTerm: Spring 2022
 linkedin: 'https://www.linkedin.com/in/sophy-huang/'
 github: 'https://github.com/hxysophy'
 achievements:
+  - title: 'Highest Honor in Mathematics'
+    when: '05/2022'
+    url: '/highlights/20220508-undergraduate-honors-2022/'
   - title: Trevor Evans Award
-    when: 04/2022
+    when: 05/2022
     issuer: Emory Mathematics
+    url: '/highlights/20220504-annual-awards-2022/'
   - title: Alexa Prize Socialbot Grand Challenge 4 — finalist (Emora)
     when: 07/2021
+    url: '/highlights/20210719-alexa-prize-finals-2021/'
 education:
   - degree: BS in Applied Mathematics and Statistics; BA in Psychology
     institution: Emory University

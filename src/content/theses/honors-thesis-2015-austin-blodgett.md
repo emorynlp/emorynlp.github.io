@@ -12,6 +12,5 @@ committee:
   - "Marjorie Pak, Linguistics, Emory University"
   - "Phillip Wolff, Psychology, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2015-austin-blodgett.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2015-austin-blodgett?c=2015-2020"
 ---

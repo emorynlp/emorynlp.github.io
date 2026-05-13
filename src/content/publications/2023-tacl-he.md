@@ -11,6 +11,7 @@ published: '2023-06-30'
 publicationType: journal
 venueUrl: 'https://transacl.org/'
 paperUrl: 'https://doi.org/10.1162/tacl_a_00557'
+presenter: 'Jinho D. Choi'
 abstract: >-
   Sequence-to-Sequence (S2S) models have achieved remarkable success on various text generation
   tasks. However, learning complex structures with S2S models remains challenging as external

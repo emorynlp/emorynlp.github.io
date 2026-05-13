@@ -14,6 +14,7 @@
     "people:after-emory": "node scripts/merge-people-after-emory.mjs",
     "people:resize-photo": "node scripts/resize-people-photo.mjs",
     "media:resize-photo": "node scripts/resize-media-photo.mjs",
+    "people:link-achievement-highlights": "node scripts/link-people-achievements-to-highlight-urls.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@astrojs/check": "^0.9.9",
     "@types/node": "^25.6.0",
     "to-ico": "^1.1.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "unist-util-visit": "^5.1.0"
   }
 }

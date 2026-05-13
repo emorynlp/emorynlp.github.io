@@ -11,9 +11,13 @@ linkedin: 'https://www.linkedin.com/in/ellie-paek-865790189/'
 github: 'https://github.com/espkz'
 semanticScholar: 'https://www.semanticscholar.org/author/Ellie-S.-Paek/2239202069'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2024'
+    url: '/highlights/20240508-undergraduate-honors-2024/'
   - title: Academic Achievement Award
-    when: 05/2024
+    when: 04/2024
     issuer: Emory Computer Science
+    url: '/highlights/20240416-annual-awards-2024/'
   - title: "Dean's List"
     when: Spring 2022, Fall 2023, Spring 2023
 education:

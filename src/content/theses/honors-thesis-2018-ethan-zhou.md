@@ -13,6 +13,5 @@ committee:
   - "Lee Cooper, Biomedical Informatics, Emory University"
   - "Susan Tamasi, Linguistics, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2018-ethan-zhou.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-ethan-zhou?c=2015-2020"
 ---

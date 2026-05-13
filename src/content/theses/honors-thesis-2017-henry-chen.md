@@ -13,6 +13,5 @@ committee:
   - "James Lu, Computer Science, Emory University"
   - "Heather Julien, English, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2017-henry-chen.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2017-henry-y-chen?c=2015-2020"
 ---

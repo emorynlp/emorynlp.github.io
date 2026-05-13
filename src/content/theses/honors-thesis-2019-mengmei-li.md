@@ -12,6 +12,5 @@ committee:
   - "James Nagy, Mathematics, Emory University"
   - "Juliette Stapanian-Apkarian, Russian, East European, and Eurasian Studies, Emory University"
 honorsLevel: "Honor"
-photo: "/theses/honors-thesis-2019-mengmei-li.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-mengmei-li?c=2015-2020"
 ---

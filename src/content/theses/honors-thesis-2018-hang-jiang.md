@@ -14,6 +14,5 @@ committee:
   - "Roberto Franzosi, Sociology, Emory University"
   - "Shun Yan Cheung, Computer Science, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2018-hang-jiang.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-hang-jiang?c=2015-2020"
 ---

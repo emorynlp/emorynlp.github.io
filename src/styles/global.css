@@ -105,6 +105,11 @@ main#main {
 	min-height: calc(100vh - 12rem);
 }
 
+/* Detail articles carry their own padding; avoid stretching short pages above the footer. */
+main#main:has(> .news-detail) {
+	min-height: 0;
+}
+
 .container-narrow {
 	width: min(100%, var(--narrow));
 	margin-inline: auto;
@@ -122,6 +127,7 @@ main#main {
 	padding-block: 2rem 4rem;
 }
 
+.news-page > .index-page-intro,
 .publications-page > .index-page-intro {
 	margin-bottom: 0.85rem;
 }
@@ -429,7 +435,9 @@ main#main {
 .banner-title-row {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: center;
+	/* Match first line of text (line-clamp uses -webkit-box; start aligns boxes, not glyphs) */
+	align-items: start;
+	align-items: first baseline;
 	gap: 0.35rem 0.5rem;
 	min-width: 0;
 	margin: 0;
@@ -482,7 +490,7 @@ main#main {
 /* Hero on news detail pages (same asset as listing thumbnail; avoids duplicating inside markdown body) */
 /* News article (detail page) — text first, imagery below */
 .news-detail {
-	padding-block: 2rem 4.5rem;
+	padding-block: 2rem 4rem;
 }
 
 .news-detail-back {
@@ -508,7 +516,8 @@ main#main {
 .news-detail-title-row {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: center;
+	align-items: start;
+	align-items: first baseline;
 	gap: 0.35rem 0.65rem;
 	min-width: 0;
 	margin: 0 0 0.95rem;
@@ -526,7 +535,6 @@ main#main {
 .news-featured-star {
 	display: inline-flex;
 	justify-self: end;
-	align-self: center;
 	flex-shrink: 0;
 	align-items: center;
 	justify-content: center;
@@ -569,7 +577,8 @@ main#main {
 .news-card-heading {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	align-items: center;
+	align-items: start;
+	align-items: first baseline;
 	gap: 0.35rem 0.5rem;
 	min-width: 0;
 	margin: 0;
@@ -586,6 +595,31 @@ main#main {
 	border: 1px solid var(--news-label-border);
 	background: var(--news-label-bg);
 	color: var(--news-label-ink);
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease;
+}
+
+a.news-label-pill:hover,
+a.news-label-pill:focus-visible {
+	background: var(--news-label-ink);
+	color: var(--news-label-bg);
+	border-color: var(--news-label-ink);
+	outline: none;
+}
+
+a.news-label-pill:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+a.news-label-pill.news-label-pill--active {
+	background: var(--news-label-ink);
+	color: var(--news-label-bg);
+	border-color: var(--news-label-ink);
 }
 
 .news-detail-meta .news-label-pill {
@@ -690,7 +724,15 @@ main#main {
 }
 
 .news-detail-body {
-	margin-bottom: 0.35rem;
+	margin-bottom: 0;
+}
+
+.news-detail-body > :last-child {
+	margin-bottom: 0;
+}
+
+.news-detail-body > :last-child img {
+	margin-bottom: 0;
 }
 
 .prose-slot {
@@ -1083,6 +1125,14 @@ main#main {
 
 .publications-author-filter-option-count {
 	font-weight: 500;
+}
+
+.publications-author-filter-trigger--text-only {
+	gap: 0;
+}
+
+.publications-filter-menu-option--text-only {
+	padding-inline: 0.65rem;
 }
 
 .sr-only {

@@ -30,9 +30,10 @@ const uid = 'home-featured-slideshow';
 					<div class="featured-slideshow-viewport">
 						{entries.map((entry, slideIndex) => {
 							const href = siteHref(`/highlights/${entry.id}/`);
-							const imgSrc = entry.data.coverImage
-								? siteHref(entry.data.coverImage)
-								: null;
+						const imgSrc = entry.data.coverImage
+							? siteHref(entry.data.coverImage)
+							: null;
+						const imgPosition = entry.data.coverImagePosition ?? null;
 							const teaser =
 								teaserFromNewsBody(entry.body, 200) || 'Open for details.';
 
@@ -58,6 +59,11 @@ const uid = 'home-featured-slideshow';
 													loading={slideIndex === 0 ? 'eager' : 'lazy'}
 													decoding="async"
 													class="featured-slide-img"
+													style={
+														imgPosition?.trim()
+															? `object-fit: cover; object-position: ${imgPosition.trim()}`
+															: undefined
+													}
 												/>
 											) : (
 												<div class="featured-slide-placeholder" aria-hidden="true" />
@@ -199,7 +205,6 @@ const uid = 'home-featured-slideshow';
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		object-position: center;
 		max-width: none;
 		display: block;
 	}

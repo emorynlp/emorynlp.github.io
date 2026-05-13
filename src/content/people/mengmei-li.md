@@ -9,6 +9,10 @@ linkedin: 'https://www.linkedin.com/in/mengmei-kate-li-565a01138/'
 github: 'https://github.com/katemml'
 aliases:
   - Kate Li
+achievements:
+  - title: 'Honor in Computer Science'
+    when: '05/2019'
+    url: '/highlights/20190508-undergraduate-honors-2019/'
 education:
   - degree: BS in Computer Science and Applied Mathematics
     institution: Emory University

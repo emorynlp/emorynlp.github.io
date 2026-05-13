@@ -13,6 +13,7 @@ publicationType: conference
 venueUrl: 'http://2023.aclweb.org'
 paperUrl: 'https://aclanthology.org/2023.acl-long.683/'
 posterUrl: 'https://drive.google.com/file/d/1jRcbvt9N5Ogq_uYhEVQHY1c1oDPo9rg9/view?usp=sharing'
+presenter: "Liyan Xu"
 abstract: >-
   We present a new task setting for attribute mining on e-commerce products, serving as a
   practical solution to extract open-world attributes without extensive human intervention.

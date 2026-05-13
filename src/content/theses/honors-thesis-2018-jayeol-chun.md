@@ -12,6 +12,5 @@ committee:
   - "Phillip Wolff, Psychology, Emory University"
   - "Jeremy Jacobson, Quantitative Theory & Methods, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2018-jayeol-chun.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-jayeol-chun?c=2015-2020"
 ---

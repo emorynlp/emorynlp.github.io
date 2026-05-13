@@ -11,9 +11,14 @@ semanticScholar: 'https://www.semanticscholar.org/author/2033082021'
 aliases:
   - Albert Li
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2020'
+    url: '/highlights/20200508-undergraduate-honors-2020/'
   - title: Academic Excellence Award
     when: 04/2020
     issuer: Emory Computer Science
+    url: '/highlights/20200430-annual-awards-2020/'
+
 education:
   - degree: BS in Computer Science and Mathematics
     institution: Emory University

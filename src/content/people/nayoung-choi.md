@@ -14,7 +14,7 @@ achievements:
   - title: Innovation of the Year
     when: 04/2026
     issuer: Emory Office of Technology Transfer
-    url: https://emorynlp.github.io/highlights/20260402-innovation-of-the-year/
+    url: '/highlights/20260402-innovation-of-the-year/'
 education:
   - degree: PhD in Computer Science and Informatics
     institution: Emory University

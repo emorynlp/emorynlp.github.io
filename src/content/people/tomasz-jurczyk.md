@@ -9,6 +9,10 @@ github: 'https://github.com/tjurczyk'
 linkedin: 'https://www.linkedin.com/in/tomaszjurczyk'
 semanticScholar: 'https://www.semanticscholar.org/author/2066796833'
 googleScholar: 'https://scholar.google.com/citations?user=qlq0tVMAAAAJ'
+achievements:
+  - title: 'PhD in Computer Science and Informatics'
+    when: '05/2018'
+    url: '/highlights/20180514-doctor-of-philosophy-2018/'
 education:
   - degree: PhD in Computer Science and Informatics
     institution: Emory University

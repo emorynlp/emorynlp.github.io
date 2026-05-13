@@ -13,6 +13,5 @@ committee:
   - "Ken Mandelberg, Computer Science, Emory University"
   - "Connie Roth, Physics, Emory University"
 honorsLevel: "Highest Honor"
-photo: "/theses/honors-thesis-2018-kaixin-ma.webp"
 sourceUrl: "https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-kaixin-ma?c=2015-2020"
 ---

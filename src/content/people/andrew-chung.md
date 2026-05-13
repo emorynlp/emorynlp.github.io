@@ -10,9 +10,13 @@ linkedin: 'https://www.linkedin.com/in/andrew0chung/'
 github: 'https://github.com/AChung1020/'
 semanticScholar: 'https://www.semanticscholar.org/author/Andrew-Chung/2347538383'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2025'
+    url: '/highlights/20250508-undergraduate-honors-2025/'
   - title: Undergraduate Research Award
-    when: 05/2025
+    when: 04/2025
     issuer: Emory Computer Science
+    url: '/highlights/20250426-annual-awards-2025/'
   - title: PROJECT Emory — co-founder & president
     when: 08/2023 ~ 05/2025
   - title: Emory Hacks 2025 — organizer
@@ -21,6 +25,7 @@ achievements:
     when: Fall 2024
   - title: Emory SURE Program
     when: 05/2024 ~ 08/2024
+
 education:
   - degree: BS in Computer Science
     institution: Emory University

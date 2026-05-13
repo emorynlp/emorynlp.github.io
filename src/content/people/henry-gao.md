@@ -9,6 +9,9 @@ endTerm: Spring 2026
 linkedin: 'https://www.linkedin.com/in/henry-gao-597626219/'
 github: 'https://github.com/Henry-Gao-2004'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2026'
+    url: '/highlights/20260503-undergraduate-honors-2026/'
   - title: Undergraduate Research Award
     when: 05/2026
     issuer: Emory Computer Science
@@ -16,6 +19,7 @@ achievements:
     when: 2022 Fall, 2023 Spring, 2024 Spring, 2024 Fall
   - title: NSF Research Experiences for Undergraduates
     when: Summer 2025
+
 education:
   - degree: BS in Computer Science
     institution: Emory University

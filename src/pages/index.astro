@@ -63,6 +63,11 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 													height="400"
 													loading="lazy"
 													decoding="async"
+													style={
+														entry.data.coverImagePosition?.trim()
+															? `object-fit: cover; object-position: ${entry.data.coverImagePosition.trim()}`
+															: undefined
+													}
 												/>
 											</div>
 										) : null

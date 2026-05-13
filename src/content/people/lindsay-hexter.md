@@ -7,6 +7,11 @@ startTerm: Fall 2017
 endTerm: Spring 2018
 linkedin: 'https://www.linkedin.com/in/lindsay-hexter-18331a119/'
 semanticScholar: 'https://www.semanticscholar.org/author/24023654'
+achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2018'
+    url: '/highlights/20180508-undergraduate-honors-2018/'
+
 education:
   - degree: BS in Computer Science; BA in Biology
     institution: Emory University

@@ -8,16 +8,26 @@ endTerm: Spring 2019
 github: 'https://github.com/josecoves'
 linkedin: 'https://www.linkedin.com/in/jose-coves/'
 achievements:
+  - title: 'Highest Honor in Computer Science'
+    when: '05/2019'
+    url: '/highlights/20190508-undergraduate-honors-2019/'
   - title: Outstanding Student Award
     when: 04/2019
     issuer: Emory Computer Science
-  - title: ICPC Southeast USA Region, Division 2 — 1st place (M||E)
+    url: '/highlights/20190425-annual-awards-2019/'
+  - title: 'ICPC Southeast USA Region, Division 2: 1st Place (M||E)'
     when: 11/2018
+    issuer: ICPC Foundation
+    url: '/highlights/20181103-icpc-southeast-regional-2018/'
   - title: "Chair's Award"
     when: 04/2018
     issuer: Emory Computer Science
-  - title: ICPC Southeast USA Region, Division 2 — 1st place (M||E)
+    url: '/highlights/20180430-annual-awards-2018/'
+  - title: 'ICPC Southeast USA Region, Division 2: 1st Place (M||E)'
     when: 11/2017
+    issuer: ICPC Foundation
+    url: '/highlights/20171111-icpc-southeast-regional-2017/'
+
 education:
   - degree: MS in Computer Science
     institution: Emory University
