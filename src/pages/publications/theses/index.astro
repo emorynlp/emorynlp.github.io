@@ -5,6 +5,7 @@ import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../.
 import { thesisAwardingSubtitle } from '../../../lib/thesisAffiliation';
 import { compareThesesListingOrder, thesisSortYear, thesisTermNoteLabel } from '../../../lib/thesisYear';
 import { siteHref } from '../../../lib/siteHref';
+import { thesisDegreeKind } from '../../../lib/degreeListKind';
 import { resolvePeoplePhotoPublicHref } from '../../../lib/peoplePhotos';
 
 const people = await getCollection('people');
@@ -43,20 +44,6 @@ const degreeOptions = degreeOrder.filter((d) => {
 	return degreeSet.has(d);
 });
 const degreeCatalogForClient = degreeOptions.map((degree) => ({ value: degree, label: degree }));
-
-function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' {
-	if (degree === 'PhD' || degree === 'Dissertation') return 'phd';
-	if (degree === 'MS' || degree === 'Masters Thesis') return 'ms';
-	if (
-		degree === 'Undergraduate Honors' ||
-		degree === 'Undergraduate Thesis' ||
-		degree === 'BS' ||
-		degree === 'BA'
-	) {
-		return 'undergrad';
-	}
-	return 'other';
-}
 
 ---
 
@@ -265,7 +252,7 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 				return Math.min(b, Math.max(a, n));
 			}
 
-			function readYearRangeFromLocation() {
+			function readFiltersFromLocation() {
 				const params = new URLSearchParams(window.location.search);
 				let lo = parseInt(params.get('yearStart') ?? '', 10);
 				let hi = parseInt(params.get('yearEnd') ?? '', 10);
@@ -273,15 +260,26 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 				if (Number.isNaN(hi)) hi = defaultEnd;
 				lo = clamp(lo, pickerMin, pickerMax);
 				hi = clamp(hi, pickerMin, pickerMax);
-				return { lo, hi: Math.max(lo, hi) };
+				return {
+					lo,
+					hi: Math.max(lo, hi),
+					degree: String(params.get('degree') ?? '').trim(),
+					query: String(params.get('q') ?? '').trim().toLowerCase(),
+				};
 			}
 
-			function syncYearRangeToLocation(lo, hi) {
+			function syncFiltersToLocation(lo, hi, degree, query) {
 				const params = new URLSearchParams(window.location.search);
 				if (lo === defaultStart) params.delete('yearStart');
 				else params.set('yearStart', String(lo));
 				if (hi === defaultEnd) params.delete('yearEnd');
 				else params.set('yearEnd', String(hi));
+				const degreeValue = String(degree || '').trim();
+				if (!degreeValue) params.delete('degree');
+				else params.set('degree', degreeValue);
+				const queryValue = String(query || '').trim();
+				if (!queryValue) params.delete('q');
+				else params.set('q', queryValue);
 				const qs = params.toString();
 				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
 				const current = window.location.pathname + window.location.search;
@@ -463,7 +461,7 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 				if (statMs) statMs.textContent = String(nMs);
 				if (statUndergrad) statUndergrad.textContent = String(nUndergrad);
 				syncDegreeTrigger();
-				syncYearRangeToLocation(lo, endYear);
+				syncFiltersToLocation(lo, endYear, selectedDegree, query);
 			}
 
 			function onStartChange() {
@@ -474,9 +472,11 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 			}
 
 			function syncFiltersFromLocation() {
-				const range = readYearRangeFromLocation();
-				startSelect.value = String(range.lo);
-				rebuildEndOptions(range.lo, range.hi);
+				const filters = readFiltersFromLocation();
+				startSelect.value = String(filters.lo);
+				rebuildEndOptions(filters.lo, filters.hi);
+				if (searchInput) searchInput.value = filters.query;
+				wrap.setAttribute('data-selected-degree', filters.degree);
 				apply();
 			}
 
@@ -519,150 +519,3 @@ function thesisDegreeKind(degree: string): 'phd' | 'ms' | 'undergrad' | 'other' 
 		})();
 	</script>
 </BaseLayout>
-
-<style>
-	.theses-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0.8rem;
-	}
-
-	.theses-list-item {
-		padding: 0.6rem 0.6rem;
-		border-inline-start: 6px solid transparent;
-	}
-
-	.theses-list-item-inner {
-		display: grid;
-		grid-template-columns: 92px minmax(0, 1fr);
-		gap: 0.64rem;
-		align-items: center;
-	}
-
-	.theses-list-thumb-link {
-		display: block;
-		width: 92px;
-		height: 92px;
-		border-radius: 0.5rem;
-		overflow: hidden;
-		background: color-mix(in srgb, var(--muted) 16%, transparent);
-		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 74%, transparent);
-	}
-
-	.theses-list-thumb {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-	}
-
-	.theses-list-thumb-placeholder {
-		display: block;
-		width: 100%;
-		height: 100%;
-		background:
-			linear-gradient(145deg, color-mix(in srgb, var(--muted) 22%, transparent), color-mix(in srgb, var(--muted) 10%, transparent));
-	}
-
-	.theses-list-main {
-		min-width: 0;
-	}
-
-	.theses-list-item--kind-phd {
-		border-inline-start-color: color-mix(in srgb, var(--pub-venue-journal) 88%, transparent);
-		background:
-			linear-gradient(90deg, rgb(253 246 246 / 0.5) 0%, rgb(253 246 246 / 0) 46%),
-			rgb(252 251 249 / 0.98);
-	}
-
-	.theses-list-item--kind-ms {
-		border-inline-start-color: color-mix(in srgb, var(--pub-venue-conference) 88%, transparent);
-		background:
-			linear-gradient(90deg, rgb(243 248 254 / 0.45) 0%, rgb(243 248 254 / 0) 46%),
-			rgb(252 251 249 / 0.98);
-	}
-
-	.theses-list-item--kind-undergrad {
-		border-inline-start-color: color-mix(in srgb, var(--pub-venue-workshop) 85%, transparent);
-		background:
-			linear-gradient(90deg, rgb(242 250 245 / 0.48) 0%, rgb(242 250 245 / 0) 46%),
-			rgb(252 251 249 / 0.98);
-	}
-
-	.theses-list-item--kind-other {
-		border-inline-start-color: color-mix(in srgb, var(--pub-venue-other) 82%, transparent);
-	}
-
-	.thesis-filter-stats-kind--phd {
-		font-weight: 600;
-		color: color-mix(in srgb, var(--pub-venue-journal) 62%, rgb(72 38 42) 38%);
-	}
-
-	.thesis-filter-stats-kind--phd .publications-filter-stats-num {
-		color: color-mix(in srgb, var(--pub-venue-journal) 48%, rgb(58 32 36) 52%);
-	}
-
-	.thesis-filter-stats-kind--ms {
-		font-weight: 600;
-		color: color-mix(in srgb, var(--pub-venue-conference) 58%, rgb(38 52 92) 42%);
-	}
-
-	.thesis-filter-stats-kind--ms .publications-filter-stats-num {
-		color: color-mix(in srgb, var(--pub-venue-conference) 44%, rgb(32 46 78) 56%);
-	}
-
-	.thesis-filter-stats-kind--undergrad {
-		font-weight: 600;
-		color: color-mix(in srgb, var(--pub-venue-workshop) 58%, rgb(28 62 44) 42%);
-	}
-
-	.thesis-filter-stats-kind--undergrad .publications-filter-stats-num {
-		color: color-mix(in srgb, var(--pub-venue-workshop) 42%, rgb(22 52 36) 58%);
-	}
-
-	.theses-list-title {
-		margin: 0;
-		font-size: 0.98rem;
-		line-height: 1.32;
-		display: -webkit-box;
-		-webkit-line-clamp: 2;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-	}
-
-	.theses-list-meta {
-		margin: 0.28rem 0 0;
-		font-size: 0.86rem;
-		color: var(--muted);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.theses-list-author-link {
-		text-decoration-thickness: 1px;
-		text-underline-offset: 2px;
-	}
-
-	.theses-list-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	@media (max-width: 640px) {
-		.theses-list-item-inner {
-			grid-template-columns: 78px minmax(0, 1fr);
-			gap: 0.54rem;
-		}
-
-		.theses-list-thumb-link {
-			width: 78px;
-			height: 78px;
-		}
-	}
-</style>

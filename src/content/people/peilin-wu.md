@@ -1,5 +1,4 @@
 ---
-
 name: Peilin Wu
 role: BS in Computer Science; BA in Physics and Astronomy
 peopleTier: undergrad

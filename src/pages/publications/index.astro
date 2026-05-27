@@ -246,7 +246,7 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				return Math.min(b, Math.max(a, n));
 			}
 
-			function readYearRangeFromLocation() {
+			function readFiltersFromLocation() {
 				const params = new URLSearchParams(window.location.search);
 				let lo = parseInt(params.get('yearStart') ?? '', 10);
 				let hi = parseInt(params.get('yearEnd') ?? '', 10);
@@ -254,15 +254,26 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				if (Number.isNaN(hi)) hi = defaultEnd;
 				lo = clamp(lo, pickerMin, pickerMax);
 				hi = clamp(hi, pickerMin, pickerMax);
-				return { lo, hi: Math.max(lo, hi) };
+				return {
+					lo,
+					hi: Math.max(lo, hi),
+					author: String(params.get('author') ?? '').trim(),
+					query: String(params.get('q') ?? '').trim().toLowerCase(),
+				};
 			}
 
-			function syncYearRangeToLocation(lo, hi) {
+			function syncFiltersToLocation(lo, hi, authorSlug, query) {
 				const params = new URLSearchParams(window.location.search);
 				if (lo === defaultStart) params.delete('yearStart');
 				else params.set('yearStart', String(lo));
 				if (hi === defaultEnd) params.delete('yearEnd');
 				else params.set('yearEnd', String(hi));
+				const authorValue = String(authorSlug || '').trim();
+				if (!authorValue) params.delete('author');
+				else params.set('author', authorValue);
+				const queryValue = String(query || '').trim();
+				if (!queryValue) params.delete('q');
+				else params.set('q', queryValue);
 				const qs = params.toString();
 				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
 				const current = window.location.pathname + window.location.search;
@@ -508,7 +519,7 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 				if (statWorkshopPlus) statWorkshopPlus.textContent = String(nWorkshopPlus);
 				if (statPreprint) statPreprint.textContent = String(nPreprint);
 				if (authorMenu) syncAuthorTrigger();
-				syncYearRangeToLocation(lo, endYear);
+				syncFiltersToLocation(lo, endYear, authorSlug, titleQ);
 			}
 
 			function onStartChange() {
@@ -519,9 +530,11 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 			}
 
 			function syncFiltersFromLocation() {
-				const range = readYearRangeFromLocation();
-				startSelect.value = String(range.lo);
-				rebuildEndOptions(range.lo, range.hi);
+				const filters = readFiltersFromLocation();
+				startSelect.value = String(filters.lo);
+				rebuildEndOptions(filters.lo, filters.hi);
+				if (titleSearchInput) titleSearchInput.value = filters.query;
+				wrap.setAttribute('data-selected-author', filters.author);
 				apply();
 			}
 

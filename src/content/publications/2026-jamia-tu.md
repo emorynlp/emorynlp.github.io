@@ -7,10 +7,10 @@ authors:
   - Jinho D. Choi
 venue: 'Journal of the American Medical Informatics Association (JAMIA)'
 year: 2026
-forthcoming: true
 publicationType: journal
+published: '2026-05-06'
 venueUrl: 'https://academic.oup.com/jamia'
-paperUrl: 'https://arxiv.org/abs/2504.21851'
+paperUrl: 'https://doi.org/10.1093/jamia/ocag050'
 resourceUrl: 'https://github.com/emorynlp/TRUST'
 abstract: |-
   Objectives: While Large Language Models (LLMs) have been widely used to assist clinicians and support patients, no existing work has explored dialogue systems for standard diagnostic interviews and assessments. This study aims to bridge the gap in mental healthcare accessibility by developing an LLM-powered dialogue system that replicates clinician behavior.

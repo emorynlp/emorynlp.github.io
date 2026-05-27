@@ -6,6 +6,11 @@ import { siteHref } from '../../lib/siteHref';
 import { resolvePeoplePhotoPublicHref } from '../../lib/peoplePhotos';
 import { formatPeopleListingMeta } from '../../lib/peopleDirectory';
 import {
+	buildClassYearCatalog,
+	peopleListingClassYear,
+	peopleListingSearchHaystack,
+} from '../../lib/peopleListing';
+import {
 	TIER_ORDER,
 	CURRENT_TIER_HEADINGS,
 	bucketByTier,
@@ -14,13 +19,11 @@ import {
 } from '../../lib/peopleDirectoryPage';
 
 const rows = await getCollection('people');
-const current = rows.filter((p) => p.data.current);
-const past = rows.filter((p) => !p.data.current);
-
-const currentByTier = bucketByTier(current);
+const allByTier = bucketByTier(rows);
+const classYearCatalog = buildClassYearCatalog(rows.map((person) => person.data));
 
 function tierUrl(tier: PeopleTier): string {
-	return '#' + tierSectionId('current', tier);
+	return '#' + tierSectionId('roster', tier);
 }
 ---
 
@@ -28,82 +31,184 @@ function tierUrl(tier: PeopleTier): string {
 	<div class="people-page container-narrow">
 		<h1 class="index-page-title">People</h1>
 		<p class="index-page-intro">
-			Faculty members, postdoctoral researchers, graduate and undergraduate students, and visiting scholars who are currently active.
-			{
-				past.length > 0 ? (
-					<>
-						{' '}
-						For former members and alumni, visit{' '}
-						<a href={siteHref('/people/former-members/')}>Former Members</a>.
-					</>
-				) : null
-			}
+			Faculty members, postdoctoral researchers, graduate and undergraduate students, and visiting scholars.
+			Use the roster filter and search to browse current members, alumni by class year, or the full directory.
 		</p>
 
 		{
-			current.length === 0 && past.length === 0 ? (
+			rows.length === 0 ? (
 				<p class="empty-state muted">No people entries yet.</p>
-			) : current.length === 0 && past.length > 0 ? (
-				<p class="empty-state muted">
-					There are no current members listed.{' '}
-					<a href={siteHref('/people/former-members/')}>Browse the former members directory</a>.
-				</p>
 			) : (
-				TIER_ORDER.map((tier) => {
-					const list = currentByTier.get(tier) ?? [];
-					if (list.length === 0) return null;
-
-					const headingBase = CURRENT_TIER_HEADINGS[tier];
-					const titleText = headingBase;
-					const countSuffix = tier === 'phd' ? null : list.length > 10 ? ` (${list.length})` : null;
-
-					return (
-						<section class="people-tier-band" aria-labelledby={tierSectionId('current', tier)}>
-							<h2 id={tierSectionId('current', tier)} class="people-tier-heading">
-								<a class="muted people-tier-anchor" tabindex={-1} href={tierUrl(tier)} title="Link to this section">
-									#
-								</a>{' '}
-								{titleText}
-								{countSuffix}
-								{tier === 'visitor' ? <span class="muted people-tier-note">Guest researchers & visiting scholars</span> : null}
-							</h2>
-
-							<div class="grid-cards people-grid">
-								{list.map((person) => (
-									<ContentCard
-										href={siteHref(`/people/${person.id}/`)}
-										title={person.data.name}
-										subtitle={person.data.role}
-										meta={formatPeopleListingMeta(person.data)}
-										thumbnailSrc={resolvePeoplePhotoPublicHref(person.id, person.data.photo)}
-										peopleDirectoryLayout
-										peopleNeutralLink
-									/>
-								))}
+				<div class="people-list-wrap" data-default-members="current">
+					<div class="publications-filters-pane">
+						<div class="publications-author-filter-block">
+							<span class="publications-year-filter-label" id="people-members-filter-heading">
+								Roster
+							</span>
+							<div class="publications-author-filter" id="people-members-filter-root">
+								<button
+									type="button"
+									class="publications-author-filter-trigger publications-author-filter-trigger--text-only"
+									id="people-members-trigger"
+									aria-expanded="false"
+									aria-haspopup="listbox"
+									aria-controls="people-members-menu"
+									aria-labelledby="people-members-filter-heading people-members-trigger-label"
+								>
+									<span class="publications-author-filter-trigger-text" id="people-members-trigger-label">
+										Current
+									</span>
+								</button>
+								<div
+									class="publications-author-filter-menu people-members-filter-menu"
+									id="people-members-menu"
+									role="listbox"
+									aria-labelledby="people-members-filter-heading"
+									hidden
+								>
+									<label class="people-members-filter-option">
+										<input type="checkbox" name="people-members" value="current" checked />
+										<span class="people-members-filter-option-main">
+											<span>Current</span>
+											<span class="publications-author-filter-option-count muted" data-count-for="current" />
+										</span>
+									</label>
+									<label class="people-members-filter-option">
+										<input type="checkbox" name="people-members" value="all" />
+										<span class="people-members-filter-option-main">
+											<span>All</span>
+											<span class="publications-author-filter-option-count muted" data-count-for="all" />
+										</span>
+									</label>
+									{
+										classYearCatalog.length > 0 ? (
+											<div class="people-members-filter-separator" role="separator" aria-hidden="true" />
+										) : null
+									}
+									{
+										classYearCatalog.map(({ year, count }) => (
+											<label class="people-members-filter-option">
+												<input type="checkbox" name="people-members" value={`class-${year}`} />
+												<span class="people-members-filter-option-main">
+													<span>{`Class of ${year}`}</span>
+													<span class="publications-author-filter-option-count muted">
+														({count})
+													</span>
+												</span>
+											</label>
+										))
+									}
+								</div>
 							</div>
-						</section>
-					);
-				})
+						</div>
+						<div class="publications-title-search-field">
+							<label class="publications-year-filter-label" for="people-search">Search</label>
+							<input
+								type="search"
+								class="publications-title-search-input"
+								id="people-search"
+								name="search"
+								placeholder="Search first name, last name, or alias…"
+								spellcheck="false"
+								autocomplete="off"
+								enterkeyhint="search"
+							/>
+						</div>
+					</div>
+					<p class="publications-year-filter-empty muted" id="people-filter-empty" hidden>
+						No people match the current roster filter and search.
+					</p>
+					{
+						TIER_ORDER.map((tier) => {
+							const list = allByTier.get(tier) ?? [];
+							if (list.length === 0) return null;
+
+							const sectionId = tierSectionId('roster', tier);
+							const gridId = `people-grid-${tier}`;
+							const headingBase = CURRENT_TIER_HEADINGS[tier];
+
+							return (
+								<section
+									class="people-tier-band"
+									data-tier-band={tier}
+									aria-labelledby={sectionId}
+								>
+									<h2 id={sectionId} class="people-tier-heading">
+										<a
+											class="muted people-tier-anchor"
+											tabindex={-1}
+											href={tierUrl(tier)}
+											title="Link to this section"
+										>
+											#
+										</a>{' '}
+										{headingBase}
+										{tier === 'visitor' ? (
+											<span class="muted people-tier-note">Guest researchers & visiting scholars</span>
+										) : null}
+									</h2>
+
+									<div
+										class="people-tier-grid-shell"
+										data-tier={tier}
+										data-section-id={sectionId}
+										data-member-count={list.length}
+									>
+										<div class="people-tier-grid-clip">
+											<div id={gridId} class="grid-cards people-grid">
+												{list.map((person) => {
+													const classYear = peopleListingClassYear(person.data);
+													const searchHaystack = peopleListingSearchHaystack(
+														person.data.name,
+														person.data.aliases,
+													);
+													return (
+														<div
+															class="people-grid-item"
+															data-current={person.data.current !== false ? 'true' : 'false'}
+															data-class-year={
+																classYear === undefined ? '' : String(classYear)
+															}
+															data-search-haystack={searchHaystack}
+														>
+															<ContentCard
+																href={siteHref(`/people/${person.id}/`)}
+																title={person.data.name}
+																subtitle={person.data.role}
+																meta={formatPeopleListingMeta(person.data)}
+																thumbnailSrc={resolvePeoplePhotoPublicHref(
+																	person.id,
+																	person.data.photo,
+																)}
+																peopleDirectoryLayout
+																peopleNeutralLink
+															/>
+														</div>
+													);
+												})}
+											</div>
+										</div>
+										<button
+											type="button"
+											class="people-tier-show-more muted"
+											hidden
+											aria-expanded="false"
+											aria-controls={gridId}
+										>
+											Show all
+										</button>
+									</div>
+								</section>
+							);
+						})
+					}
+				</div>
 			)
 		}
 	</div>
 </BaseLayout>
 
 <style>
-	.section-divider {
-		border: 0;
-		border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
-		margin-block: clamp(28px, 4vw, 40px);
-	}
-
-	.section-divider.muted {
-		opacity: 0.72;
-	}
-
-	.people-openings p {
-		line-height: 1.65;
-	}
-
 	.people-tier-band + .people-tier-band {
 		margin-top: clamp(26px, 4vw, 48px);
 	}
@@ -131,4 +236,473 @@ function tierUrl(tier: PeopleTier): string {
 		font-weight: 500;
 		margin-top: 0.35rem;
 	}
+
+	.people-grid-item {
+		min-width: 0;
+		display: flex;
+	}
+
+	.people-grid-item[hidden] {
+		display: none !important;
+	}
+
+	.people-tier-band[hidden] {
+		display: none !important;
+	}
+
+	.people-tier-grid-shell {
+		display: flex;
+		flex-direction: column;
+		gap: 0.65rem;
+	}
+
+	.people-tier-grid-clip {
+		position: relative;
+		overflow: visible;
+		transition: max-height 0.35s ease;
+	}
+
+	.people-tier-grid-shell[data-collapsible='true']:not(.is-expanded) .people-tier-grid-clip {
+		overflow: hidden;
+	}
+
+	.people-tier-grid-shell.is-expanded .people-tier-grid-clip {
+		max-height: none;
+		overflow: visible;
+	}
+
+	.people-tier-grid-shell.is-expanded .people-tier-grid-clip::after {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.people-tier-grid-shell[data-collapsible='true']:not(.is-expanded) .people-tier-grid-clip::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: clamp(36px, 8vw, 56px);
+		pointer-events: none;
+		background: linear-gradient(to bottom, rgb(248 250 252 / 0), rgb(248 250 252 / 0.92));
+		opacity: 1;
+		transition: opacity 0.25s ease;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.people-tier-grid-clip {
+			transition: none;
+		}
+
+		.people-tier-grid-shell:not(.is-expanded) .people-tier-grid-clip::after {
+			transition: none;
+		}
+	}
+
+	.people-tier-show-more {
+		align-self: flex-start;
+		margin: 0;
+		padding: 0.35rem 0.65rem;
+		font: inherit;
+		font-size: 0.95rem;
+		font-weight: 600;
+		cursor: pointer;
+		border: 1px solid rgb(203 213 225 / 0.95);
+		border-radius: var(--radius);
+		background: rgb(248 250 252 / 0.85);
+		color: inherit;
+	}
+
+	.people-tier-show-more:hover {
+		border-color: rgb(148 163 184 / 0.95);
+		background: rgb(241 245 249 / 0.95);
+	}
+
+	.people-tier-show-more:focus-visible {
+		outline: 2px solid var(--highlight);
+		outline-offset: 2px;
+	}
+
+	.people-members-filter-menu {
+		min-width: min(18rem, 100%);
+		max-height: min(24rem, 70vh);
+		overflow: auto;
+		padding: 0.35rem 0;
+	}
+
+	.people-members-filter-separator {
+		margin: 0.35rem 0.75rem;
+		border: 0;
+		border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
+	}
+
+	.people-members-filter-option {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.55rem;
+		margin: 0;
+		padding: 0.42rem 0.75rem;
+		font: inherit;
+		font-size: 0.9rem;
+		font-weight: 500;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	.people-members-filter-option:hover {
+		background: rgb(241 245 249 / 0.95);
+	}
+
+	.people-members-filter-option input {
+		margin: 0.12rem 0 0;
+		flex: 0 0 auto;
+	}
+
+	.people-members-filter-option-main {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.2rem 0.35rem;
+		min-width: 0;
+	}
 </style>
+
+<script is:inline>
+	(() => {
+		const INITIAL_ROWS = 3;
+
+		function readMembersFromLocation() {
+			const params = new URLSearchParams(window.location.search);
+			const raw = params.get('members');
+			if (!raw) return null;
+			if (raw === 'all') return { all: true, current: true, classYears: [] };
+			const parts = raw.split(',').map((part) => part.trim()).filter(Boolean);
+			if (parts.length === 0) return null;
+			if (parts.includes('all')) return { all: true, current: true, classYears: [] };
+			const classYears = [];
+			let current = false;
+			for (const part of parts) {
+				if (part === 'current') current = true;
+				else if (/^\d{4}$/.test(part)) classYears.push(parseInt(part, 10));
+			}
+			return { all: false, current, classYears };
+		}
+
+		function syncMembersToLocation(state, query) {
+			const params = new URLSearchParams(window.location.search);
+			if (state.all) {
+				params.set('members', 'all');
+			} else {
+				const parts = [];
+				if (state.current) parts.push('current');
+				for (const year of state.classYears) parts.push(String(year));
+				if (parts.length === 0) params.delete('members');
+				else params.set('members', parts.join(','));
+			}
+			const q = String(query || '').trim();
+			if (q) params.set('q', q);
+			else params.delete('q');
+			const next = params.toString();
+			const url = next ? `${window.location.pathname}?${next}` : window.location.pathname;
+			window.history.replaceState(null, '', url);
+		}
+
+		function readQueryFromLocation() {
+			return new URLSearchParams(window.location.search).get('q') || '';
+		}
+
+		function getFilterState(menu) {
+			const allInput = menu.querySelector('input[value="all"]');
+			const currentInput = menu.querySelector('input[value="current"]');
+			const classYears = [];
+			for (const input of menu.querySelectorAll('input[value^="class-"]')) {
+				if (!input.checked) continue;
+				const year = parseInt(String(input.value).slice('class-'.length), 10);
+				if (!Number.isNaN(year)) classYears.push(year);
+			}
+			return {
+				all: Boolean(allInput && allInput.checked),
+				current: Boolean(currentInput && currentInput.checked),
+				classYears,
+			};
+		}
+
+		function setFilterState(menu, state) {
+			const allInput = menu.querySelector('input[value="all"]');
+			const currentInput = menu.querySelector('input[value="current"]');
+			if (allInput) allInput.checked = state.all;
+			if (currentInput) currentInput.checked = state.current;
+			for (const input of menu.querySelectorAll('input[value^="class-"]')) {
+				const year = parseInt(String(input.value).slice('class-'.length), 10);
+				input.checked = state.all || state.classYears.indexOf(year) !== -1;
+			}
+		}
+
+		function personMatchesMembers(item, state) {
+			if (state.all) return true;
+			const isCurrent = item.getAttribute('data-current') === 'true';
+			if (isCurrent && state.current) return true;
+			const rawYear = item.getAttribute('data-class-year') || '';
+			if (!rawYear) return false;
+			const year = parseInt(rawYear, 10);
+			if (Number.isNaN(year)) return false;
+			return state.classYears.indexOf(year) !== -1;
+		}
+
+		function summarizeMembers(state) {
+			if (state.all) return 'All';
+			const labels = [];
+			if (state.current) labels.push('Current');
+			for (const year of state.classYears) labels.push(`Class of ${year}`);
+			if (labels.length === 0) return 'None selected';
+			if (labels.length <= 2) return labels.join(', ');
+			return `${labels[0]}, ${labels[1]} +${labels.length - 2}`;
+		}
+
+		function measureCollapsedMaxPx(shell) {
+			const clip = shell.querySelector('.people-tier-grid-clip');
+			const grid = shell.querySelector('.people-grid');
+			if (!clip || !grid) return null;
+
+			const items = [...grid.children].filter((el) => !el.hasAttribute('hidden'));
+			if (items.length === 0) return null;
+
+			const rowTops = items.map((el) => Math.round(el.getBoundingClientRect().top));
+			const uniqueTops = [...new Set(rowTops)].sort((a, b) => a - b);
+			if (uniqueTops.length <= INITIAL_ROWS) return null;
+
+			const cutTop = uniqueTops[INITIAL_ROWS - 1];
+			let rowBottom = 0;
+			for (const el of items) {
+				if (Math.round(el.getBoundingClientRect().top) === cutTop) {
+					rowBottom = Math.max(rowBottom, el.getBoundingClientRect().bottom);
+				}
+			}
+			const gridTop = grid.getBoundingClientRect().top;
+			return Math.ceil(rowBottom - gridTop + 0.5);
+		}
+
+		function applyCollapse(shell) {
+			const btn = shell.querySelector('.people-tier-show-more');
+			const clip = shell.querySelector('.people-tier-grid-clip');
+			const grid = shell.querySelector('.people-grid');
+			if (!btn || !clip || !grid) return;
+
+			if (shell.classList.contains('is-expanded')) {
+				btn.hidden = true;
+				return;
+			}
+
+			const maxPx = measureCollapsedMaxPx(shell);
+			if (maxPx == null) {
+				shell.removeAttribute('data-collapsible');
+				clip.style.maxHeight = '';
+				clip.style.overflow = '';
+				btn.hidden = true;
+				btn.setAttribute('aria-expanded', 'false');
+				return;
+			}
+
+			shell.dataset.collapsible = 'true';
+			clip.style.maxHeight = `${maxPx}px`;
+			clip.style.overflow = 'hidden';
+			btn.hidden = false;
+			btn.setAttribute('aria-expanded', 'false');
+			const visibleCount = [...grid.children].filter((el) => !el.hasAttribute('hidden')).length;
+			btn.textContent = visibleCount ? `Show all (${visibleCount})` : 'Show all';
+		}
+
+		function initShell(shell) {
+			const btn = shell.querySelector('.people-tier-show-more');
+			const sectionId = shell.getAttribute('data-section-id') || '';
+
+			if (sectionId && window.location.hash === `#${sectionId}`) {
+				const clip = shell.querySelector('.people-tier-grid-clip');
+				shell.classList.add('is-expanded');
+				if (clip) {
+					clip.style.maxHeight = '';
+					clip.style.overflow = '';
+				}
+				if (btn) {
+					btn.hidden = true;
+					btn.setAttribute('aria-expanded', 'true');
+				}
+				return;
+			}
+
+			applyCollapse(shell);
+
+			btn?.addEventListener('click', () => {
+				const clip = shell.querySelector('.people-tier-grid-clip');
+				shell.classList.add('is-expanded');
+				if (clip) {
+					clip.style.maxHeight = '';
+					clip.style.overflow = '';
+				}
+				btn.hidden = true;
+				btn.setAttribute('aria-expanded', 'true');
+			});
+		}
+
+		const wrap = document.querySelector('.people-list-wrap');
+		if (!wrap) return;
+
+		const menu = document.getElementById('people-members-menu');
+		const trigger = document.getElementById('people-members-trigger');
+		const triggerLabel = document.getElementById('people-members-trigger-label');
+		const root = document.getElementById('people-members-filter-root');
+		const searchInput = document.getElementById('people-search');
+		const emptyEl = document.getElementById('people-filter-empty');
+		const tierBands = [...document.querySelectorAll('.people-tier-band[data-tier-band]')];
+		const items = [...document.querySelectorAll('.people-grid-item')];
+		const shells = [...document.querySelectorAll('.people-tier-grid-shell')];
+
+		const currentCount = items.filter((item) => item.getAttribute('data-current') === 'true').length;
+		const allCount = items.length;
+		const currentCountEl = menu?.querySelector('[data-count-for="current"]');
+		const allCountEl = menu?.querySelector('[data-count-for="all"]');
+		if (currentCountEl) currentCountEl.textContent = `(${currentCount})`;
+		if (allCountEl) allCountEl.textContent = `(${allCount})`;
+
+		for (const shell of shells) {
+			initShell(shell);
+			const ro = new ResizeObserver(() => {
+				if (!shell.classList.contains('is-expanded')) applyCollapse(shell);
+			});
+			const grid = shell.querySelector('.people-grid');
+			if (grid) ro.observe(grid);
+		}
+
+		function setMenuOpen(open) {
+			if (!menu || !trigger) return;
+			menu.hidden = !open;
+			trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+		}
+
+		function apply() {
+			if (!menu) return;
+			const state = getFilterState(menu);
+			const query = searchInput ? String(searchInput.value || '').trim().toLowerCase() : '';
+			let visible = 0;
+
+			for (const item of items) {
+				const hay = item.getAttribute('data-search-haystack') || '';
+				const membersOk = personMatchesMembers(item, state);
+				const queryOk = !query || hay.indexOf(query) !== -1;
+				const show = membersOk && queryOk;
+				item.toggleAttribute('hidden', !show);
+				if (show) visible += 1;
+			}
+
+			for (const band of tierBands) {
+				const visibleInBand = [...band.querySelectorAll('.people-grid-item')].some(
+					(item) => !item.hasAttribute('hidden'),
+				);
+				band.toggleAttribute('hidden', !visibleInBand);
+			}
+
+			if (emptyEl) emptyEl.hidden = visible > 0;
+			if (triggerLabel) triggerLabel.textContent = summarizeMembers(state);
+			syncMembersToLocation(state, query);
+
+			for (const shell of shells) {
+				if (!shell.classList.contains('is-expanded')) applyCollapse(shell);
+			}
+		}
+
+		function syncFiltersFromLocation() {
+			const fromUrl = readMembersFromLocation();
+			const defaultMembers = wrap.getAttribute('data-default-members') || 'current';
+			if (fromUrl) {
+				setFilterState(menu, {
+					all: fromUrl.all,
+					current: fromUrl.current,
+					classYears: fromUrl.classYears,
+				});
+			} else if (defaultMembers === 'current') {
+				setFilterState(menu, { all: false, current: true, classYears: [] });
+			}
+			if (searchInput) searchInput.value = readQueryFromLocation();
+			apply();
+		}
+
+		if (menu) {
+			menu.addEventListener('change', (event) => {
+				const target = event.target;
+				if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
+
+				if (target.value === 'all') {
+					if (target.checked) {
+						for (const input of menu.querySelectorAll('input[type="checkbox"]')) {
+							input.checked = true;
+						}
+					} else {
+						for (const input of menu.querySelectorAll('input[type="checkbox"]')) {
+							input.checked = input.value === 'current';
+						}
+					}
+				} else if (target.checked) {
+					const allInput = menu.querySelector('input[value="all"]');
+					const currentInput = menu.querySelector('input[value="current"]');
+					const classInputs = [...menu.querySelectorAll('input[value^="class-"]')];
+					const allClassChecked = classInputs.every((input) => input.checked);
+					if (allInput && currentInput && currentInput.checked && allClassChecked) {
+						allInput.checked = true;
+					}
+				} else {
+					const allInput = menu.querySelector('input[value="all"]');
+					if (allInput) allInput.checked = false;
+				}
+
+				apply();
+			});
+		}
+
+		if (root && trigger && menu) {
+			trigger.addEventListener('click', (event) => {
+				event.stopPropagation();
+				setMenuOpen(menu.hidden);
+			});
+			document.addEventListener('click', () => setMenuOpen(false));
+			root.addEventListener('click', (event) => event.stopPropagation());
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape' && !menu.hidden) setMenuOpen(false);
+			});
+		}
+
+		if (searchInput) {
+			searchInput.addEventListener('input', apply);
+			searchInput.addEventListener('search', apply);
+		}
+
+		syncFiltersFromLocation();
+		window.addEventListener('pageshow', syncFiltersFromLocation);
+
+		requestAnimationFrame(() => {
+			requestAnimationFrame(() => {
+				for (const shell of shells) {
+					if (!shell.classList.contains('is-expanded')) applyCollapse(shell);
+				}
+			});
+		});
+
+		window.addEventListener('hashchange', () => {
+			for (const shell of shells) {
+				const sectionId = shell.getAttribute('data-section-id') || '';
+				if (sectionId && window.location.hash === `#${sectionId}`) {
+					const clip = shell.querySelector('.people-tier-grid-clip');
+					shell.classList.add('is-expanded');
+					if (clip) {
+						clip.style.maxHeight = '';
+						clip.style.overflow = '';
+					}
+					const btn = shell.querySelector('.people-tier-show-more');
+					if (btn) {
+						btn.hidden = true;
+						btn.setAttribute('aria-expanded', 'true');
+					}
+				}
+			}
+		});
+	})();
+</script>

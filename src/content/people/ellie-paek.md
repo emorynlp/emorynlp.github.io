@@ -1,5 +1,4 @@
 ---
-
 name: Ellie Paek
 
 role: BS in Computer Science and Mathematics; BA in Music → Research Assistant in Conversational AI

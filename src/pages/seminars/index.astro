@@ -1,56 +1,568 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ContentCard from '../../components/ContentCard.astro';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../lib/dates';
+import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../../lib/publicationAuthorLinks';
+import {
+	resolveSeminarCoverHref,
+	resolveSeminarSpeakerCollageHrefs,
+} from '../../lib/seminarCoverPhotos';
 import { siteHref } from '../../lib/siteHref';
+import { thesisSortYear, thesisTermSeasonRank } from '../../lib/thesisYear';
+
+const people = await getCollection('people');
+const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
 
 const seminars = await getCollection('seminars');
 seminars.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-const groups = new Map<string, typeof seminars>();
-for (const s of seminars) {
-	const t = s.data.term;
-	if (!groups.has(t)) groups.set(t, []);
-	groups.get(t)!.push(s);
+const pickerYearMin = 2021;
+const pickerYearMax = new Date().getFullYear();
+const yearRangeMax =
+	seminars.length > 0
+		? Math.max(...seminars.map((s) => s.data.date.getUTCFullYear()))
+		: pickerYearMax;
+const startYearOptions: number[] = [];
+for (let y = pickerYearMin; y <= pickerYearMax; y++) startYearOptions.push(y);
+const defaultStartYear = Math.min(pickerYearMax, Math.max(pickerYearMin, pickerYearMax - 1));
+const defaultEndYear = Math.min(pickerYearMax, Math.max(defaultStartYear, yearRangeMax));
+const endYearOptions: number[] = [];
+for (let y = defaultStartYear; y <= pickerYearMax; y++) endYearOptions.push(y);
+
+function compareSeminarTermLabels(a: string, b: string): number {
+	const ya = thesisSortYear(a, '');
+	const yb = thesisSortYear(b, '');
+	if (yb !== ya) return yb - ya;
+	return thesisTermSeasonRank(b) - thesisTermSeasonRank(a);
 }
 
-const terms = [...groups.keys()].sort(
-	(a, b) =>
-		Math.max(...groups.get(b)!.map((x) => x.data.date.valueOf())) -
-		Math.max(...groups.get(a)!.map((x) => x.data.date.valueOf())),
-);
+const seminarsByTerm = new Map<string, typeof seminars>();
+for (const s of seminars) {
+	const term = s.data.term;
+	const list = seminarsByTerm.get(term);
+	if (list) list.push(s);
+	else seminarsByTerm.set(term, [s]);
+}
+
+const termGroups = [...seminarsByTerm.keys()]
+	.sort(compareSeminarTermLabels)
+	.map((term) => ({ term, seminars: seminarsByTerm.get(term)! }));
+
+const termCatalog: { value: string; label: string }[] = termGroups.map(({ term }) => ({
+	value: term,
+	label: term,
+}));
+
+function seminarSubline(time?: string, location?: string): string | undefined {
+	const parts = [time?.trim(), location?.trim()].filter(Boolean);
+	return parts.length > 0 ? parts.join(' · ') : undefined;
+}
 ---
 
 <BaseLayout title="Seminars" description="Weekly Emory NLP seminar series.">
-	<div class="container-narrow" style="padding-block: 2rem 3rem;">
-		<h1 class="page-title">Seminars</h1>
-		<p class="page-intro">
-			Grouped by semester using the <code class="muted">term</code> field (for example{' '}
-			<code class="muted">Fall 2025</code>). Entries are Markdown under <code class="muted">src/content/seminars/</code>.
+	<div class="publications-page container-narrow">
+		<h1 class="index-page-title">Seminars</h1>
+		<p class="index-page-intro">
+			Weekly talks, proposals, defenses, and guest seminars. Use the year range, semester, and search box to narrow
+			results.
 		</p>
 		{
 			seminars.length === 0 ? (
 				<div class="empty-state surface">No seminar entries yet.</div>
 			) : (
-				terms.map((term) => (
-					<section style="margin-bottom: 2.5rem;">
-						<h2 class="page-title" style="font-size: 1.25rem; margin-bottom: 0.85rem;">
-							{term}
-						</h2>
-						<div class="grid-cards">
-							{(groups.get(term) ?? []).map((s) => (
-								<ContentCard
-									href={siteHref(`/seminars/${s.id}/`)}
-									title={s.data.title}
-									subtitle={[...(s.data.speakers ?? [])].join(', ') || undefined}
-									meta={formatDate(s.data.date)}
-								/>
-							))}
+				<div
+					class="theses-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-term=""
+				>
+					<div class="publications-filters-pane">
+						<div class="publications-year-filter" role="group" aria-label="Filter by year">
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="seminar-year-start">Start</label>
+								<select class="publications-year-filter-select" id="seminar-year-start" name="yearStart">
+									{startYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultStartYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="seminar-year-end">End</label>
+								<select class="publications-year-filter-select" id="seminar-year-end" name="yearEnd">
+									{endYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultEndYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
 						</div>
-					</section>
-				))
+						<div class="publications-author-filter-block">
+							<span class="publications-year-filter-label" id="seminar-term-filter-heading">
+								Term
+							</span>
+							<div class="publications-author-filter" id="seminar-term-filter-root">
+								<button
+									type="button"
+									class="publications-author-filter-trigger publications-author-filter-trigger--text-only"
+									id="seminar-term-trigger"
+									aria-expanded="false"
+									aria-haspopup="listbox"
+									aria-controls="seminar-term-menu"
+									aria-labelledby="seminar-term-filter-heading seminar-term-trigger-label"
+								>
+									<span class="publications-author-filter-trigger-text" id="seminar-term-trigger-label">
+										All terms
+									</span>
+								</button>
+								<div
+									class="publications-author-filter-menu"
+									id="seminar-term-menu"
+									role="listbox"
+									aria-labelledby="seminar-term-filter-heading"
+									hidden
+								/>
+							</div>
+						</div>
+						<div class="publications-title-search-field">
+							<label class="publications-year-filter-label" for="seminar-search">Search</label>
+							<input
+								type="search"
+								class="publications-title-search-input"
+								id="seminar-search"
+								name="search"
+								placeholder="Search title or speaker…"
+								spellcheck="false"
+								autocomplete="off"
+								enterkeyhint="search"
+							/>
+						</div>
+					</div>
+					<script type="application/json" id="seminar-term-catalog" set:html={JSON.stringify(termCatalog)} />
+					<p id="seminar-filter-empty" class="publications-year-filter-empty muted" hidden>
+						No seminars match these filters.
+					</p>
+					<ul class="theses-list" role="list" id="seminars-list">
+						{termGroups.map(({ term, seminars: termSeminars }) => (
+							<li class="theses-list-term-group" data-term={term}>
+								<h2 class="theses-list-term-heading">{term}</h2>
+								<ul class="theses-list-term-items" role="list">
+									{termSeminars.map((s) => {
+										const speakers = s.data.speakers ?? [];
+										const speakerUrl = s.data.speakerUrl?.trim();
+										const primarySpeakerSlug =
+											speakers.length === 1
+												? slugForPublicationAuthor(speakers[0]!, authorSlugLookup)
+												: undefined;
+										const coverHref = resolveSeminarCoverHref(
+											s.id,
+											s.data.coverImage,
+											speakers.length,
+											primarySpeakerSlug,
+											speakers.length === 1 ? speakers[0] : undefined,
+										);
+										const listThumbHref = coverHref ? siteHref(coverHref) : undefined;
+										const speakerCollageSlots = resolveSeminarSpeakerCollageHrefs(
+											speakers,
+											authorSlugLookup,
+										);
+										const collageDisplaySlots =
+											speakers.length === 3
+												? [...speakerCollageSlots, undefined]
+												: speakerCollageSlots;
+										const useSpeakerCollage =
+											!listThumbHref && speakers.length >= 2;
+										const collageLayout =
+											speakers.length >= 3 ? 4 : speakers.length;
+										const subline = seminarSubline(s.data.time, s.data.location);
+										const searchHaystack = `${s.data.title} ${speakers.join(' ')}`.toLowerCase();
+
+										return (
+											<li
+												class="theses-list-item surface"
+												data-year={String(s.data.date.getUTCFullYear())}
+												data-term={s.data.term}
+												data-search={searchHaystack}
+											>
+												<div class="theses-list-item-inner">
+													<a
+														class="theses-list-thumb-link"
+														href={siteHref(`/seminars/${s.id}/`)}
+														aria-hidden="true"
+														tabindex="-1"
+													>
+														{useSpeakerCollage ? (
+															<div
+																class={`theses-list-thumb-collage theses-list-thumb-collage--${collageLayout}`}
+																aria-hidden="true"
+															>
+																{collageDisplaySlots.map((href) =>
+																	href ? (
+																		<img
+																			class="theses-list-thumb-collage-cell"
+																			src={siteHref(href)}
+																			alt=""
+																			width="72"
+																			height="72"
+																			loading="lazy"
+																			decoding="async"
+																		/>
+																	) : (
+																		<span
+																			class="theses-list-thumb-collage-cell theses-list-thumb-collage-placeholder"
+																			aria-hidden="true"
+																		/>
+																	),
+																)}
+															</div>
+														) : listThumbHref ? (
+															<img
+																class="theses-list-thumb"
+																src={listThumbHref}
+																alt=""
+																width="144"
+																height="144"
+																loading="lazy"
+																decoding="async"
+															/>
+														) : (
+															<span class="theses-list-thumb-placeholder" />
+														)}
+													</a>
+													<div class="theses-list-main">
+														<h3 class="theses-list-title">
+															<a href={siteHref(`/seminars/${s.id}/`)}>{s.data.title}</a>
+														</h3>
+														<p class="theses-list-meta">
+															{speakers.map((speaker, i) => {
+																const peopleSlug = slugForPublicationAuthor(
+																	speaker,
+																	authorSlugLookup,
+																);
+																const peopleHref = peopleSlug
+																	? siteHref(`/people/${peopleSlug}/`)
+																	: undefined;
+																const seminarSpeakerHref =
+																	speakers.length === 1 && speakerUrl
+																		? speakerUrl
+																		: undefined;
+																const linkHref = seminarSpeakerHref ?? peopleHref;
+																return (
+																	<>
+																		{i > 0 ? ', ' : ''}
+																		{linkHref ? (
+																			<a
+																				class="theses-list-author-link"
+																				href={linkHref}
+																				{...(seminarSpeakerHref
+																					? {
+																							target: '_blank',
+																							rel: 'noopener noreferrer',
+																						}
+																					: {})}
+																			>
+																				{speaker}
+																			</a>
+																		) : (
+																			<span>{speaker}</span>
+																		)}
+																	</>
+																);
+															})}
+															{speakers.length > 0 ? ' · ' : ''}
+															{formatDate(s.data.date)}
+														</p>
+														{subline ? <p class="theses-list-sub muted">{subline}</p> : null}
+													</div>
+												</div>
+											</li>
+										);
+									})}
+								</ul>
+							</li>
+						))}
+					</ul>
+				</div>
 			)
 		}
 	</div>
+	<script is:inline>
+		(function () {
+			const wrap = document.querySelector('.theses-list-wrap');
+			if (!wrap) return;
+			const pickerMin = Number(wrap.dataset.pickerMin);
+			const pickerMax = Number(wrap.dataset.pickerMax);
+			const defaultStart = Number(wrap.dataset.defaultStart);
+			const defaultEnd = Number(wrap.dataset.defaultEnd);
+			const startSelect = document.getElementById('seminar-year-start');
+			const endSelect = document.getElementById('seminar-year-end');
+			const termRoot = document.getElementById('seminar-term-filter-root');
+			const termTrigger = document.getElementById('seminar-term-trigger');
+			const termMenu = document.getElementById('seminar-term-menu');
+			const termTriggerLabel = document.getElementById('seminar-term-trigger-label');
+			const searchInput = document.getElementById('seminar-search');
+			const items = wrap.querySelectorAll('.theses-list-item[data-year]');
+			const termGroups = wrap.querySelectorAll('.theses-list-term-group');
+			const emptyEl = document.getElementById('seminar-filter-empty');
+			if (!startSelect || !endSelect || !termMenu) return;
+
+			function clamp(n, a, b) {
+				if (Number.isNaN(n)) return a;
+				return Math.min(b, Math.max(a, n));
+			}
+
+			function readFiltersFromLocation() {
+				const params = new URLSearchParams(window.location.search);
+				let lo = parseInt(params.get('yearStart') ?? '', 10);
+				let hi = parseInt(params.get('yearEnd') ?? '', 10);
+				if (Number.isNaN(lo)) lo = defaultStart;
+				if (Number.isNaN(hi)) hi = defaultEnd;
+				lo = clamp(lo, pickerMin, pickerMax);
+				hi = clamp(hi, pickerMin, pickerMax);
+				return {
+					lo,
+					hi: Math.max(lo, hi),
+					term: String(params.get('term') ?? '').trim(),
+					query: String(params.get('q') ?? '').trim().toLowerCase(),
+				};
+			}
+
+			function syncFiltersToLocation(lo, hi, term, query) {
+				const params = new URLSearchParams(window.location.search);
+				if (lo === defaultStart) params.delete('yearStart');
+				else params.set('yearStart', String(lo));
+				if (hi === defaultEnd) params.delete('yearEnd');
+				else params.set('yearEnd', String(hi));
+				const termValue = String(term || '').trim();
+				if (!termValue) params.delete('term');
+				else params.set('term', termValue);
+				const queryValue = String(query || '').trim();
+				if (!queryValue) params.delete('q');
+				else params.set('q', queryValue);
+				const qs = params.toString();
+				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
+				const current = window.location.pathname + window.location.search;
+				if (next !== current) {
+					history.replaceState(null, '', next);
+				}
+			}
+
+			function rebuildEndOptions(startVal, preferredEnd) {
+				const lo = clamp(startVal, pickerMin, pickerMax);
+				let endVal = preferredEnd;
+				if (endVal == null || Number.isNaN(endVal)) {
+					endVal = parseInt(endSelect.value, 10);
+				}
+				endVal = clamp(Number.isNaN(endVal) ? lo : endVal, lo, pickerMax);
+				endSelect.innerHTML = '';
+				for (let y = lo; y <= pickerMax; y++) {
+					const opt = document.createElement('option');
+					opt.value = String(y);
+					opt.textContent = String(y);
+					endSelect.appendChild(opt);
+				}
+				endSelect.value = String(endVal);
+			}
+
+			let termCatalogCache = null;
+			function getTermCatalog() {
+				if (termCatalogCache !== null) return termCatalogCache;
+				const el = document.getElementById('seminar-term-catalog');
+				if (!el || !el.textContent) {
+					termCatalogCache = [];
+					return termCatalogCache;
+				}
+				try {
+					termCatalogCache = JSON.parse(el.textContent.trim());
+				} catch (_) {
+					termCatalogCache = [];
+				}
+				return termCatalogCache;
+			}
+
+			function getSelectedTerm() {
+				return wrap.getAttribute('data-selected-term') || '';
+			}
+
+			function setSelectedTerm(value) {
+				wrap.setAttribute('data-selected-term', value || '');
+				apply();
+			}
+
+			function setTermMenuOpen(open) {
+				if (!termMenu || !termTrigger) return;
+				termMenu.hidden = !open;
+				termTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+			}
+
+			function syncTermTrigger() {
+				if (!termTrigger || !termTriggerLabel || !termMenu) return;
+				const cur = getSelectedTerm();
+				let selectedBtn = null;
+				for (const btn of termMenu.querySelectorAll('.publications-author-filter-option')) {
+					if ((btn.getAttribute('data-value') ?? '') === cur) {
+						selectedBtn = btn;
+						break;
+					}
+				}
+				if (!selectedBtn) {
+					selectedBtn = termMenu.querySelector('.publications-author-filter-option[data-value=""]');
+				}
+				for (const btn of termMenu.querySelectorAll('.publications-author-filter-option')) {
+					btn.setAttribute('aria-selected', btn === selectedBtn ? 'true' : 'false');
+				}
+				const label = selectedBtn ? selectedBtn.getAttribute('data-label') || 'All terms' : 'All terms';
+				const count = selectedBtn ? selectedBtn.getAttribute('data-count') : null;
+				termTriggerLabel.textContent =
+					count && count !== '' ? label + ' (' + count + ')' : label;
+			}
+
+			function appendTermMenuOption(menu, value, label, count) {
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.className =
+					'publications-author-filter-option publications-filter-menu-option--text-only';
+				btn.setAttribute('role', 'option');
+				btn.setAttribute('data-value', value);
+				btn.setAttribute('data-label', label);
+				if (count > 0) btn.setAttribute('data-count', String(count));
+				btn.setAttribute('aria-selected', 'false');
+				const main = document.createElement('span');
+				main.className = 'publications-author-filter-option-main';
+				main.appendChild(document.createTextNode(label + (count > 0 ? ' ' : '')));
+				if (count > 0) {
+					const cspan = document.createElement('span');
+					cspan.className = 'publications-author-filter-option-count muted';
+					cspan.textContent = '(' + count + ')';
+					main.appendChild(cspan);
+				}
+				btn.appendChild(main);
+				menu.appendChild(btn);
+				return btn;
+			}
+
+			function rebuildTermOptions(lo, hi, query) {
+				const catalog = getTermCatalog();
+				if (!catalog.length) return;
+				const cur = getSelectedTerm();
+				const countByTerm = {};
+				catalog.forEach(function (entry) {
+					countByTerm[entry.value] = 0;
+				});
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					if (Number.isNaN(y) || y < lo || y > hi) return;
+					const hay = li.getAttribute('data-search') || '';
+					if (query && hay.indexOf(query) === -1) return;
+					const term = li.getAttribute('data-term') || '';
+					if (term && countByTerm[term] !== undefined) {
+						countByTerm[term] += 1;
+					}
+				});
+				if (cur && !countByTerm[cur]) {
+					wrap.setAttribute('data-selected-term', '');
+				}
+				while (termMenu.firstChild) {
+					termMenu.removeChild(termMenu.firstChild);
+				}
+				appendTermMenuOption(termMenu, '', 'All terms', 0);
+				catalog.forEach(function (entry) {
+					const count = countByTerm[entry.value] || 0;
+					if (count <= 0) return;
+					appendTermMenuOption(termMenu, entry.value, entry.label, count);
+				});
+			}
+
+			function apply() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				const endYear = Math.max(lo, hi);
+				const query = String((searchInput && searchInput.value) || '').trim().toLowerCase();
+				rebuildTermOptions(lo, endYear, query);
+				const selectedTerm = getSelectedTerm();
+				startSelect.value = String(lo);
+				endSelect.value = String(endYear);
+				let visible = 0;
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					const term = li.getAttribute('data-term') || '';
+					const hay = li.getAttribute('data-search') || '';
+					const yearOk = !Number.isNaN(y) && y >= lo && y <= endYear;
+					const termOk = !selectedTerm || term === selectedTerm;
+					const queryOk = !query || hay.indexOf(query) !== -1;
+					const show = yearOk && termOk && queryOk;
+					li.toggleAttribute('hidden', !show);
+					if (show) visible += 1;
+				});
+				termGroups.forEach((group) => {
+					const groupItems = group.querySelectorAll('.theses-list-item[data-year]');
+					let groupVisible = 0;
+					groupItems.forEach((li) => {
+						if (!li.hidden) groupVisible += 1;
+					});
+					group.toggleAttribute('hidden', groupVisible === 0);
+				});
+				if (emptyEl) emptyEl.hidden = visible > 0;
+				syncTermTrigger();
+				syncFiltersToLocation(lo, endYear, selectedTerm, query);
+			}
+
+			function onStartChange() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				rebuildEndOptions(lo, hi);
+				apply();
+			}
+
+			function syncFiltersFromLocation() {
+				const filters = readFiltersFromLocation();
+				startSelect.value = String(filters.lo);
+				rebuildEndOptions(filters.lo, filters.hi);
+				if (searchInput) searchInput.value = filters.query;
+				wrap.setAttribute('data-selected-term', filters.term);
+				apply();
+			}
+
+			startSelect.addEventListener('change', onStartChange);
+			endSelect.addEventListener('change', apply);
+			startSelect.addEventListener('input', onStartChange);
+			endSelect.addEventListener('input', apply);
+			if (termRoot && termTrigger && termMenu) {
+				termTrigger.addEventListener('click', function (e) {
+					e.stopPropagation();
+					const open = termMenu.hidden;
+					setTermMenuOpen(open);
+				});
+				termMenu.addEventListener('click', function (e) {
+					const btn = e.target.closest('.publications-author-filter-option');
+					if (!btn || !termMenu.contains(btn)) return;
+					const value = btn.getAttribute('data-value') ?? '';
+					setSelectedTerm(value);
+					setTermMenuOpen(false);
+				});
+				document.addEventListener('click', function () {
+					setTermMenuOpen(false);
+				});
+				termRoot.addEventListener('click', function (e) {
+					e.stopPropagation();
+				});
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Escape' && termMenu && !termMenu.hidden) {
+						setTermMenuOpen(false);
+					}
+				});
+			}
+
+			if (searchInput) {
+				searchInput.addEventListener('input', apply);
+				searchInput.addEventListener('search', apply);
+			}
+			syncFiltersFromLocation();
+			window.addEventListener('pageshow', syncFiltersFromLocation);
+		})();
+	</script>
 </BaseLayout>

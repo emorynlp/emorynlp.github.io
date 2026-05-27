@@ -69,8 +69,8 @@ const photoHref = resolvePeoplePhotoPublicHref(entry.id, d.photo);
 const termLine = d.directoryMeta?.trim() || formatPeopleTermRange(d) || null;
 const initials = avatarInitials(d.name);
 
-const backHref = siteHref(d.current ? '/people/' : '/people/former-members/');
-const backLabel = d.current ? 'People' : 'Former Members';
+const backHref = siteHref('/people/');
+const backLabel = 'People';
 
 const profileHeadingName = formatPeopleProfileDisplayName(d.name, d.aliases);
 
@@ -236,7 +236,7 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 				}
 
 				{
-					linkedPublications.length > 0 ? (
+					d.profilePublications !== false && linkedPublications.length > 0 ? (
 						<section class="people-profile-publications" aria-labelledby={`publications-${entry.id}`}>
 							<h2 id={`publications-${entry.id}`} class="people-profile-section-title">
 								Publications

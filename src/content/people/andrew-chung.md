@@ -1,5 +1,4 @@
 ---
-
 name: Andrew Chung
 role: BS in Computer Science
 peopleTier: undergrad

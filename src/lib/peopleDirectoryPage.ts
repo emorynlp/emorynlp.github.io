@@ -68,6 +68,6 @@ export function bucketByTier(entries: CollectionEntry<'people'>[]): Map<PeopleTi
 	return map;
 }
 
-export function tierSectionId(kind: 'current' | 'alumni', tier: PeopleTier): string {
+export function tierSectionId(kind: 'current' | 'alumni' | 'roster', tier: PeopleTier): string {
 	return `${kind}-${tier}`;
 }

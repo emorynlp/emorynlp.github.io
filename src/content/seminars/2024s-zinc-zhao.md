@@ -1,0 +1,11 @@
+---
+title: Impact of Data Analysis on Nascent Natural Language Processing Tasks
+date: 2024-03-08
+term: Spring 2024
+time: '3:30 - 4:30 PM'
+speakers:
+  - Zinc Zhao
+location: MSC W303
+abstract: 'In the realm of Natural Language Processing (NLP), the impact of data analysis on model performance is undeniable. This talk delves into the transformative influence of data analysis in two distinct NLP projects, elucidating how meticulous scrutiny of datasets and strategic data cleaning techniques have propelled model efficacy. The first project revolves around resume classification, shifting focus from traditional categorization to assessing competence levels. Despite encountering a dataset plagued with noise, a comprehensive data analysis coupled with iterative error analysis facilitated a remarkable uptick in accuracy. By harnessing the power of BERT and implementing refined data cleaning strategies, we achieved a 74% accuracy, surpassing prior endeavors reliant on complex models. Further exploration within the resume classification project unveiled a crucial inadequacy in job description matching due to dataset limitations. To rectify this, a novel dataset comprising 710 diverse job descriptions was curated and utilized to train a simplified BERT model. This endeavor aimed not only to bolster accuracy but also to instill confidence in the model''s efficacy in matching resumes to job descriptions. Transitioning to the second project, Dialogue State Generation (DSG), challenges emerged in leveraging existing datasets suitable for Dialogue State Tracking (DST). Recognizing this disparity, a bespoke dataset was meticulously crafted utilizing GPT, tailored specifically for DSG training. Leveraging the prowess of T5, the resulting model exhibited superior performance compared to counterparts trained on conventional datasets, underscoring the significance of tailored data analysis in driving advancements in nascent NLP tasks. This talk serves as a testament to the indispensable role of data analysis in navigating the complexities of NLP tasks, illuminating pathways toward enhanced model performance and efficacy in real-world applications.'
+slidesUrl: 'https://drive.google.com/file/d/1KC8TG0WRxG3HLeSkyPrBRPRTWcMvmaxL/view?usp=share_link'
+---

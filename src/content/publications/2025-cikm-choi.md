@@ -1,5 +1,5 @@
 ---
-title: Reference-Aligned Retrieval-Augmented Question Answeringover Heterogeneous Proprietary Documents
+title: Reference-Aligned Retrieval-Augmented Question Answering over Heterogeneous Proprietary Documents
 authors:
   - Nayoung Choi
   - Grace Byun

@@ -17,8 +17,7 @@ When editing **`src/pages/people/`**, **`ContentCard`**, or **`.people-grid`** i
 
 ## Routes
 
-- **`/people/`** — `current: true` only + link/count to alumni + Openings section.
-- **`/people/former-members/`** — `current: false` only + back link to People.
+- **`/people/`** — roster with client filters (default **Current**; optional **All**, **Class of YYYY**, search). **`/people/former-members/`** redirects to **`/people/?members=all`**.
 - Shared tier bucketing:**`src/lib/peopleDirectoryPage.ts`**. Listing meta line:**`formatPeopleListingMeta`** in **`src/lib/peopleDirectory.ts`** (not raw `formatPeopleTermRange` alone unless intentionally matching profile precedence). Within each tier, rosters sort with **`comparePeopleDirectoryByEndThenName`**: **`endTerm` descending** (**year desc**, then **Fall→Summer→Spring** within a year); **`current`** members without parsable **`endTerm`** (**open-ended**) before dated ends; **`current: false`** without parsable **`endTerm`** last; then **`directoryFamilySortKey`** (**last name**/slug stem) ascending, full **`name`**. (**`newsParticipants`** still uses **`comparePeopleDirectory`** by **`startTerm`**.)
 
 ## Tier section headings (`h2.people-tier-heading`)

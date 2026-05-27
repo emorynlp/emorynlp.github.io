@@ -59,6 +59,8 @@ const people = defineCollection({
 		 * Omit from roster display / profile parentheticals (`aliases` is for preferred/nickname display).
 		 */
 		publicationAuthorAliases: z.array(z.string()).optional(),
+		/** When `false`, omit the auto-linked Publications section on this profile. */
+		profilePublications: z.boolean().optional(),
 		/**
 		 * Honors, grants, competition results, etc.
 		 * Prefer `title` (what happened) + `when` (timing) + optional `issuer` (who gave it) instead of one long `title` string.
@@ -193,10 +195,19 @@ const seminars = defineCollection({
 		title: z.string(),
 		date: z.coerce.date(),
 		term: z.string(),
+		/** Wall-clock time line from the legacy seminar page (e.g. `3:00 - 4:00 PM`). */
+		time: z.string().optional(),
 		speakers: z.array(z.string()).optional(),
 		abstract: z.string().optional(),
-		videoUrl: z.string().optional(),
-		slidesUrl: z.string().optional(),
+		/** Guest or speaker biography; rendered like the abstract on the detail page. */
+		bio: z.string().optional(),
+		location: z.string().optional(),
+		videoUrl: z.string().url().optional(),
+		slidesUrl: z.string().url().optional(),
+		/** Speaker homepage (guest talks without a people profile). */
+		speakerUrl: z.string().url().optional(),
+		/** Cover image path under `public/` (e.g. `/seminars/*.webp`). */
+		coverImage: z.string().optional(),
 	}),
 });
 
