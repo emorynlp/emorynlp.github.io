@@ -48,30 +48,21 @@ const degreeCatalogForClient = degreeOptions.map((degree) => ({ value: degree, l
 ---
 
 <BaseLayout title="Theses & Dissertations" description="Student theses defended with Emory NLP.">
-	<div class="publications-page container-narrow">
-		<p class="index-page-back muted">
-			<a href={siteHref('/papers/')}>← Publications</a>
-		</p>
-		<h1 class="index-page-title">Theses &amp; Dissertations</h1>
-		<p class="index-page-intro">
-			PhD dissertations, MS theses, and undergraduate honors theses.
-			Use the year range, degree, and search box to narrow results.
-			For conference and journal papers, visit{' '}
-			<a href={siteHref('/papers/')}>Publications</a>.
-		</p>
-		{
-			items.length === 0 ? (
-				<div class="empty-state surface">No thesis entries yet.</div>
-			) : (
-				<div
-					class="theses-list-wrap"
-					data-picker-min={String(pickerYearMin)}
-					data-picker-max={String(pickerYearMax)}
-					data-default-start={String(defaultStartYear)}
-					data-default-end={String(defaultEndYear)}
-					data-selected-degree=""
-				>
-					<div class="publications-filters-pane">
+	<section class="hero page-hero" aria-labelledby="theses-title">
+		<div class="hero-inner">
+			<p class="index-page-back muted">
+				<a href={siteHref('/papers/')}>← Publications</a>
+			</p>
+			<h1 id="theses-title">Theses &amp; Dissertations</h1>
+			<p class="hero-sub">
+				PhD dissertations, MS theses, and undergraduate honors theses.
+				Use the year range, degree, and search box to narrow results.
+				For conference and journal papers, visit{' '}
+				<a href={siteHref('/papers/')}>Publications</a>.
+			</p>
+			{
+				items.length > 0 ? (
+					<div class="publications-filters-pane page-hero-filters-pane">
 						<div class="publications-year-filter" role="group" aria-label="Filter by year">
 							<div class="publications-year-filter-field">
 								<label class="publications-year-filter-label" for="thesis-year-start">Start</label>
@@ -135,6 +126,24 @@ const degreeCatalogForClient = degreeOptions.map((degree) => ({ value: degree, l
 							/>
 						</div>
 					</div>
+				) : null
+			}
+		</div>
+	</section>
+
+	<div class="publications-page container-narrow">
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No thesis entries yet.</div>
+			) : (
+				<div
+					class="theses-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-degree=""
+				>
 					<script type="application/json" id="thesis-degree-catalog" set:html={JSON.stringify(degreeCatalogForClient)} />
 					<p class="publications-filter-stats" id="thesis-filter-stats" role="status" aria-live="polite">
 						<span class="publications-filter-stats-summary">

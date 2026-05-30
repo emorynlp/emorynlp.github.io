@@ -60,25 +60,16 @@ function seminarSubline(time?: string, location?: string): string | undefined {
 ---
 
 <BaseLayout title="Seminars" description="Weekly Emory NLP seminar series.">
-	<div class="publications-page container-narrow">
-		<h1 class="index-page-title">Seminars</h1>
-		<p class="index-page-intro">
-			Weekly talks, proposals, defenses, and guest seminars. Use the year range, semester, and search box to narrow
-			results.
-		</p>
-		{
-			seminars.length === 0 ? (
-				<div class="empty-state surface">No seminar entries yet.</div>
-			) : (
-				<div
-					class="theses-list-wrap"
-					data-picker-min={String(pickerYearMin)}
-					data-picker-max={String(pickerYearMax)}
-					data-default-start={String(defaultStartYear)}
-					data-default-end={String(defaultEndYear)}
-					data-selected-term=""
-				>
-					<div class="publications-filters-pane">
+	<section class="hero page-hero" aria-labelledby="seminars-title">
+		<div class="hero-inner">
+			<h1 id="seminars-title">Seminars</h1>
+			<p class="hero-sub">
+				Weekly talks, proposals, defenses, and guest seminars. Use the year range, semester, and search box to narrow
+				results.
+			</p>
+			{
+				seminars.length > 0 ? (
+					<div class="publications-filters-pane page-hero-filters-pane">
 						<div class="publications-year-filter" role="group" aria-label="Filter by year">
 							<div class="publications-year-filter-field">
 								<label class="publications-year-filter-label" for="seminar-year-start">Start</label>
@@ -142,6 +133,24 @@ function seminarSubline(time?: string, location?: string): string | undefined {
 							/>
 						</div>
 					</div>
+				) : null
+			}
+		</div>
+	</section>
+
+	<div class="publications-page container-narrow">
+		{
+			seminars.length === 0 ? (
+				<div class="empty-state surface">No seminar entries yet.</div>
+			) : (
+				<div
+					class="theses-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-term=""
+				>
 					<script type="application/json" id="seminar-term-catalog" set:html={JSON.stringify(termCatalog)} />
 					<p id="seminar-filter-empty" class="publications-year-filter-empty muted" hidden>
 						No seminars match these filters.

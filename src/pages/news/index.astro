@@ -29,25 +29,16 @@ const labelCatalogForClient = labelOptions.map((label) => ({ value: label, label
 	title="News"
 	description="Updates from Emory NLP: publications, honors, defenses, collaborations, outreach, and other lab milestones."
 >
-	<div class="news-page container-narrow">
-		<h1 class="index-page-title">News & Events</h1>
-		<p class="index-page-intro">
-			Awards and honors, milestones, collaborations, conference trips, social events, and other lab activities and announcements.
-			Use the year range, label, and search box to narrow results.
-		</p>
-		{
-			items.length === 0 ? (
-				<div class="empty-state surface">No news entries yet.</div>
-			) : (
-				<div
-					class="highlights-list-wrap"
-					data-picker-min={String(pickerYearMin)}
-					data-picker-max={String(pickerYearMax)}
-					data-default-start={String(defaultStartYear)}
-					data-default-end={String(defaultEndYear)}
-					data-selected-label=""
-				>
-					<div class="publications-filters-pane">
+	<section class="hero page-hero" aria-labelledby="news-title">
+		<div class="hero-inner">
+			<h1 id="news-title">News & Events</h1>
+			<p class="hero-sub">
+				Awards and honors, milestones, collaborations, conference trips, social events, and other lab activities and announcements.
+				Use the year range, label, and search box to narrow results.
+			</p>
+			{
+				items.length > 0 ? (
+					<div class="publications-filters-pane page-hero-filters-pane">
 						<div class="publications-year-filter" role="group" aria-label="Filter by year">
 							<div class="publications-year-filter-field">
 								<label class="publications-year-filter-label" for="highlight-year-start">Start</label>
@@ -115,6 +106,24 @@ const labelCatalogForClient = labelOptions.map((label) => ({ value: label, label
 							/>
 						</div>
 					</div>
+				) : null
+			}
+		</div>
+	</section>
+
+	<div class="news-page container-narrow">
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No news entries yet.</div>
+			) : (
+				<div
+					class="highlights-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-label=""
+				>
 					{
 						labelOptions.length > 0 ? (
 							<script

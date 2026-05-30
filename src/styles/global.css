@@ -347,6 +347,113 @@ main#main:has(> .hero:first-child) {
 	color: inherit;
 }
 
+.page-hero .hero-sub {
+	max-width: none;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.6;
+	letter-spacing: normal;
+	color: var(--on-banner-muted);
+}
+
+.page-hero .hero-sub a:link,
+.page-hero .hero-sub a:visited,
+.page-hero .hero-sub a:any-link {
+	color: var(--brand-warm-dark);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.page-hero .hero-sub a:hover,
+.page-hero .hero-sub a:active {
+	color: var(--brand-warm);
+	text-decoration: none;
+}
+
+.page-hero .hero-sub a:focus-visible {
+	outline: 2px solid var(--brand-warm-dark);
+	outline-offset: 3px;
+}
+
+.page-hero .index-page-back {
+	width: 100%;
+	margin: 0 0 0.65rem;
+	font-size: 0.9rem;
+}
+
+.page-hero .index-page-back a {
+	font-weight: 600;
+	text-decoration: none;
+	color: var(--banner-meta);
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.page-hero .index-page-back a:hover {
+		color: var(--brand-warm-dark);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+}
+
+.page-hero .hero-inner:has(.page-hero-filters-pane) {
+	min-height: auto;
+	padding-bottom: 2rem;
+	align-items: stretch;
+	text-align: left;
+}
+
+.page-hero .page-hero-filters-pane {
+	width: 100%;
+	align-self: stretch;
+	margin-top: 1.25rem;
+	margin-bottom: 0;
+	padding-inline: 0;
+	text-align: left;
+	background: transparent;
+	border-color: transparent;
+}
+
+.page-hero .page-hero-filters-pane .publications-year-filter-label {
+	color: var(--banner-meta);
+}
+
+.page-hero .page-hero-filters-pane .publications-year-filter {
+	color: var(--banner-meta);
+}
+
+.page-hero .page-hero-filters-pane .publications-author-filter-menu,
+.page-hero .page-hero-filters-pane .people-members-filter-menu {
+	background: #1e293b;
+	border-color: var(--on-banner-border);
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+	color: var(--on-banner);
+}
+
+.page-hero .page-hero-filters-pane .publications-author-filter-option,
+.page-hero .page-hero-filters-pane .people-members-filter-option {
+	color: var(--on-banner);
+}
+
+.page-hero .page-hero-filters-pane .publications-author-filter-option:hover,
+.page-hero .page-hero-filters-pane .publications-author-filter-option:focus-visible,
+.page-hero .page-hero-filters-pane .people-members-filter-option:hover {
+	background: var(--on-banner-card-hover);
+	outline: none;
+}
+
+.page-hero .page-hero-filters-pane .publications-author-filter-option[aria-selected='true'] {
+	background: var(--on-banner-card);
+}
+
+.page-hero .page-hero-filters-pane .people-members-filter-option .muted,
+.page-hero .page-hero-filters-pane .publications-author-filter-option-count {
+	color: var(--banner-meta);
+}
+
+.page-hero .page-hero-filters-pane .people-members-filter-separator {
+	border-top-color: var(--on-banner-border);
+}
+
 body:has(main > .hero:first-child) .site-header {
 	box-shadow: none;
 }

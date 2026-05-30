@@ -28,19 +28,16 @@ function tierUrl(tier: PeopleTier): string {
 ---
 
 <BaseLayout title="People" description="Meet the faculty, students, and collaborators at Emory NLP.">
-	<div class="people-page container-narrow">
-		<h1 class="index-page-title">People</h1>
-		<p class="index-page-intro">
-			Faculty members, postdoctoral researchers, graduate and undergraduate students, and visiting scholars.
-			Use the roster filter and search to browse current members, alumni by class year, or the full directory.
-		</p>
-
-		{
-			rows.length === 0 ? (
-				<p class="empty-state muted">No people entries yet.</p>
-			) : (
-				<div class="people-list-wrap" data-default-members="current">
-					<div class="publications-filters-pane">
+	<section class="hero page-hero" aria-labelledby="people-title">
+		<div class="hero-inner">
+			<h1 id="people-title">People</h1>
+			<p class="hero-sub">
+				Faculty members, postdoctoral researchers, graduate and undergraduate students, and visiting scholars.
+				Use the roster filter and search to browse current members, alumni by class year, or the full directory.
+			</p>
+			{
+				rows.length > 0 ? (
+					<div class="publications-filters-pane page-hero-filters-pane">
 						<div class="publications-author-filter-block">
 							<span class="publications-year-filter-label" id="people-members-filter-heading">
 								Roster
@@ -115,6 +112,17 @@ function tierUrl(tier: PeopleTier): string {
 							/>
 						</div>
 					</div>
+				) : null
+			}
+		</div>
+	</section>
+
+	<div class="people-page container-narrow">
+		{
+			rows.length === 0 ? (
+				<p class="empty-state muted">No people entries yet.</p>
+			) : (
+				<div class="people-list-wrap" data-default-members="current">
 					<p class="publications-year-filter-empty muted" id="people-filter-empty" hidden>
 						No people match the current roster filter and search.
 					</p>

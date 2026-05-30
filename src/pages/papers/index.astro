@@ -52,28 +52,19 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 	title="Publications"
 	description="Conference and journal papers, workshop articles, and preprints from Emory NLP."
 >
-	<div class="publications-page container-narrow">
-		<h1 class="index-page-title">Publications</h1>
-		<p class="index-page-intro">
-			Peer-reviewed papers from journals, conferences, and workshops (including shared tasks and system demonstrations), plus preprints.
-			Use the year range, author, and search box to narrow results.
-			{' '}
-			For theses and dissertations, visit{' '}
-			<a href={siteHref('/papers/theses/')}>Theses &amp; Dissertations</a>.
-		</p>
-		{
-			papers.length === 0 ? (
-				<div class="empty-state surface">No publication entries yet.</div>
-			) : (
-				<div
-					class="publications-list-wrap"
-					data-picker-min={String(pickerYearMin)}
-					data-picker-max={String(pickerYearMax)}
-					data-default-start={String(defaultStartYear)}
-					data-default-end={String(defaultEndYear)}
-					data-selected-author=""
-				>
-					<div class="publications-filters-pane">
+	<section class="hero page-hero" aria-labelledby="pubs-title">
+		<div class="hero-inner">
+			<h1 id="pubs-title">Publications</h1>
+			<p class="hero-sub">
+				Peer-reviewed papers from journals, conferences, and workshops (including shared tasks and system demonstrations), plus preprints.
+				Use the year range, author, and search box to narrow results.
+				{' '}
+				For theses and dissertations, visit{' '}
+				<a href={siteHref('/papers/theses/')}>Theses &amp; Dissertations</a>.
+			</p>
+			{
+				papers.length > 0 ? (
+					<div class="publications-filters-pane page-hero-filters-pane">
 						<div class="publications-year-filter" role="group" aria-label="Filter by year">
 							<div class="publications-year-filter-field">
 								<label class="publications-year-filter-label" for="pub-year-start">Start</label>
@@ -158,6 +149,24 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 							/>
 						</div>
 					</div>
+				) : null
+			}
+		</div>
+	</section>
+
+	<div class="publications-page container-narrow">
+		{
+			papers.length === 0 ? (
+				<div class="empty-state surface">No publication entries yet.</div>
+			) : (
+				<div
+					class="publications-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-author=""
+				>
 					<p
 						class="publications-filter-stats"
 						id="pub-filter-stats"
