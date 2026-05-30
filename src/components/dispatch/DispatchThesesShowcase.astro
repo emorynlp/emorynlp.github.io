@@ -1,0 +1,52 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import type { ResolvedThesis } from '../../lib/dispatch/resolveIssue';
+import { dispatchThesesSectionHeading } from '../../lib/degreeListKind';
+import DispatchAuthors from './DispatchAuthors.astro';
+import DispatchPaperTopics from './DispatchPaperTopics.astro';
+import DispatchSectionFeatured from './DispatchSectionFeatured.astro';
+
+interface Props {
+	theses: ResolvedThesis[];
+	featured?: ResolvedFeaturedItem;
+}
+
+const { theses, featured } = Astro.props;
+const showSection = theses.length > 0 || featured !== undefined;
+const sectionHeading = dispatchThesesSectionHeading([
+	...theses.map((t) => t.entry.data.degree),
+	...(featured?.thesisDegree ? [featured.thesisDegree] : []),
+]);
+---
+
+{
+	showSection ? (
+		<section class="dispatch-section dispatch-wrap" id="theses" aria-labelledby="dispatch-theses-heading">
+			<h2 class="dispatch-section-label" id="dispatch-theses-heading">
+				{sectionHeading}
+			</h2>
+			{featured ? <DispatchSectionFeatured item={featured} /> : null}
+			{
+				theses.length > 0 ? (
+					<ul class="dispatch-paper-list">
+						{theses.map((thesis) => {
+							const d = thesis.entry.data;
+							return (
+								<li class="dispatch-paper-item">
+									<DispatchPaperTopics topics={thesis.topics} />
+									<h3 class="dispatch-paper-title">
+										<a href={thesis.href}>{d.title}</a>
+									</h3>
+									<p class="dispatch-paper-thesis-detail">
+										<DispatchAuthors authors={thesis.authorLinks} />
+										{thesis.detailSuffix ? ` · ${thesis.detailSuffix}` : ''}
+									</p>
+								</li>
+							);
+						})}
+					</ul>
+				) : null
+			}
+		</section>
+	) : null
+}

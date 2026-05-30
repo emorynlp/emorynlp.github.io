@@ -18,7 +18,7 @@ import { siteHref } from '../../lib/siteHref';
 const people = await getCollection('people');
 const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
 
-const papers = await getCollection('publications');
+const papers = await getCollection('papers');
 papers.sort((a, b) => {
 	const ta = publicationSortInstant(a.data);
 	const tb = publicationSortInstant(b.data);
@@ -59,7 +59,7 @@ const authorCatalogForClient = memberAuthorFilterOptions.map(({ slug, name, phot
 			Use the year range, author, and search box to narrow results.
 			{' '}
 			For theses and dissertations, visit{' '}
-			<a href={siteHref('/publications/theses/')}>Theses &amp; Dissertations</a>.
+			<a href={siteHref('/papers/theses/')}>Theses &amp; Dissertations</a>.
 		</p>
 		{
 			papers.length === 0 ? (

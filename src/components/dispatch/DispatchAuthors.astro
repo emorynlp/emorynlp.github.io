@@ -1,0 +1,29 @@
+---
+import type { DispatchAuthorLink } from '../../lib/dispatch/resolveIssue';
+
+interface Props {
+	authors: DispatchAuthorLink[];
+}
+
+const { authors } = Astro.props;
+---
+
+<span class="dispatch-author-line">
+	{
+		authors.map((a, i) => (
+			<>
+				{i > 0 ? ', ' : ''}
+				{a.href ? (
+					<a
+						href={a.href}
+						class:list={[a.isLab && 'dispatch-lab-author']}
+					>
+						{a.name}
+					</a>
+				) : (
+					<span class:list={[a.isLab && 'dispatch-lab-author']}>{a.name}</span>
+				)}
+			</>
+		))
+	}
+</span>

@@ -28,11 +28,11 @@ Content is Markdown with YAML frontmatter, typed via [`src/content.config.ts`](s
 | Section        | Folder                       | Notes                                                           |
 |----------------|------------------------------|-----------------------------------------------------------------|
 | People         | [`src/content/people/`](src/content/people/) | `current: true` keeps someone in the **Current** list. |
-| Publications   | [`src/content/publications/`](src/content/publications/) | Authors, venue, year, optional bibtex/links. |
-| Theses & diss. | [`src/content/theses/`](src/content/theses/) | `degree` and defense `date` are required in the schema. |
-| Projects       | [`src/content/projects/`](src/content/projects/) | Optional `externalUrl`; `status: current \| completed`. |
+| Papers         | [`src/content/papers/`](src/content/papers/) | Authors, venue, year, optional links. Optional `topics` object (`researchField?`, `applicationDomain`, `task`) on Dispatch lists. Served at `/papers/`. |
+| Theses & diss. | [`src/content/theses/`](src/content/theses/) | `degree` and defense `date` are required in the schema. Optional `topics` for Dispatch (inferred from title/abstract when omitted). |
+| The NLP Dispatch | [`src/content/dispatch/`](src/content/dispatch/) | Triannual magazine issues (`/dispatch/` redirects to the latest issue; `/dispatch/issues/{slug}/` for each issue). Curates publication and thesis slugs plus editorial fields (column, spotlight, reading list, `distinctions`, activity news). Optional `featured: true` on one item per section (`papers`, `activityNews`, `distinctions`, `theses`) spotlights it at the top of that section. |
 | Seminars       | [`src/content/seminars/`](src/content/seminars/) | `term` drives grouping on the seminars index page. |
-| News           | [`src/content/news/`](src/content/news/) | `featured: true` prioritizes the home strip; optional `coverImage: /news/your.jpg` shows a photo on that card (images live under [`public/news/`](public/news/)). |
+| News           | [`src/content/news/`](src/content/news/) | `featured: true` prioritizes the home carousel; optional `coverImage: /news/your.webp` (images under [`public/news/`](public/news/)). |
 
 Filenames identify the URL slug (`jinho-choi.md` → `/people/jinho-choi/`).
 

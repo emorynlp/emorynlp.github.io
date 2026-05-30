@@ -11,7 +11,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/24020257'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2017'
-    url: '/highlights/20170508-undergraduate-honors-2017/'
+    url: '/news/20170508-undergraduate-honors-2017/'
 
 education:
   - degree: BA in Computer Science; BA in Political Science

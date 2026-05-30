@@ -14,7 +14,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/Yuxin-Ji/2152299195'
 achievements:
   - title: 'Highest Honor in Quantitative Theory and Methods'
     when: '05/2022'
-    url: '/highlights/20220508-undergraduate-honors-2022/'
+    url: '/news/20220508-undergraduate-honors-2022/'
 education:
   - degree: "BS in Quantitative Sciences (Informatics); BA in Linguistics"
     institution: Emory University

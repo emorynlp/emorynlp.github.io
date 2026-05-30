@@ -1,0 +1,595 @@
+---
+import FeaturedStar from '../../components/FeaturedStar.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { formatNewsDate } from '../../lib/dates';
+import { newsEventListingSearchHaystack } from '../../lib/newsEventListing';
+import { teaserFromNewsBody } from '../../lib/newsTeaser';
+import { siteHref } from '../../lib/siteHref';
+
+const items = await getCollection('news');
+items.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const pickerYearMin = 2015;
+const pickerYearMax = new Date().getFullYear();
+const startYearOptions: number[] = [];
+for (let y = pickerYearMin; y <= pickerYearMax; y++) startYearOptions.push(y);
+const defaultStartYear = Math.min(pickerYearMax, Math.max(pickerYearMin, pickerYearMax - 3));
+const defaultEndYear = pickerYearMax;
+const endYearOptions: number[] = [];
+for (let y = defaultStartYear; y <= pickerYearMax; y++) endYearOptions.push(y);
+
+const labelOptions = [...new Set(items.flatMap((n) => n.data.labels ?? []))].sort((a, b) =>
+	a.localeCompare(b),
+);
+const labelCatalogForClient = labelOptions.map((label) => ({ value: label, label }));
+---
+
+<BaseLayout
+	title="News"
+	description="Updates from Emory NLP: publications, honors, defenses, collaborations, outreach, and other lab milestones."
+>
+	<div class="news-page container-narrow">
+		<h1 class="index-page-title">News & Events</h1>
+		<p class="index-page-intro">
+			Awards and honors, milestones, collaborations, conference trips, social events, and other lab activities and announcements.
+			Use the year range, label, and search box to narrow results.
+		</p>
+		{
+			items.length === 0 ? (
+				<div class="empty-state surface">No news entries yet.</div>
+			) : (
+				<div
+					class="highlights-list-wrap"
+					data-picker-min={String(pickerYearMin)}
+					data-picker-max={String(pickerYearMax)}
+					data-default-start={String(defaultStartYear)}
+					data-default-end={String(defaultEndYear)}
+					data-selected-label=""
+				>
+					<div class="publications-filters-pane">
+						<div class="publications-year-filter" role="group" aria-label="Filter by year">
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="highlight-year-start">Start</label>
+								<select class="publications-year-filter-select" id="highlight-year-start" name="yearStart">
+									{startYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultStartYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
+							<div class="publications-year-filter-field">
+								<label class="publications-year-filter-label" for="highlight-year-end">End</label>
+								<select class="publications-year-filter-select" id="highlight-year-end" name="yearEnd">
+									{endYearOptions.map((y) => (
+										<option value={String(y)} selected={y === defaultEndYear}>
+											{y}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
+						{
+							labelOptions.length > 0 ? (
+								<div class="publications-author-filter-block">
+									<span class="publications-year-filter-label" id="highlight-label-filter-heading">
+										Label
+									</span>
+									<div class="publications-author-filter" id="highlight-label-filter-root">
+										<button
+											type="button"
+											class="publications-author-filter-trigger publications-author-filter-trigger--text-only"
+											id="highlight-label-trigger"
+											aria-expanded="false"
+											aria-haspopup="listbox"
+											aria-controls="highlight-label-menu"
+											aria-labelledby="highlight-label-filter-heading highlight-label-trigger-label"
+										>
+											<span class="publications-author-filter-trigger-text" id="highlight-label-trigger-label">
+												All labels
+											</span>
+										</button>
+										<div
+											class="publications-author-filter-menu"
+											id="highlight-label-menu"
+											role="listbox"
+											aria-labelledby="highlight-label-filter-heading"
+											hidden
+										/>
+									</div>
+								</div>
+							) : null
+						}
+						<div class="publications-title-search-field">
+							<label class="publications-year-filter-label" for="highlight-search">Search</label>
+							<input
+								type="search"
+								class="publications-title-search-input"
+								id="highlight-search"
+								name="search"
+								placeholder="Search title or text…"
+								spellcheck="false"
+								autocomplete="off"
+								enterkeyhint="search"
+							/>
+						</div>
+					</div>
+					{
+						labelOptions.length > 0 ? (
+							<script
+								type="application/json"
+								id="highlight-label-catalog"
+								set:html={JSON.stringify(labelCatalogForClient)}
+							/>
+						) : null
+					}
+					<p id="highlights-filter-empty" class="publications-year-filter-empty muted" hidden>
+						No news entries match these filters.
+					</p>
+					<ul class="news-cards" role="list" id="highlights-cards-list">
+						{items.map((n) => (
+							<li
+								class="news-cards-item"
+								data-year={String(n.data.date.getFullYear())}
+								data-labels={(n.data.labels ?? []).join(' ')}
+								data-search-haystack={newsEventListingSearchHaystack(n.data.title, n.body)}
+							>
+								<div class="news-card">
+									<a class="news-card-overlay" href={siteHref(`/news/${n.id}/`)} aria-label={n.data.title} tabindex="0" />
+									{
+										n.data.coverImage ? (
+											<div class="news-card-media">
+												<img
+													src={siteHref(n.data.coverImage)}
+													alt=""
+													width={640}
+													height={360}
+													loading="lazy"
+													decoding="async"
+													style={
+														n.data.coverImagePosition?.trim()
+															? `object-fit: cover; object-position: ${n.data.coverImagePosition.trim()}`
+															: undefined
+													}
+												/>
+											</div>
+										) : null
+									}
+									<div class="news-card-body">
+										<div class="news-card-top">
+											<div class="news-card-heading">
+												<h2 class="news-card-title">{n.data.title}</h2>
+												{n.data.featured ? <FeaturedStar /> : null}
+											</div>
+											<p class="news-card-date">{formatNewsDate(n.data.date)}</p>
+											<p class="news-card-teaser">{teaserFromNewsBody(n.body) || 'Open for details.'}</p>
+										</div>
+										{n.data.labels?.length ? (
+											<span class="news-label-group">
+												{n.data.labels.map((label) => (
+													<a
+														href={siteHref(`/news/label/${label}/`)}
+														class="news-label-pill news-label-pill--linked"
+													>
+														{label}
+													</a>
+												))}
+											</span>
+										) : null}
+									</div>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			)
+		}
+	</div>
+	<script is:inline>
+		(function () {
+			const wrap = document.querySelector('.highlights-list-wrap');
+			if (!wrap) return;
+			const pickerMin = Number(wrap.dataset.pickerMin);
+			const pickerMax = Number(wrap.dataset.pickerMax);
+			const defaultStart = Number(wrap.dataset.defaultStart);
+			const defaultEnd = Number(wrap.dataset.defaultEnd);
+			const startSelect = document.getElementById('highlight-year-start');
+			const endSelect = document.getElementById('highlight-year-end');
+			const labelRoot = document.getElementById('highlight-label-filter-root');
+			const labelTrigger = document.getElementById('highlight-label-trigger');
+			const labelMenu = document.getElementById('highlight-label-menu');
+			const labelTriggerLabel = document.getElementById('highlight-label-trigger-label');
+			const searchInput = document.getElementById('highlight-search');
+			const items = wrap.querySelectorAll('.news-cards-item[data-year]');
+			const emptyEl = document.getElementById('highlights-filter-empty');
+			if (!startSelect || !endSelect) return;
+
+			function clamp(n, a, b) {
+				if (Number.isNaN(n)) return a;
+				return Math.min(b, Math.max(a, n));
+			}
+
+			function readFiltersFromLocation() {
+				const params = new URLSearchParams(window.location.search);
+				let lo = parseInt(params.get('yearStart') ?? '', 10);
+				let hi = parseInt(params.get('yearEnd') ?? '', 10);
+				if (Number.isNaN(lo)) lo = defaultStart;
+				if (Number.isNaN(hi)) hi = defaultEnd;
+				lo = clamp(lo, pickerMin, pickerMax);
+				hi = clamp(hi, pickerMin, pickerMax);
+				return {
+					lo,
+					hi: Math.max(lo, hi),
+					label: String(params.get('label') ?? '').trim(),
+					query: String(params.get('q') ?? '').trim().toLowerCase(),
+				};
+			}
+
+			function syncFiltersToLocation(lo, hi, label, query) {
+				const params = new URLSearchParams(window.location.search);
+				if (lo === defaultStart) params.delete('yearStart');
+				else params.set('yearStart', String(lo));
+				if (hi === defaultEnd) params.delete('yearEnd');
+				else params.set('yearEnd', String(hi));
+				const labelValue = String(label || '').trim();
+				if (!labelValue) params.delete('label');
+				else params.set('label', labelValue);
+				const queryValue = String(query || '').trim();
+				if (!queryValue) params.delete('q');
+				else params.set('q', queryValue);
+				const qs = params.toString();
+				const next = qs ? window.location.pathname + '?' + qs : window.location.pathname;
+				const current = window.location.pathname + window.location.search;
+				if (next !== current) {
+					history.replaceState(null, '', next);
+				}
+			}
+
+			function rebuildEndOptions(startVal, preferredEnd) {
+				const lo = clamp(startVal, pickerMin, pickerMax);
+				let endVal = preferredEnd;
+				if (endVal == null || Number.isNaN(endVal)) {
+					endVal = parseInt(endSelect.value, 10);
+				}
+				endVal = clamp(Number.isNaN(endVal) ? lo : endVal, lo, pickerMax);
+				endSelect.innerHTML = '';
+				for (let y = lo; y <= pickerMax; y++) {
+					const opt = document.createElement('option');
+					opt.value = String(y);
+					opt.textContent = String(y);
+					endSelect.appendChild(opt);
+				}
+				endSelect.value = String(endVal);
+			}
+
+			function getSelectedLabel() {
+				return wrap.getAttribute('data-selected-label') || '';
+			}
+
+			function setSelectedLabel(value) {
+				wrap.setAttribute('data-selected-label', value || '');
+				apply();
+			}
+
+			function setLabelMenuOpen(open) {
+				if (!labelMenu || !labelTrigger) return;
+				labelMenu.hidden = !open;
+				labelTrigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+			}
+
+			function syncLabelTrigger() {
+				if (!labelTrigger || !labelTriggerLabel || !labelMenu) return;
+				const cur = getSelectedLabel();
+				let selectedBtn = null;
+				for (const btn of labelMenu.querySelectorAll('.publications-author-filter-option')) {
+					if ((btn.getAttribute('data-value') ?? '') === cur) {
+						selectedBtn = btn;
+						break;
+					}
+				}
+				if (!selectedBtn) {
+					selectedBtn = labelMenu.querySelector('.publications-author-filter-option[data-value=""]');
+				}
+				for (const btn of labelMenu.querySelectorAll('.publications-author-filter-option')) {
+					btn.setAttribute('aria-selected', btn === selectedBtn ? 'true' : 'false');
+				}
+				const label = selectedBtn ? selectedBtn.getAttribute('data-label') || 'All labels' : 'All labels';
+				const count = selectedBtn ? selectedBtn.getAttribute('data-count') : null;
+				labelTriggerLabel.textContent =
+					count && count !== '' ? label + ' (' + count + ')' : label;
+			}
+
+			function appendLabelMenuOption(menu, value, label, count) {
+				const btn = document.createElement('button');
+				btn.type = 'button';
+				btn.className =
+					'publications-author-filter-option publications-filter-menu-option--text-only';
+				btn.setAttribute('role', 'option');
+				btn.setAttribute('data-value', value);
+				btn.setAttribute('data-label', label);
+				if (count > 0) btn.setAttribute('data-count', String(count));
+				btn.setAttribute('aria-selected', 'false');
+				const main = document.createElement('span');
+				main.className = 'publications-author-filter-option-main';
+				main.appendChild(document.createTextNode(label + (count > 0 ? ' ' : '')));
+				if (count > 0) {
+					const cspan = document.createElement('span');
+					cspan.className = 'publications-author-filter-option-count muted';
+					cspan.textContent = '(' + count + ')';
+					main.appendChild(cspan);
+				}
+				btn.appendChild(main);
+				menu.appendChild(btn);
+				return btn;
+			}
+
+			function getSearchQueryNormalized() {
+				if (!searchInput) return '';
+				return String(searchInput.value || '').trim().toLowerCase();
+			}
+
+			let labelCatalogCache = null;
+			function getLabelCatalog() {
+				if (labelCatalogCache !== null) return labelCatalogCache;
+				const el = document.getElementById('highlight-label-catalog');
+				if (!el || !el.textContent) {
+					labelCatalogCache = [];
+					return labelCatalogCache;
+				}
+				try {
+					labelCatalogCache = JSON.parse(el.textContent.trim());
+				} catch (_) {
+					labelCatalogCache = [];
+				}
+				return labelCatalogCache;
+			}
+
+			function rebuildLabelOptions(lo, hi, query) {
+				if (!labelMenu) return;
+				const catalog = getLabelCatalog();
+				if (!catalog.length) return;
+				const cur = getSelectedLabel();
+				const countByLabel = {};
+				let allCount = 0;
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					if (Number.isNaN(y) || y < lo || y > hi) return;
+					const hay = li.getAttribute('data-search-haystack') || '';
+					if (query && hay.indexOf(query) === -1) return;
+					allCount += 1;
+					const rawLabels = li.getAttribute('data-labels') || '';
+					rawLabels.split(/\s+/).filter(Boolean).forEach(function (label) {
+						countByLabel[label] = (countByLabel[label] || 0) + 1;
+					});
+				});
+				if (cur && !countByLabel[cur]) {
+					wrap.setAttribute('data-selected-label', '');
+				}
+				while (labelMenu.firstChild) {
+					labelMenu.removeChild(labelMenu.firstChild);
+				}
+				appendLabelMenuOption(labelMenu, '', 'All labels', allCount);
+				catalog.forEach(function (entry) {
+					const count = countByLabel[entry.value] || 0;
+					if (count <= 0) return;
+					appendLabelMenuOption(labelMenu, entry.value, entry.label, count);
+				});
+			}
+
+			function apply() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				const endYear = Math.max(lo, hi);
+				const query = getSearchQueryNormalized();
+				rebuildLabelOptions(lo, endYear, query);
+				const selectedLabel = getSelectedLabel();
+				startSelect.value = String(lo);
+				endSelect.value = String(endYear);
+				let visible = 0;
+				items.forEach((li) => {
+					const y = parseInt(li.getAttribute('data-year'), 10);
+					const yearOk = !Number.isNaN(y) && y >= lo && y <= endYear;
+					const rawLabels = li.getAttribute('data-labels') || '';
+					const labels = rawLabels.split(/\s+/).filter(Boolean);
+					const labelOk = !selectedLabel || labels.indexOf(selectedLabel) !== -1;
+					const hay = li.getAttribute('data-search-haystack') || '';
+					const queryOk = !query || hay.indexOf(query) !== -1;
+					const show = yearOk && labelOk && queryOk;
+					li.toggleAttribute('hidden', !show);
+					if (show) visible += 1;
+				});
+				if (emptyEl) emptyEl.hidden = visible > 0;
+				if (labelMenu) syncLabelTrigger();
+				syncFiltersToLocation(lo, endYear, selectedLabel, query);
+			}
+
+			function onStartChange() {
+				const lo = clamp(parseInt(startSelect.value, 10), pickerMin, pickerMax);
+				const hi = clamp(parseInt(endSelect.value, 10), pickerMin, pickerMax);
+				rebuildEndOptions(lo, hi);
+				apply();
+			}
+
+			function syncFiltersFromLocation() {
+				const filters = readFiltersFromLocation();
+				startSelect.value = String(filters.lo);
+				rebuildEndOptions(filters.lo, filters.hi);
+				if (searchInput) searchInput.value = filters.query;
+				wrap.setAttribute('data-selected-label', filters.label);
+				apply();
+			}
+
+			startSelect.addEventListener('change', onStartChange);
+			endSelect.addEventListener('change', apply);
+			startSelect.addEventListener('input', onStartChange);
+			endSelect.addEventListener('input', apply);
+			if (labelRoot && labelTrigger && labelMenu) {
+				labelTrigger.addEventListener('click', function (e) {
+					e.stopPropagation();
+					const open = labelMenu.hidden;
+					setLabelMenuOpen(open);
+				});
+				labelMenu.addEventListener('click', function (e) {
+					const btn = e.target.closest('.publications-author-filter-option');
+					if (!btn || !labelMenu.contains(btn)) return;
+					const value = btn.getAttribute('data-value') ?? '';
+					setSelectedLabel(value);
+					setLabelMenuOpen(false);
+				});
+				document.addEventListener('click', function () {
+					setLabelMenuOpen(false);
+				});
+				labelRoot.addEventListener('click', function (e) {
+					e.stopPropagation();
+				});
+				document.addEventListener('keydown', function (e) {
+					if (e.key === 'Escape' && labelMenu && !labelMenu.hidden) {
+						setLabelMenuOpen(false);
+					}
+				});
+			}
+
+			if (searchInput) {
+				searchInput.addEventListener('input', apply);
+				searchInput.addEventListener('search', apply);
+			}
+
+			syncFiltersFromLocation();
+			window.addEventListener('pageshow', syncFiltersFromLocation);
+		})();
+	</script>
+</BaseLayout>
+
+<style>
+	.news-cards {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+		gap: 1.35rem;
+		align-items: stretch;
+	}
+
+	.news-cards-item {
+		margin: 0;
+		min-width: 0;
+		display: flex;
+	}
+
+	.news-cards-item[hidden] {
+		display: none !important;
+	}
+
+	.news-card {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		width: 100%;
+		min-height: 0;
+		box-sizing: border-box;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow);
+		color: inherit;
+		overflow: hidden;
+		position: relative;
+		transition:
+			box-shadow 0.18s ease,
+			border-color 0.18s ease,
+			transform 0.18s ease;
+	}
+
+	.news-card-overlay {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		border-radius: inherit;
+	}
+
+	.news-card-overlay:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
+	}
+
+	.news-card:has(.news-card-overlay:hover) {
+		border-color: rgb(148 163 184 / 0.45);
+		box-shadow:
+			0 1px 3px rgb(15 23 42 / 0.06),
+			0 16px 40px rgb(15 23 42 / 0.08);
+		transform: translateY(-2px);
+	}
+
+	.news-card:has(.news-card-overlay:hover) .news-card-title {
+		color: var(--accent-hover);
+	}
+
+	.news-card-media {
+		height: 11.75rem;
+		flex-shrink: 0;
+		background: var(--bg);
+	}
+
+	.news-card-media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	.news-card-body {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		padding: 1.05rem 1.3rem 1.15rem;
+		min-height: 0;
+		gap: 0;
+	}
+
+	.news-card-top {
+		display: flex;
+		flex-direction: column;
+		gap: 0.38rem;
+	}
+
+	.news-card-body > .news-label-group {
+		margin-top: auto;
+		padding-top: 0.5rem;
+		position: relative;
+		z-index: 1;
+	}
+
+	.news-card-title {
+		margin: 0;
+		font-size: 1.08rem;
+		font-weight: 700;
+		line-height: 1.38;
+		color: var(--ink);
+		display: -webkit-box;
+		line-clamp: 3;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.news-card-date {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--muted);
+		font-weight: 500;
+	}
+
+	.news-card-teaser {
+		margin: 0;
+		font-size: 0.835rem;
+		line-height: 1.42;
+		color: var(--muted);
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		line-clamp: 3;
+		-webkit-line-clamp: 3;
+		overflow: hidden;
+	}
+</style>

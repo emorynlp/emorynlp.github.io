@@ -4,7 +4,7 @@ description: >-
   Converts a JPG/PNG photo to WebP and resizes it to a maximum of 1920px on the
   longest side. Use when the user provides a photo file (jpg, jpeg, png) that
   needs to be converted to WebP, resized, or optimized for web use in
-  highlights, publications, or theses under public/.
+  news, papers, or theses under public/.
 ---
 
 # Convert a photo to WebP (max 1920px)

@@ -12,7 +12,7 @@ achievements:
   - title: 'ICPC Southeast USA Region, Division 2: 2nd Place (Null Contest)'
     when: 11/2015
     issuer: ICPC Foundation
-    url: '/highlights/20151114-icpc-southeast-regional-2015/'
+    url: '/news/20151114-icpc-southeast-regional-2015/'
 education:
   - degree: BS in Computer Science
     institution: Emory University

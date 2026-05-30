@@ -1,0 +1,46 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import DispatchPaperTopics from './DispatchPaperTopics.astro';
+
+interface Props {
+	item: ResolvedFeaturedItem;
+}
+
+const { item } = Astro.props;
+---
+
+<article class:list={['dispatch-featured-story', `dispatch-featured-story--${item.tone}`]}>
+	{
+		item.imageSrc ? (
+			<figure class="dispatch-featured-story-photo">
+				{item.href ? (
+					<a href={item.href} tabindex="-1">
+						<img src={item.imageSrc} alt={item.imageAlt ?? ''} loading="lazy" decoding="async" />
+					</a>
+				) : (
+					<img src={item.imageSrc} alt={item.imageAlt ?? ''} loading="lazy" decoding="async" />
+				)}
+			</figure>
+		) : null
+	}
+	<div class="dispatch-featured-story-body">
+		<div class="dispatch-featured-story-labels">
+			<span class:list={['dispatch-featured-story-kind', `dispatch-featured-story-kind--${item.tone}`]}>
+				{item.kindLabel}
+			</span>
+		</div>
+		<DispatchPaperTopics topics={item.topics ?? []} />
+		<h3 class="dispatch-featured-story-title">
+			{item.href ? <a href={item.href}>{item.title}</a> : item.title}
+		</h3>
+		{item.meta ? <p class="dispatch-featured-story-meta">{item.meta}</p> : null}
+		{item.summary ? <p class="dispatch-featured-story-summary">{item.summary}</p> : null}
+		{
+			item.links.length > 0 ? (
+				<p class="dispatch-featured-story-cta">
+					<a href={item.links[0]!.href}>{item.links[0]!.label} →</a>
+				</p>
+			) : null
+		}
+	</div>
+</article>

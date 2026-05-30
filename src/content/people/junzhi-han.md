@@ -14,10 +14,10 @@ aliases:
 achievements:
   - title: 'Highest Honor in Quantitative Sciences (Neuroscience and Behavioral Biology)'
     when: '05/2025'
-    url: '/highlights/20250508-undergraduate-honors-2025/'
+    url: '/news/20250508-undergraduate-honors-2025/'
   - title: Phi Beta Kappa Honor Society
     when: 04/2025
-    url: '/highlights/20250426-annual-awards-2025/'
+    url: '/news/20250426-annual-awards-2025/'
   - title: "Dean's List"
     when: Fall 2021, Fall 2022, Spring 2023, Spring 2024
 

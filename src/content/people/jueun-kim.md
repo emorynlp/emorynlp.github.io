@@ -16,9 +16,9 @@ education:
     endYear: 2015
     notes: South Korea
 footerPhotos:
-  - src: /highlights/20180514-jueun-kim-1.webp
+  - src: /news/20180514-jueun-kim-1.webp
     alt: Jueun Kim and Jinho Choi
-  - src: /highlights/20180514-jueun-kim-2.webp
+  - src: /news/20180514-jueun-kim-2.webp
     alt: Jueun Kim and Jinho Choi
 ---
 **Jueun Kim** earned an MS in Computer Science from Emory University (Spring 2018). After Emory, Jueun moved to [Boston Meditech Group](http://www.bostonmeditech.com) as an AI engineer.

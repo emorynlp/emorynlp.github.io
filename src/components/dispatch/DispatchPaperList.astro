@@ -1,0 +1,54 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import type { ResolvedPublication } from '../../lib/dispatch/resolveIssue';
+import { resolveStructuredTopics } from '../../lib/dispatch/paperTopics';
+import DispatchAuthors from './DispatchAuthors.astro';
+import DispatchPaperTopics from './DispatchPaperTopics.astro';
+import DispatchSectionFeatured from './DispatchSectionFeatured.astro';
+
+interface Props {
+	papers: ResolvedPublication[];
+	featured?: ResolvedFeaturedItem;
+}
+
+const { papers, featured } = Astro.props;
+const showSection = papers.length > 0 || featured !== undefined;
+---
+
+{
+	showSection ? (
+		<section class="dispatch-section dispatch-wrap" id="papers" aria-labelledby="dispatch-papers-heading">
+			<h2 class="dispatch-section-label" id="dispatch-papers-heading">Papers</h2>
+			{featured ? <DispatchSectionFeatured item={featured} /> : null}
+			{
+				papers.length > 0 ? (
+					<ul class="dispatch-paper-list">
+						{papers.map((paper) => {
+							const d = paper.entry.data;
+							const topics = resolveStructuredTopics(d.topics);
+							return (
+								<li class="dispatch-paper-item">
+									<DispatchPaperTopics topics={topics} />
+									<h3 class="dispatch-paper-title">
+										<a href={paper.href}>{d.title}</a>
+									</h3>
+									<p class="dispatch-paper-authors">
+										<DispatchAuthors authors={paper.authorLinks} />
+									</p>
+									<div class="dispatch-paper-meta-lines">
+										<p class="dispatch-paper-venue">{d.venue}</p>
+										{paper.publishedLine ? (
+											<p class="dispatch-paper-published">
+												<time>{paper.publishedLine}</time>
+											</p>
+										) : null}
+									</div>
+								</li>
+							);
+						})}
+					</ul>
+				) : null
+			}
+		</section>
+	) : null
+}

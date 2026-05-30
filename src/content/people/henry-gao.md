@@ -11,7 +11,7 @@ github: 'https://github.com/Henry-Gao-2004'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2026'
-    url: '/highlights/20260503-undergraduate-honors-2026/'
+    url: '/news/20260503-undergraduate-honors-2026/'
   - title: Undergraduate Research Award
     when: 05/2026
     issuer: Emory Computer Science

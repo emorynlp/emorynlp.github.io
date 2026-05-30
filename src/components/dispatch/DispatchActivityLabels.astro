@@ -1,0 +1,21 @@
+---
+import { activityLabelTone } from '../../lib/dispatch/activityLabelTone';
+
+interface Props {
+	labels: string[];
+}
+
+const { labels } = Astro.props;
+---
+
+{
+	labels.length > 0 ? (
+		<span class="dispatch-activity-labels">
+			{labels.map((label) => (
+				<span class:list={['dispatch-activity-label', `dispatch-activity-label--${activityLabelTone(label)}`]}>
+					{label}
+				</span>
+			))}
+		</span>
+	) : null
+}

@@ -7,6 +7,26 @@ function contentGlobBase(segment: string) {
 	return new URL(`./content/${segment}/`, import.meta.url);
 }
 
+const mastheadTopicItemSchema = z.union([
+	z.string(),
+	z.object({
+		label: z.string(),
+		tone: z.enum(['core', 'code', 'apps', 'seminar', 'neutral']).optional(),
+	}),
+]);
+
+/**
+ * Dispatch labels — named slots (flattened to pills in order:
+ * researchField → applicationDomain → task).
+ */
+const structuredTopicsSchema = z
+	.object({
+		researchField: mastheadTopicItemSchema.optional(),
+		applicationDomain: mastheadTopicItemSchema,
+		task: mastheadTopicItemSchema,
+	})
+	.optional();
+
 const people = defineCollection({
 	loader: glob({ pattern: '**/*.md', base: contentGlobBase('people') }),
 	schema: z.object({
@@ -34,7 +54,7 @@ const people = defineCollection({
 		photo: z.string().optional(),
 		/**
 		 * Optional wide photo shown after Education / theses / publications / achievements on the profile page.
-		 * Path under `public/` (e.g. `/highlights/…`).
+		 * Path under `public/` (e.g. `/news/…`).
 		 */
 		footerPhoto: z
 			.object({
@@ -55,7 +75,7 @@ const people = defineCollection({
 			.optional(),
 		aliases: z.array(z.string()).optional(),
 		/**
-		 * Alternate author strings used on papers/theses only (normalized + linked on `/publications/`).
+		 * Alternate author strings used on papers/theses only (normalized + linked on `/papers/`).
 		 * Omit from roster display / profile parentheticals (`aliases` is for preferred/nickname display).
 		 */
 		publicationAuthorAliases: z.array(z.string()).optional(),
@@ -97,8 +117,8 @@ const people = defineCollection({
 	}),
 });
 
-const publications = defineCollection({
-	loader: glob({ pattern: '**/*.md', base: contentGlobBase('publications') }),
+const papers = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: contentGlobBase('papers') }),
 	schema: z.object({
 		title: z.string(),
 		/** Trim each line — avoids stray spaces before/after commas in listings. */
@@ -121,10 +141,10 @@ const publications = defineCollection({
 		/** Venue row hyperlink — used verbatim when set (e.g. journal portal). */
 		venueUrl: z.string().url().optional(),
 		publicationType: z.enum(['conference', 'journal', 'preprint', 'workshop', 'other']).optional(),
-		/** Optional masthead line (reserved; not shown on the `/publications/` cards). */
+		/** Optional masthead line (reserved; not shown on the `/papers/` cards). */
 		masthead: z.string().optional(),
-		/** Optional topic tags (`topic1 · topic2`). Content only; not rendered on listing cards. */
-		mastheadTopics: z.array(z.string()).optional(),
+		/** Named Dispatch labels: `applicationDomain` + `task`; optional `researchField`. */
+		topics: structuredTopicsSchema,
 		/** Listing teaser copy; otherwise first sentence of `abstract`, or truncated abstract. See `publicationDek`. */
 		dek: z.string().optional(),
 		/** Detail page: optional footnote after authors, shown as `*: …` (e.g. proceedings vs arXiv). */
@@ -135,7 +155,7 @@ const publications = defineCollection({
 		presenter: z.string().optional(),
 		/**
 		 * Calendar date when the paper was published or presented (`YYYY-MM-DD` recommended).
-		 * Drives `/publications/` listing order (newer first); if omitted, sort uses Jan 1 of `year`.
+		 * Drives `/papers/` listing order (newer first); if omitted, sort uses Jan 1 of `year`.
 		 * When `forthcoming` is true, omit this (no placeholder date); listing sort uses end of `year` instead.
 		 */
 		published: z
@@ -175,17 +195,188 @@ const theses = defineCollection({
 		honorsLevel: z.enum(['Highest Honor', 'High Honor', 'Honor']).optional(),
 		photo: z.string().optional(),
 		sourceUrl: z.string().url().optional(),
+		/** Optional topic labels for Dispatch; when omitted, inferred from title and abstract. */
+		topics: structuredTopicsSchema,
 	}),
 });
 
-const projects = defineCollection({
-	loader: glob({ pattern: '**/*.md', base: contentGlobBase('projects') }),
+const dispatchActivityKind = z.enum(['award', 'media', 'service', 'travel', 'welcome', 'social', 'other']);
+
+const dispatchDistinctionKind = z.enum(['award', 'honor', 'other']);
+
+const dispatchFeaturedFlag = z.literal(true).optional();
+
+const dispatchNewsLineItem = z.object({
+	date: z.union([z.string(), z.date()]).transform((val) => parseNewsFrontmatterDate(val)),
+	text: z.string(),
+	highlight: z.string().optional(),
+	featured: dispatchFeaturedFlag,
+	blurb: z.string().optional(),
+});
+
+const dispatchPublicationRef = z.union([
+	z.string(),
+	z.object({
+		publication: z.string(),
+		featured: dispatchFeaturedFlag,
+		blurb: z.string().optional(),
+	}),
+]);
+
+const dispatchThesisRef = z.union([
+	z.string(),
+	z.object({
+		thesis: z.string(),
+		featured: dispatchFeaturedFlag,
+		blurb: z.string().optional(),
+	}),
+]);
+
+const dispatchColumnFormat = z.enum(['full', 'external']);
+
+const dispatchColumns = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: contentGlobBase('dispatch-columns') }),
+	schema: z
+		.object({
+			/** Dispatch issue slug this column belongs to (e.g. `2026-spring`). */
+			issue: z.string(),
+			/** `full` — markdown body on the issue page; `external` — teaser linking to source. */
+			format: dispatchColumnFormat.default('full'),
+			headline: z.string(),
+			/** Full-format pull quote shown above the body. */
+			pullQuote: z.string().optional(),
+			/** External-format subtitle (e.g. Substack dek). */
+			subtitle: z.string().optional(),
+			/** External-format hook line under the subtitle. */
+			tagline: z.string().optional(),
+			/** External-format episode or article summary. */
+			summary: z.string().optional(),
+			/** External-format SEO / social meta description from the source page. */
+			seoDescription: z.string().optional(),
+			/** Cover image path under `public/` (e.g. `/dispatch/2026-spring-lights-out-web-1.webp`). */
+			coverImage: z.string().optional(),
+			/** CSS object-position for the cover image. */
+			coverImagePosition: z.string().optional(),
+			byline: z.string().optional(),
+			/** Publication date (e.g. on Substack). */
+			published: z.coerce.date().optional(),
+			/** Photo path under `public/` (e.g. `/people/jinho-choi.webp`). */
+			avatar: z.string().optional(),
+			/** Canonical URL when republished from elsewhere (e.g. Substack). */
+			sourceUrl: z.string().url().optional(),
+			sourceLabel: z.string().optional(),
+			/** iframe `src` for an embedded player (e.g. Substack post embed). */
+			embedUrl: z.string().url().optional(),
+			/** Footnote shown below external teasers (e.g. podcast disclaimer). */
+			note: z.string().optional(),
+		})
+		.superRefine((data, ctx) => {
+			if (data.format === 'full' && !data.pullQuote?.trim()) {
+				ctx.addIssue({
+					code: 'custom',
+					message: 'pullQuote is required when format is full',
+					path: ['pullQuote'],
+				});
+			}
+			if (data.format === 'external') {
+				if (!data.sourceUrl) {
+					ctx.addIssue({
+						code: 'custom',
+						message: 'sourceUrl is required when format is external',
+						path: ['sourceUrl'],
+					});
+				}
+				for (const field of ['subtitle', 'summary'] as const) {
+					if (!data[field]?.trim()) {
+						ctx.addIssue({
+							code: 'custom',
+							message: `${field} is required when format is external`,
+							path: [field],
+						});
+					}
+				}
+			}
+		}),
+});
+
+const dispatchHomepageHighlight = z
+	.object({
+		kind: z.string(),
+		label: z.string().optional(),
+		publication: z.string().optional(),
+		column: z.string().optional(),
+		highlight: z.string().optional(),
+		tagTone: z.enum(['core', 'code', 'apps', 'seminar', 'neutral']).optional(),
+	})
+	.superRefine((item, ctx) => {
+		const refs = [item.publication, item.column, item.highlight].filter(Boolean);
+		if (refs.length !== 1) {
+			ctx.addIssue({
+				code: 'custom',
+				message: 'Each homepage highlight must set exactly one of publication, column, or highlight',
+				path: ['publication'],
+			});
+		}
+	});
+
+const dispatch = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: contentGlobBase('dispatch') }),
 	schema: z.object({
-		title: z.string(),
-		summary: z.string().optional(),
-		status: z.enum(['current', 'completed']).optional(),
-		externalUrl: z.string().url().optional(),
-		tags: z.array(z.string()).optional(),
+		issueTitle: z.string(),
+		volume: z.number().int(),
+		issue: z.number().int(),
+		periodLabel: z.string(),
+		periodStart: z.coerce.date(),
+		periodEnd: z.coerce.date(),
+		published: z.coerce.date(),
+		tagline: z.string().optional(),
+		papers: z.array(dispatchPublicationRef),
+		/** Omit or leave empty to hide the theses section on the issue page. */
+		theses: z.array(dispatchThesisRef).optional(),
+		/** Highlights shown on the home page from the current dispatch issue. */
+		homepageHighlights: z.array(dispatchHomepageHighlight).optional(),
+		/** Ordered column article slugs (`src/content/dispatch-columns/`). */
+		columns: z.array(z.string()),
+		/** Omit to hide the student spotlight section on the issue page. */
+		studentSpotlight: z
+			.object({
+				name: z.string(),
+				degree: z.string(),
+				blurb: z.string(),
+				project: z.string(),
+				personSlug: z.string().optional(),
+				photo: z.string().optional(),
+			})
+			.optional(),
+		/** Omit or leave empty to hide the Distinctions section on the issue page. */
+		distinctions: z
+			.array(
+				dispatchNewsLineItem.extend({
+					kind: dispatchDistinctionKind,
+				}),
+			)
+			.optional(),
+		activityNews: z.array(
+			dispatchNewsLineItem.extend({
+				kind: dispatchActivityKind.optional(),
+			}),
+		),
+		/** Omit to hide the reading list section on the issue page. */
+		readingList: z
+			.array(
+				z.object({
+					why: z.string(),
+					publication: z.string().optional(),
+					title: z.string().optional(),
+					authors: z.string().optional(),
+					venue: z.string().optional(),
+					url: z.string().url().optional(),
+				}),
+			)
+			.optional(),
+		heroVisual: z.enum(['radar', 'graph', 'tree']).optional(),
+		/** Short paragraph summarizing the issue’s key points (cover + archive). */
+		issueSummary: z.string().optional(),
 	}),
 });
 
@@ -211,14 +402,14 @@ const seminars = defineCollection({
 	}),
 });
 
-const highlights = defineCollection({
-	loader: glob({ pattern: '**/*.md', base: contentGlobBase('highlights') }),
+const news = defineCollection({
+	loader: glob({ pattern: '**/*.md', base: contentGlobBase('news') }),
 	schema: z.object({
 		title: z.string(),
 		/** `YYYY-MM-DD` (UTC), `YYYY-MM-DD-HH:MM` (Eastern wall time), or any string JS `Date` accepts */
 		date: z.union([z.string(), z.date()]).transform((val): Date => parseNewsFrontmatterDate(val)),
 		featured: z.boolean().optional(),
-		/** Cover image path under `public/` (e.g. `/highlights/*.jpg`) — listing thumbnails and home carousel */
+		/** Cover image path under `public/` (e.g. `/news/*.jpg`) — listing thumbnails and home carousel */
 		coverImage: z.string().optional(),
 		/** CSS object-position for listing and home cover thumbnails only (cards, carousel). Not applied to images inside the article body. */
 		coverImagePosition: z.string().optional(),
@@ -231,9 +422,10 @@ const highlights = defineCollection({
 
 export const collections = {
 	people,
-	publications,
+	papers,
 	theses,
-	projects,
+	dispatch,
+	dispatchColumns,
 	seminars,
-	highlights,
+	news,
 };

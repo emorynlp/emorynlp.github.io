@@ -12,13 +12,13 @@ googleScholar: 'https://scholar.google.com/citations?user=4mx32ogAAAAJ'
 achievements:
   - title: 'PhD in Computer Science and Informatics'
     when: '05/2023'
-    url: '/highlights/20230508-doctor-of-philosophy-2023/'
+    url: '/news/20230508-doctor-of-philosophy-2023/'
   - title: CODI-CRAC Shared Task (anaphora in dialogue) — 1st place
     when: 07/2021
   - title: 'ICPC Southeast USA Region, Division 2: 1st Place (M||E)'
     when: 11/2018
     issuer: ICPC Foundation
-    url: '/highlights/20181103-icpc-southeast-regional-2018/'
+    url: '/news/20181103-icpc-southeast-regional-2018/'
 
 education:
   - degree: PhD in Computer Science and Informatics

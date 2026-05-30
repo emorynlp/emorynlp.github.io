@@ -17,7 +17,7 @@ export function lastNameSortKey(displayName: string): string {
 
 /** People slugs on this paper that appear in the lab roster (matched author strings). */
 export function memberSlugsOnPublicationPaper(
-	paper: CollectionEntry<'publications'>,
+	paper: CollectionEntry<'papers'>,
 	authorSlugLookup: Map<string, string>,
 ): string[] {
 	const set = new Set<string>();

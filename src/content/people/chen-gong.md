@@ -11,11 +11,11 @@ semanticScholar: 'https://www.semanticscholar.org/author/Chen-Gong/2240534979'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2023'
-    url: '/highlights/20230501-undergraduate-honors-2023/'
+    url: '/news/20230501-undergraduate-honors-2023/'
   - title: Undergraduate Research Award
     when: 04/2023
     issuer: Emory Computer Science
-    url: '/highlights/20230414-annual-awards-2023/'
+    url: '/news/20230414-annual-awards-2023/'
 education:
   - degree: BS in Computer Science
     institution: Emory University

@@ -1,0 +1,49 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { resolvePeoplePhotoPublicHref } from '../../lib/peoplePhotos';
+import { siteHref } from '../../lib/siteHref';
+
+interface Props {
+	spotlight?: CollectionEntry<'dispatch'>['data']['studentSpotlight'];
+}
+
+const { spotlight } = Astro.props;
+if (!spotlight) return null;
+const photoHref =
+	spotlight.photo ??
+	(spotlight.personSlug ? resolvePeoplePhotoPublicHref(spotlight.personSlug) : undefined);
+const profileHref = spotlight.personSlug
+	? siteHref(`/people/${spotlight.personSlug}/`)
+	: undefined;
+---
+
+<section class="dispatch-section dispatch-wrap" id="spotlight" aria-labelledby="dispatch-spotlight-heading">
+	<h2 class="dispatch-section-label" id="dispatch-spotlight-heading">Student spotlight</h2>
+	<div class="dispatch-spotlight">
+		<div>
+			{
+				photoHref ? (
+					<img
+						class="dispatch-spotlight-photo"
+						src={photoHref}
+						alt=""
+						width="120"
+						height="120"
+					/>
+				) : (
+					<div class="dispatch-spotlight-photo-placeholder" aria-hidden="true" />
+				)
+			}
+			<h3 class="dispatch-spotlight-name">
+				{profileHref ? <a href={profileHref}>{spotlight.name}</a> : spotlight.name}
+			</h3>
+			<p class="dispatch-spotlight-degree">{spotlight.degree}</p>
+		</div>
+		<div>
+			<p class="dispatch-spotlight-blurb">{spotlight.blurb}</p>
+			<p class="dispatch-spotlight-project">
+				<strong>Current project:</strong> {spotlight.project}
+			</p>
+		</div>
+	</div>
+</section>

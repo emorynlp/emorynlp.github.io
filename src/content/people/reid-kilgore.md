@@ -10,7 +10,7 @@ github: 'https://github.com/ARKilgore'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2016'
-    url: '/highlights/20160508-undergraduate-honors-2016/'
+    url: '/news/20160508-undergraduate-honors-2016/'
 
 education:
   - degree: BS in Computer Science; BBA

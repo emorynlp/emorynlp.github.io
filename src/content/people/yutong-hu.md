@@ -11,7 +11,7 @@ aliases:
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2026'
-    url: '/highlights/20260503-undergraduate-honors-2026/'
+    url: '/news/20260503-undergraduate-honors-2026/'
   - title: "Dean's List"
     when: Fall 2022, Fall 2023, Spring 2024, Fall 2024
 

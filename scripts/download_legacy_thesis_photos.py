@@ -28,70 +28,70 @@ SSL_CTX.verify_mode = ssl.CERT_NONE
 
 # Legacy /theses-dissertations/{slug} path segment → `public/theses/{slug}.webp`
 LEGACY_SLUG_TO_LOCAL: dict[str, str] = {
-	"honors-thesis-2026-natalie-hu": "honors-thesis-2026-yutong-hu",
-	"honors-thesis-2025-molly-han": "honors-thesis-2025-junzhi-han",
-	"honors-thesis-2024-zinc-zhao": "honors-thesis-2024-boxin-zhao",
-	"honors-thesis-2017-henry-y-chen": "honors-thesis-2017-henry-chen",
+	"honors-thesis-2026-natalie-hu": "2026-honors-yutong-hu",
+	"honors-thesis-2025-molly-han": "2025-honors-junzhi-han",
+	"honors-thesis-2024-zinc-zhao": "2024-honors-boxin-zhao",
+	"honors-thesis-2017-henry-y-chen": "2017-honors-henry-chen",
 	# Legacy URL uses “calviño”; local slug is ASCII
-	"honors-thesis-2023-camila-calviño": "honors-thesis-2023-camila-calvino",
+	"honors-thesis-2023-camila-calviño": "2023-honors-camila-calvino",
 }
 
 URLS_TEXT = """
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2026-chunyao-zhao?c=2026-2030
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2026-noah-reicin?c=2026-2030
+https://www.emorynlp.org/theses-dissertations/2026-ms-chunyao-zhao?c=2026-2030
+https://www.emorynlp.org/theses-dissertations/2026-honors-noah-reicin?c=2026-2030
 https://www.emorynlp.org/theses-dissertations/honors-thesis-2026-natalie-hu?c=2026-2030
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2026-henry-gao?c=2026-2030
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2025-mutian-li?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2025-michelle-kim?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2026-honors-henry-gao?c=2026-2030
+https://www.emorynlp.org/theses-dissertations/2025-ms-mutian-li?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2025-honors-michelle-kim?c=2021-2025
 https://www.emorynlp.org/theses-dissertations/honors-thesis-2025-molly-han?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2025-tung-dinh?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2025-andrew-chung?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2024-catherine-baker?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2024-james-finch?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2024-sarah-finch?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2024-jacob-choi?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2024-ellie-paek?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2024-peilin-wu?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2025-honors-tung-dinh?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2025-honors-andrew-chung?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-ms-catherine-baker?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-phd-james-finch?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-phd-sarah-finch?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-honors-jacob-choi?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-honors-ellie-paek?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2024-honors-peilin-wu?c=2021-2025
 https://www.emorynlp.org/theses-dissertations/honors-thesis-2024-zinc-zhao?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2023-han-he?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2023-liyan-xu?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2023-zihao-wang?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2023-phd-han-he?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2023-phd-liyan-xu?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2023-phd-zihao-wang?c=2021-2025
 https://www.emorynlp.org/theses-dissertations/honors-thesis-2023-camila-calvi%C3%B1o?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2023-chen-gong?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2023-alexandru-rudi?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-angela-cao?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-yingying-chen?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-xiaoyuan-huang?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-william-hutsell?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-daniil-huryn?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2022-yuxin-ji?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2021-xiangjue-dong?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2021-lydia-feng?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2021-ran-xu?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2021-xinman-zhang?c=2021-2025
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2020-chenxi-xu?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2020-zhexiong-liu?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/ms-thesis-2020-changmao-li?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2020-haoqi-gu?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2020-chloe-lee?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2020-renxuan-li?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2020-ruixiang-qi?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-jose-coves?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-shen-gao?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-xinyi-jiang?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-mengmei-li?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2019-zhengzhe-yang?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-kaixin-ma?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-jayeol-chun?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-lindsay-hexter?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-hang-jiang?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2018-ethan-zhou?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2017-tarrek-shaban?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2023-honors-chen-gong?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2023-honors-alexandru-rudi?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-angela-cao?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-yingying-chen?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-xiaoyuan-huang?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-william-hutsell?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-daniil-huryn?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2022-honors-yuxin-ji?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2021-ms-xiangjue-dong?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2021-honors-lydia-feng?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2021-honors-ran-xu?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2021-honors-xinman-zhang?c=2021-2025
+https://www.emorynlp.org/theses-dissertations/2020-honors-chenxi-xu?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-ms-zhexiong-liu?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-ms-changmao-li?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-honors-haoqi-gu?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-honors-chloe-lee?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-honors-renxuan-li?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2020-honors-ruixiang-qi?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2019-honors-jose-coves?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2019-honors-shen-gao?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2019-honors-xinyi-jiang?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2019-honors-mengmei-li?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2019-honors-zhengzhe-yang?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2018-honors-kaixin-ma?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2018-honors-jayeol-chun?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2018-honors-lindsay-hexter?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2018-honors-hang-jiang?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2018-honors-ethan-zhou?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2017-honors-tarrek-shaban?c=2015-2020
 https://www.emorynlp.org/theses-dissertations/honors-thesis-2017-henry-y-chen?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/phd-dissertation-2017-tomasz-jurczyk?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2016-meera-hahn?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2016-reid-kilgore?c=2015-2020
-https://www.emorynlp.org/theses-dissertations/honors-thesis-2015-austin-blodgett?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2017-phd-tomasz-jurczyk?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2016-honors-meera-hahn?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2016-honors-reid-kilgore?c=2015-2020
+https://www.emorynlp.org/theses-dissertations/2015-honors-austin-blodgett?c=2015-2020
 """.strip()
 
 

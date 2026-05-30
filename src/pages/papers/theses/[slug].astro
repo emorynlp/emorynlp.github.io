@@ -22,7 +22,7 @@ const entry =
 		: undefined;
 
 if (entry === undefined) {
-	return Astro.redirect(siteHref('/publications/theses/'));
+	return Astro.redirect(siteHref('/papers/theses/'));
 }
 
 const people = await getCollection('people');
@@ -45,14 +45,14 @@ const linkItems = [
 const description = `${d.author} · ${d.degree} · ${termDisplay}`;
 const awardingUnit = thesisAwardingUnitRow(d.degree, d.department);
 
-/** Resolved public asset (same prose-slot `<img>` pattern as `/publications/[slug]/`). */
+/** Resolved public asset (same prose-slot `<img>` pattern as `/papers/[slug]/`). */
 const photoHref = d.photo?.trim() ? siteHref(d.photo.trim()) : undefined;
 ---
 
 <BaseLayout title={d.title} description={description}>
 	<div class="publications-page container-narrow">
 		<p class="publications-detail-back muted">
-			<a href={siteHref('/publications/theses/')}>← Theses &amp; Dissertations</a>
+			<a href={siteHref('/papers/theses/')}>← Theses &amp; Dissertations</a>
 		</p>
 
 		<article class="publications-detail-article">

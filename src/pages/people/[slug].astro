@@ -81,7 +81,7 @@ const peopleAll = await getCollection('people');
 const authorSlugLookup = buildPublicationAuthorSlugLookup(peopleAll);
 const thesesColl = await getCollection('theses');
 const linkedTheses = thesesForPersonSlug(thesesColl, entry.id, authorSlugLookup);
-const publicationsColl = await getCollection('publications');
+const publicationsColl = await getCollection('papers');
 const linkedPublications = publicationsForPersonSlug(publicationsColl, entry.id, authorSlugLookup);
 const thesisSectionHeading = thesisPeopleSectionHeading(linkedTheses.map((t) => t.data.degree));
 const thesisWorkLabelsUnique = [...new Set(linkedTheses.map((t) => thesisPeoplePageWorkLabel(t.data.degree)))];
@@ -201,7 +201,7 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 													{' — '}
 												</>
 											) : null}
-											<a href={siteHref(`/publications/theses/${t.id}/`)}>{t.data.title}</a>
+											<a href={siteHref(`/papers/theses/${t.id}/`)}>{t.data.title}</a>
 											<span class="people-profile-thesis-note muted">{` (${noteInner})`}</span>
 										</li>
 									);
@@ -244,7 +244,7 @@ const thesisShowKindPerLine = thesisWorkLabelsUnique.length > 1;
 							<ol class="people-profile-publications-list">
 								{linkedPublications.map((p) => (
 									<li>
-										<a href={siteHref(`/publications/${p.id}/`)}>{p.data.title}</a><span class="people-profile-publication-note muted">{` — ${formatPublicationVenueLine(p.data)}${p.data.forthcoming ? ' · Forthcoming' : ''}`}</span>
+										<a href={siteHref(`/papers/${p.id}/`)}>{p.data.title}</a><span class="people-profile-publication-note muted">{` — ${formatPublicationVenueLine(p.data)}${p.data.forthcoming ? ' · Forthcoming' : ''}`}</span>
 									</li>
 								))}
 							</ol>

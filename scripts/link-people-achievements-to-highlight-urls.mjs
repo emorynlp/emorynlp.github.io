@@ -1,5 +1,5 @@
 /**
- * For highlights labeled `achievements`, set `url: '/highlights/{id}/'` on the matching
+ * For highlights labeled `achievements`, set `url: '/news/{id}/'` on the matching
  * achievement row in `src/content/people/{slug}.md` (or add a row if none match).
  *
  * Run: node scripts/link-people-achievements-to-highlight-urls.mjs
@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const HL = path.join(ROOT, 'src/content/highlights');
+const HL = path.join(ROOT, 'src/content/news');
 const PEOPLE = path.join(ROOT, 'src/content/people');
 
 function hasAchievementsLabel(raw) {
@@ -176,7 +176,7 @@ function applyPatch(slug, highlightId, matchTitle, whenStr) {
 	if (!m) return false;
 	const front = m[1];
 	const rest = raw.slice(m[0].length);
-	const url = `/highlights/${highlightId}/`;
+	const url = `/news/${highlightId}/`;
 
 	const split = splitAchievements(front);
 	const newItem = `  - title: ${yamlQuoteTitle(matchTitle)}\n    when: '${whenStr}'\n    url: '${url}'`;

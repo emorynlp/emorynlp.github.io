@@ -6,15 +6,15 @@
  * - WebP      → resized via dwebp → sips → cwebp (if needed); otherwise left as-is
  *
  * Directories covered by default:
- *   public/highlights/
- *   public/publications/
+ *   public/news/
+ *   public/papers/
  *   public/theses/
  *
  * Usage:
  *   node scripts/resize-media-photo.mjs                          # all three dirs
- *   node scripts/resize-media-photo.mjs --dir highlights         # one dir by name
+ *   node scripts/resize-media-photo.mjs --dir news         # one dir by name
  *   node scripts/resize-media-photo.mjs 20260402-event-1.jpg     # one file by basename
- *   node scripts/resize-media-photo.mjs public/highlights/20260402-event-1.jpg  # full path
+ *   node scripts/resize-media-photo.mjs public/news/20260402-event-1.jpg  # full path
  *
  * Requires: macOS (sips) + webp tools (brew install webp)
  */
@@ -28,7 +28,7 @@ const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const MAX_SIZE = 1920;
 const SUPPORTED_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
-const DEFAULT_DIRS = ['highlights', 'publications', 'theses'].map((d) =>
+const DEFAULT_DIRS = ['news', 'papers', 'theses'].map((d) =>
 	path.join(PUBLIC_DIR, d),
 );
 

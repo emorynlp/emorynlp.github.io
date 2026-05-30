@@ -4,7 +4,7 @@ description: >-
   Adds a new Emory NLP news article (frontmatter + markdown body). Asks the user
   for missing facts (title, date/time, labels, featured, photos, participants)
   before drafting when needed; renames user-provided images to YYYYMMDD-kebab
-  image files under public/news. Use when creating news under src/content/news,
+  image files under public/news/. Use when creating posts under src/content/news/,
   renaming or placing photos under public/news/, wiring participants/labels,
   featured home-strip items,
   or when the user references news posts similar to wild-heaven-bear-dinner.

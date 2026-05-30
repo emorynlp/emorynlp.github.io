@@ -12,7 +12,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/2426003458'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2026'
-    url: '/highlights/20260503-undergraduate-honors-2026/'
+    url: '/news/20260503-undergraduate-honors-2026/'
   - title: Emory SURE Program
     when: 05/2024 ~ 08/2024
   - title: "Dean's List"

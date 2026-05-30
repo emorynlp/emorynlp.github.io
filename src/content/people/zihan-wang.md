@@ -12,7 +12,7 @@ aliases:
 achievements:
   - title: Alexa Prize Socialbot Grand Challenge 3 — 1st place (Emora)
     when: 08/2020
-    url: '/highlights/20200804-alexa-prize-winner-2020/'
+    url: '/news/20200804-alexa-prize-winner-2020/'
 education:
   - degree: MS in Computer Science
     institution: Emory University

@@ -30,7 +30,7 @@ REGEN_SLUGS = [
     "acl-2025",
 ]
 
-HIGHLIGHTS_DIR = Path("/Users/jdchoi/Workspace/emorynlp.github.io/src/content/highlights")
+HIGHLIGHTS_DIR = Path("/Users/jdchoi/Workspace/emorynlp.github.io/src/content/news")
 
 total = len(REGEN_SLUGS)
 for n, slug in enumerate(REGEN_SLUGS, start=1):

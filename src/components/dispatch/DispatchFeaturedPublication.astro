@@ -1,0 +1,92 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import DispatchPaperTopics from './DispatchPaperTopics.astro';
+
+interface Props {
+	item: ResolvedFeaturedItem;
+}
+
+const { item } = Astro.props;
+const portraits = item.authorPortraits ?? [];
+---
+
+<article class="dispatch-featured-pub">
+	<div class="dispatch-featured-pub-content">
+		<DispatchPaperTopics topics={item.topics ?? []} />
+		<h3 class="dispatch-featured-pub-title">
+			{item.href ? <a href={item.href}>{item.title}</a> : item.title}
+		</h3>
+		{
+			item.meta || item.publishedLine ? (
+				<div class="dispatch-featured-pub-citation">
+					{item.meta ? <p class="dispatch-featured-pub-venue">{item.meta}</p> : null}
+					{item.publishedLine ? (
+						<p class="dispatch-featured-pub-published">
+							<time>{item.publishedLine}</time>
+						</p>
+					) : null}
+				</div>
+			) : null
+		}
+		{
+			item.abstractParagraphs && item.abstractParagraphs.length > 0 ? (
+				<div class="dispatch-featured-pub-abstract">
+					{item.abstractParagraphs.map((paragraph) => (
+						<p>{paragraph}</p>
+					))}
+				</div>
+			) : item.summary ? (
+				<p class="dispatch-featured-pub-summary">{item.summary}</p>
+			) : null
+		}
+	</div>
+	{
+		portraits.length > 0 ? (
+			<div class="dispatch-featured-pub-authors" aria-label="Authors">
+				<ul class="dispatch-featured-portrait-grid">
+					{portraits.map((author) => (
+						<li class="dispatch-featured-portrait">
+							{author.href ? (
+								<a class="dispatch-featured-portrait-link" href={author.href}>
+									{author.photoSrc ? (
+										<img
+											src={author.photoSrc}
+											alt=""
+											width="64"
+											height="64"
+											loading="lazy"
+											decoding="async"
+										/>
+									) : (
+										<span class="dispatch-featured-portrait-fallback" aria-hidden="true">
+											{author.initials}
+										</span>
+									)}
+									<span class="dispatch-featured-portrait-name">{author.name}</span>
+								</a>
+							) : (
+								<div class="dispatch-featured-portrait-link">
+									{author.photoSrc ? (
+										<img
+											src={author.photoSrc}
+											alt=""
+											width="64"
+											height="64"
+											loading="lazy"
+											decoding="async"
+										/>
+									) : (
+										<span class="dispatch-featured-portrait-fallback" aria-hidden="true">
+											{author.initials}
+										</span>
+									)}
+									<span class="dispatch-featured-portrait-name">{author.name}</span>
+								</div>
+							)}
+						</li>
+					))}
+				</ul>
+			</div>
+		) : null
+	}
+</article>

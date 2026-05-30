@@ -1,0 +1,68 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDispatchVolumeIssue } from '../../lib/dispatch/editionTicker';
+import type { ResolvedDispatchIssue } from '../../lib/dispatch/resolveIssue';
+import { siteHref } from '../../lib/siteHref';
+
+interface Props {
+	archive: CollectionEntry<'dispatch'>[];
+	resolvedById: Map<string, ResolvedDispatchIssue>;
+	currentId: string;
+}
+
+const { archive, resolvedById, currentId } = Astro.props;
+---
+
+{
+	archive.length > 0 ? (
+		<section class="dispatch-archive dispatch-wrap" aria-labelledby="dispatch-archive-heading">
+			<div class="dispatch-section-heading">
+				<h2 id="dispatch-archive-heading">Archive</h2>
+				<span class="muted" style="font-size: 0.82rem;">
+					{archive.length} prior {archive.length === 1 ? 'issue' : 'issues'}
+				</span>
+			</div>
+			<div class="dispatch-archive-grid">
+				{archive.map((issue) => {
+					const resolved = resolvedById.get(issue.id)!;
+					const d = issue.data;
+					const issueSummary =
+						d.issueSummary?.trim() ??
+						[
+							`${resolved.counts.papers} papers in this issue`,
+							...(resolved.counts.theses > 0
+								? [`${resolved.counts.theses} theses`]
+								: []),
+						].join(', ') + '.';
+					const summary = [
+						`${resolved.counts.papers} papers`,
+						resolved.counts.theses > 0 ? `${resolved.counts.theses} theses` : null,
+					]
+						.filter(Boolean)
+						.join(' · ');
+					return (
+						<a
+							class="dispatch-archive-card"
+							href={siteHref(`/dispatch/issues/${issue.id}/`)}
+							aria-current={issue.id === currentId ? 'page' : undefined}
+						>
+							<div class="dispatch-archive-card-top">
+								<p class="dispatch-archive-card-period">
+									{formatDispatchVolumeIssue(d.volume, d.issue, d.periodLabel)}
+								</p>
+								<p class="dispatch-archive-card-theme">{d.issueTitle}</p>
+							</div>
+							<div class="dispatch-archive-card-body">
+								<p class="dispatch-archive-card-summary">{issueSummary}</p>
+								<div class="dispatch-archive-card-footer">
+									<span>{summary}</span>
+									<span>Open →</span>
+								</div>
+							</div>
+						</a>
+					);
+				})}
+			</div>
+		</section>
+	) : null
+}

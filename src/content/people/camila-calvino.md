@@ -11,7 +11,7 @@ github: 'https://github.com/cfcalvi'
 achievements:
   - title: 'Highest Honor in Quantitative Theory and Methods'
     when: '05/2023'
-    url: '/highlights/20230501-undergraduate-honors-2023/'
+    url: '/news/20230501-undergraduate-honors-2023/'
   - title: Undergraduate NLP research for underrepresented minorities
     when: 05/2022
 

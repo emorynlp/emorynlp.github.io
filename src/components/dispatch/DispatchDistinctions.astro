@@ -1,0 +1,199 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import type { ResolvedDistinctionItem } from '../../lib/dispatch/resolveIssue';
+import { formatCalendarDateLongMonth } from '../../lib/dates';
+
+interface Props {
+	items: ResolvedDistinctionItem[];
+	featured?: ResolvedFeaturedItem;
+}
+
+const { items, featured } = Astro.props;
+const showSection = items.length > 0 || featured !== undefined;
+const hasSplitLayout = featured !== undefined && items.length > 0;
+---
+
+{
+	showSection ? (
+		<section
+			class="dispatch-section dispatch-wrap"
+			id="distinctions"
+			aria-labelledby="dispatch-distinctions-heading"
+		>
+			<h2 class="dispatch-section-label" id="dispatch-distinctions-heading">
+				Distinctions
+			</h2>
+			<div
+				class:list={[
+					'dispatch-awards-layout',
+					hasSplitLayout && 'dispatch-awards-layout--split',
+					featured && items.length === 0 && 'dispatch-awards-layout--featured-only',
+				]}
+			>
+				{
+					featured ? (
+						<article
+							class:list={[
+								'dispatch-awards-featured',
+								`dispatch-awards-featured--${featured.tone}`,
+							]}
+						>
+							{
+								featured.imageSrc ? (
+									<figure class="dispatch-awards-featured-photo">
+										{featured.href ? (
+											<a href={featured.href} tabindex="-1">
+												<img
+													src={featured.imageSrc}
+													alt={featured.imageAlt ?? ''}
+													loading="eager"
+													decoding="async"
+													style={
+														featured.coverImagePosition
+															? `object-position: ${featured.coverImagePosition}`
+															: undefined
+													}
+												/>
+											</a>
+										) : (
+											<img
+												src={featured.imageSrc}
+												alt={featured.imageAlt ?? ''}
+												loading="eager"
+												decoding="async"
+												style={
+													featured.coverImagePosition
+														? `object-position: ${featured.coverImagePosition}`
+														: undefined
+												}
+											/>
+										)}
+									</figure>
+								) : null
+							}
+							<div class="dispatch-awards-featured-body">
+								{featured.meta ? (
+									<p class="dispatch-awards-byline">
+										<span
+											class:list={[
+												'dispatch-awards-featured-kind',
+												`dispatch-awards-featured-kind--${featured.tone}`,
+											]}
+										>
+											{featured.kindLabel}
+										</span>
+										<time class="dispatch-awards-byline-date">{featured.meta}</time>
+									</p>
+								) : (
+									<span
+										class:list={[
+											'dispatch-awards-featured-kind',
+											`dispatch-awards-featured-kind--${featured.tone}`,
+										]}
+									>
+										{featured.kindLabel}
+									</span>
+								)}
+								<h3 class="dispatch-awards-featured-title">
+									{featured.href ? (
+										<a href={featured.href}>{featured.title}</a>
+									) : (
+										featured.title
+									)}
+								</h3>
+								{featured.summary ? (
+									<p class="dispatch-awards-featured-summary">{featured.summary}</p>
+								) : null}
+							</div>
+						</article>
+					) : null
+				}
+				{
+					items.length > 0 ? (
+						<ul class="dispatch-awards-list" role="list">
+							{items.map((item) => (
+								<li class="dispatch-awards-item">
+									{
+										item.href && item.coverImageSrc ? (
+											<a
+												class="dispatch-awards-item-thumb"
+												href={item.href}
+												tabindex={-1}
+												aria-hidden="true"
+											>
+												<img
+													src={item.coverImageSrc}
+													alt=""
+													loading="lazy"
+													decoding="async"
+													style={
+														item.coverImagePosition
+															? `object-position: ${item.coverImagePosition}`
+															: undefined
+													}
+												/>
+											</a>
+										) : (
+											<div
+												class="dispatch-awards-item-thumb dispatch-awards-item-thumb--placeholder"
+												aria-hidden="true"
+											>
+												<svg
+													class="dispatch-awards-item-thumb-icon"
+													viewBox="0 0 20 20"
+													aria-hidden="true"
+												>
+													{
+														item.kind === 'honor' ? (
+															<path
+																d="M4 6h12v2H4V6zm0 3h12v7l-6-3-6 3V9z"
+																fill="currentColor"
+															/>
+														) : (
+															<path
+																d="M10 2l2.2 5.5L18 8l-4.5 3.5L15 18l-5-3.2L5 18l1.5-6.5L2 8l5.8-.5L10 2z"
+																fill="currentColor"
+															/>
+														)
+													}
+												</svg>
+											</div>
+										)
+									}
+									<div class="dispatch-awards-item-body">
+										<p class="dispatch-awards-byline">
+											<span
+												class:list={[
+													'dispatch-awards-item-kind',
+													`dispatch-awards-item-kind--${item.kind}`,
+												]}
+											>
+												{item.kindLabel}
+											</span>
+											<time
+												class="dispatch-awards-byline-date"
+												datetime={item.date.toISOString()}
+											>
+												{formatCalendarDateLongMonth(item.date)}
+											</time>
+										</p>
+										<p class="dispatch-awards-item-title">
+											{item.href ? (
+												<a href={item.href}>{item.title}</a>
+											) : (
+												item.title
+											)}
+										</p>
+										{item.text !== item.title ? (
+											<p class="dispatch-awards-item-dek">{item.text}</p>
+										) : null}
+									</div>
+								</li>
+							))}
+						</ul>
+					) : null
+				}
+			</div>
+		</section>
+	) : null
+}

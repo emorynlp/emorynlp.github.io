@@ -11,7 +11,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/48579520'
 achievements:
   - title: 'Highest Honor in Linguistics'
     when: '05/2018'
-    url: '/highlights/20180508-undergraduate-honors-2018/'
+    url: '/news/20180508-undergraduate-honors-2018/'
   - title: Emory SIRE Program
     when: 05/2016 ~ 08/2016
   - title: Emory SIRE Program
@@ -22,7 +22,7 @@ education:
     institution: Emory University
     endYear: 2018
 footerPhoto:
-  src: /highlights/hang-jiang-1.webp
+  src: /news/hang-jiang-1.webp
   alt: Hang Jiang and Jinho Choi
   caption: Hang Jiang presented his summer work at the Scholarly Inquiry and Research at Emory (SIRE).
 ---

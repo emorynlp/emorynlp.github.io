@@ -1,0 +1,150 @@
+---
+import type { ResolvedColumn, ResolvedColumnFull } from '../../lib/dispatch/resolveColumns';
+
+type ColumnArticle = ResolvedColumn &
+	Partial<{
+		Content: import('astro').MarkdownInstance<Record<string, never>>['default'];
+	}>;
+
+interface Props {
+	articles: ColumnArticle[];
+}
+
+const { articles } = Astro.props;
+
+function isFullColumn(article: ColumnArticle): article is ResolvedColumnFull & ColumnArticle {
+	return article.format === 'full' && article.Content !== undefined;
+}
+---
+
+{
+	articles.length > 0 ? (
+		<section class="dispatch-section dispatch-wrap" id="opinions" aria-labelledby="dispatch-opinions-heading">
+			<h2 class="dispatch-section-label" id="dispatch-opinions-heading">Opinions</h2>
+			<div class="dispatch-column-list">
+				{articles.map((article) =>
+					article.format === 'external' ? (
+						<article
+							class="dispatch-column-article dispatch-column-article--external"
+							id={`column-${article.entry.id}`}
+						>
+							<header class="dispatch-column-external-header">
+								<h3 class="dispatch-column-headline">
+									<a href={article.sourceUrl} rel="noopener noreferrer" target="_blank">
+										{article.headline}
+									</a>
+								</h3>
+								<p class="dispatch-column-subtitle">{article.subtitle}</p>
+								<div class="dispatch-column-byline">
+									{
+										article.avatarHref ? (
+											<img
+												class="dispatch-column-avatar"
+												src={article.avatarHref}
+												alt=""
+												width="40"
+												height="40"
+											/>
+										) : (
+											<span class="dispatch-column-avatar-placeholder" aria-hidden="true" />
+										)
+									}
+									<div class="dispatch-column-byline-meta">
+										<span class="dispatch-column-byline-name">{article.byline}</span>
+										{
+											article.publishedLabel ? (
+												<time
+													class="dispatch-column-byline-date"
+													datetime={article.published?.toISOString()}
+												>
+													{article.publishedLabel}
+												</time>
+											) : null
+										}
+									</div>
+								</div>
+							</header>
+							{
+								article.coverImageSrc ? (
+									<figure class="dispatch-column-cover">
+										<a href={article.sourceUrl} rel="noopener noreferrer" target="_blank" tabindex="-1">
+											<img
+												src={article.coverImageSrc}
+												alt=""
+												loading="lazy"
+												decoding="async"
+												style={
+													article.coverImagePosition
+														? `object-position: ${article.coverImagePosition}`
+														: undefined
+												}
+											/>
+										</a>
+									</figure>
+								) : null
+							}
+							{article.tagline ? (
+								<p class="dispatch-column-tagline">{article.tagline}</p>
+							) : null}
+							<p class="dispatch-column-summary">{article.summary}</p>
+							{
+								article.seoDescription ? (
+									<p class="dispatch-column-seo">
+										<span class="dispatch-column-seo-label">SEO</span>
+										{article.seoDescription}
+									</p>
+								) : null
+							}
+							<p class="dispatch-column-read-more">
+								<a href={article.sourceUrl} rel="noopener noreferrer" target="_blank">
+									Read on {article.sourceLabel ?? 'source'} →
+								</a>
+							</p>
+							{article.note ? <p class="dispatch-column-note">{article.note}</p> : null}
+						</article>
+					) : (
+						<article class="dispatch-column-article" id={`column-${article.entry.id}`}>
+							<h3 class="dispatch-column-headline">{article.headline}</h3>
+							<blockquote class="dispatch-pull-quote">{article.pullQuote}</blockquote>
+							{
+								isFullColumn(article) ? (
+									<div class="dispatch-column-body">
+										<article.Content />
+									</div>
+								) : null
+							}
+							<div class="dispatch-column-byline">
+								{
+									article.avatarHref ? (
+										<img
+											class="dispatch-column-avatar"
+											src={article.avatarHref}
+											alt=""
+											width="40"
+											height="40"
+										/>
+									) : (
+										<span class="dispatch-column-avatar-placeholder" aria-hidden="true" />
+									)
+								}
+								<div class="dispatch-column-byline-meta">
+									<span class="dispatch-column-byline-name">{article.byline}</span>
+									{
+										article.publishedLabel ? (
+											<time
+												class="dispatch-column-byline-date"
+												datetime={article.published?.toISOString()}
+											>
+												{article.publishedLabel}
+											</time>
+										) : null
+									}
+								</div>
+							</div>
+						</article>
+					),
+				)}
+			</div>
+		</section>
+	) : null
+}

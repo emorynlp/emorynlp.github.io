@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Migration: emorynlp.org/news-events/* → src/content/highlights/*.md
+Migration: emorynlp.org/news/* → src/content/news/*.md
 
 For each legacy page:
   1. Fetch HTML via curl
@@ -8,7 +8,7 @@ For each legacy page:
   3. Download content (normal_*) images; skip legacy cover image variants (800_*, 2000_*)
   4. Convert images to WebP via the project's resize-media-photo.mjs script
   5. Convert body HTML → clean Markdown
-  6. Write src/content/highlights/YYYYMMDD-slug.md
+  6. Write src/content/news/YYYYMMDD-slug.md
 """
 
 import os
@@ -20,8 +20,8 @@ import time
 from pathlib import Path
 
 WORKSPACE = Path("/Users/jdchoi/Workspace/emorynlp.github.io")
-HIGHLIGHTS_DIR = WORKSPACE / "src/content/highlights"
-PUBLIC_DIR = WORKSPACE / "public/highlights"
+HIGHLIGHTS_DIR = WORKSPACE / "src/content/news"
+PUBLIC_DIR = WORKSPACE / "public/news"
 OLD_BASE = "https://www.emorynlp.org"
 
 # All 123 legacy slugs (in order as they appear on the listing pages)
@@ -171,7 +171,7 @@ def slugify(text: str) -> str:
 
 
 def fetch_html(url_slug: str) -> str:
-    url = f"{OLD_BASE}/news-events/{url_slug}"
+    url = f"{OLD_BASE}/news/{url_slug}"
     result = subprocess.run(
         ["curl", "-s", "-L", "--max-time", "30", url],
         capture_output=True, text=True, timeout=35,
@@ -193,7 +193,7 @@ def extract_metadata(html: str) -> dict:
 
 
 def extract_tags(html: str) -> list[str]:
-    return re.findall(r'href="/news-events/tag/([^"]+)"', html)
+    return re.findall(r'href="/news/tag/([^"]+)"', html)
 
 
 def parse_date(date_str: str) -> str | None:
@@ -266,7 +266,7 @@ def _convert_link(href: str, inner_html: str) -> str:
         return f"[{text}](https://www.emorynlp.org{href})"
     if href.startswith(("/faculty/", "/people/")):
         return text
-    if href.startswith("/news-events/"):
+    if href.startswith("/news/"):
         return text
     if href.startswith(("http://", "https://")):
         return f"[{text}]({href})"
@@ -442,7 +442,7 @@ def process_page(url_slug: str) -> None:
     # Substitute [IMAGE_N] placeholders
     for idx, caption, filename in downloaded:
         alt = caption if caption else f"{title}, {date_str}"
-        img_md = f"\n![{alt}](/highlights/{filename})\n"
+        img_md = f"\n![{alt}](/news/{filename})\n"
         md_body = md_body.replace(f"[IMAGE_{idx}]", img_md)
 
     # Drop unresolved placeholders (images that failed to download)
@@ -450,7 +450,7 @@ def process_page(url_slug: str) -> None:
     md_body = re.sub(r"\n{3,}", "\n\n", md_body).strip()
 
     # Cover image = first successfully downloaded content image
-    cover_image = f"/highlights/{downloaded[0][2]}" if downloaded else None
+    cover_image = f"/news/{downloaded[0][2]}" if downloaded else None
 
     # Build frontmatter
     fm: list[str] = ["---", f"title: {title}", f"date: '{date_str}'"]

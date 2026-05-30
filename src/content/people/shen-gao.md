@@ -10,7 +10,7 @@ linkedin: 'https://www.linkedin.com/in/shen-gao-eng/'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2019'
-    url: '/highlights/20190508-undergraduate-honors-2019/'
+    url: '/news/20190508-undergraduate-honors-2019/'
   - title: Emory SIRE Program
     when: 09/2017 ~ 05/2018
 

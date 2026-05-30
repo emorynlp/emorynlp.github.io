@@ -13,6 +13,10 @@ venue: 'EACL Workshop on Linguistic Analysis for Health (HeaLing)'
 year: 2026
 published: '2026-03-13'
 publicationType: workshop
+topics:
+  researchField: LLM Evaluation
+  applicationDomain: Mental Health
+  task: Loneliness Detection
 presenter: 'Michelle Kim'
 venueUrl: 'https://healing-workshop.github.io'
 paperUrl: 'https://aclanthology.org/2026.healing-1.19'

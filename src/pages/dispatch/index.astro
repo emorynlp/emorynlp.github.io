@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+import { pickCurrentDispatchIssue } from '../../lib/dispatch/issueSort';
+import { siteHref } from '../../lib/siteHref';
+
+const issues = await getCollection('dispatch');
+const current = pickCurrentDispatchIssue(issues);
+
+if (current) {
+	return Astro.redirect(siteHref(`/dispatch/issues/${current.id}/`));
+}
+
+return Astro.redirect(siteHref('/'));
+---

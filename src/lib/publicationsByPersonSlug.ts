@@ -4,13 +4,13 @@ import { publicationSortInstant } from './publicationListing';
 
 /**
  * Publications on which this person appears as an author (matched via `buildPublicationAuthorSlugLookup`),
- * newest first (same sort as `/publications/`).
+ * newest first (same sort as `/papers/`).
  */
 export function publicationsForPersonSlug(
-	publications: CollectionEntry<'publications'>[],
+	publications: CollectionEntry<'papers'>[],
 	personSlug: string,
 	authorSlugLookup: Map<string, string>,
-): CollectionEntry<'publications'>[] {
+): CollectionEntry<'papers'>[] {
 	const matched = publications.filter((p) =>
 		p.data.authors.some((a) => slugForPublicationAuthor(a, authorSlugLookup) === personSlug),
 	);

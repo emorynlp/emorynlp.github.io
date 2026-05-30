@@ -1,0 +1,82 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import type { ResolvedActivityItem } from '../../lib/dispatch/resolveIssue';
+import { activityIconKey } from '../../lib/dispatch/activityIcons';
+import { formatNewsDate } from '../../lib/dates';
+import DispatchSectionFeatured from './DispatchSectionFeatured.astro';
+
+interface Props {
+	items: ResolvedActivityItem[];
+	featured?: ResolvedFeaturedItem;
+	heading?: string;
+}
+
+const { items, featured, heading = 'Activities' } = Astro.props;
+const showSection = items.length > 0 || featured !== undefined;
+---
+
+{
+	showSection ? (
+		<section aria-labelledby="dispatch-activity-heading">
+			<h2 class="dispatch-section-label" id="dispatch-activity-heading">
+				{heading}
+			</h2>
+			{featured ? <DispatchSectionFeatured item={featured} /> : null}
+			{
+				items.length > 0 ? (
+					<ul class="dispatch-activity-list">
+						{items.map((item) => {
+							const icon = activityIconKey(item.labels, item.kind);
+							return (
+							<li class="dispatch-activity-item">
+								<svg class="dispatch-activity-icon" viewBox="0 0 20 20" aria-hidden="true">
+									{
+										icon === 'award' ? (
+											<path
+												d="M10 2l2.2 5.5L18 8l-4.5 3.5L15 18l-5-3.2L5 18l1.5-6.5L2 8l5.8-.5L10 2z"
+												fill="currentColor"
+											/>
+										) : icon === 'media' ? (
+											<path
+												d="M4 4h12v10H4V4zm2 2v6h8V6H6zm-1 10h10v2H5v-2z"
+												fill="currentColor"
+											/>
+										) : icon === 'service' ? (
+											<path
+												d="M6 10a4 4 0 108 0 4 4 0 00-8 0zm-2 6c0-2 3.6-3 6-3s6 1 6 3v1H4v-1z"
+												fill="currentColor"
+											/>
+										) : icon === 'travel' ? (
+											<path
+												d="M3 10l7-7 7 7-2 2v5H5v-5L3 10zm4 2h6v3H7v-3z"
+												fill="currentColor"
+											/>
+										) : icon === 'welcome' ? (
+											<path
+												d="M10 4a3 3 0 100 6 3 3 0 000-6zM4 18c0-3.3 2.7-6 6-6s6 2.7 6 6v1H4v-1z"
+												fill="currentColor"
+											/>
+										) : (
+											<circle cx="10" cy="10" r="3" fill="currentColor" />
+										)
+									}
+								</svg>
+								<span>
+									{item.href ? (
+										<a href={item.href}>{item.text}</a>
+									) : (
+										item.text
+									)}
+								</span>
+								<time class="dispatch-activity-date" datetime={item.date.toISOString()}>
+									{formatNewsDate(item.date)}
+								</time>
+							</li>
+							);
+						})}
+					</ul>
+				) : null
+			}
+		</section>
+	) : null
+}

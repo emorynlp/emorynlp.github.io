@@ -12,7 +12,7 @@ import { getCollection, getEntry, render } from 'astro:content';
 import { resolvePublicationPresenterPhotoPublicHref } from '../../lib/publicationPresenterPhotos';
 
 export async function getStaticPaths() {
-	const entries = await getCollection('publications');
+	const entries = await getCollection('papers');
 	return entries.map((entry) => ({
 		params: { slug: entry.id },
 	}));
@@ -21,11 +21,11 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const entry =
 	slug !== undefined
-		? ((await getEntry('publications', slug)) as CollectionEntry<'publications'> | undefined)
+		? ((await getEntry('papers', slug)) as CollectionEntry<'papers'> | undefined)
 		: undefined;
 
 if (entry === undefined) {
-	return Astro.redirect(siteHref('/publications/'));
+	return Astro.redirect(siteHref('/papers/'));
 }
 
 const people = await getCollection('people');
@@ -64,7 +64,7 @@ const presenterNames = presenterRaw
 			.filter(Boolean)
 	: [];
 
-// Optional thumbnail for the presenter. Resolved from `public/publications/{paper-slug}.{ext}`.
+// Optional thumbnail for the presenter. Resolved from `public/papers/{paper-slug}.{ext}`.
 const presenterPhotoHref = resolvePublicationPresenterPhotoPublicHref(entry.id);
 
 const abstractBlocks = publicationAbstractParagraphs(d.abstract);
@@ -76,7 +76,7 @@ const authorFootnoteFor = d.authorFootnoteFor?.trim() || '';
 <BaseLayout title={d.title} description={`${d.authors.slice(0, 3).join(', ')}${d.authors.length > 3 ? ', …' : ''} · ${d.venue}`}>
 	<div class="publications-page container-narrow">
 		<p class="publications-detail-back muted">
-			<a href={siteHref('/publications/')}>← Publications</a>
+			<a href={siteHref('/papers/')}>← Publications</a>
 		</p>
 
 		<article class="publications-detail-article">

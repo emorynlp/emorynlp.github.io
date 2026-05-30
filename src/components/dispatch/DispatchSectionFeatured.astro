@@ -1,0 +1,19 @@
+---
+import type { ResolvedFeaturedItem } from '../../lib/dispatch/resolveFeatured';
+import DispatchFeaturedPublication from './DispatchFeaturedPublication.astro';
+import DispatchFeaturedStory from './DispatchFeaturedStory.astro';
+
+interface Props {
+	item: ResolvedFeaturedItem;
+}
+
+const { item } = Astro.props;
+---
+
+<div class="dispatch-section-featured">
+	{item.tone === 'publication' ? (
+		<DispatchFeaturedPublication item={item} />
+	) : (
+		<DispatchFeaturedStory item={item} />
+	)}
+</div>

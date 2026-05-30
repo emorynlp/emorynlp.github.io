@@ -1,14 +1,16 @@
+import { formatCalendarDateLongMonth } from './dates';
+
 export type PublicationListingFields = {
 	venue: string;
 	venueAbbrev?: string;
 	year: number;
-	/** When set, `/publications/` sort uses this (UTC); see `publicationSortInstant`. */
+	/** When set, `/papers/` sort uses this (UTC); see `publicationSortInstant`. */
 	published?: Date;
 	/** Accepted / in press — omitted `published` is OK; sort uses end of `year`. */
 	forthcoming?: boolean;
 	publicationType?: 'conference' | 'journal' | 'preprint' | 'workshop' | 'other';
 	masthead?: string;
-	mastheadTopics?: string[];
+	topics?: string[];
 	abstract?: string;
 	dek?: string;
 };
@@ -141,6 +143,18 @@ export function publicationSearchHaystack(
 /** Full citation-style venue on listings (below title, before authors). */
 export function formatPublicationVenueLine(d: Pick<PublicationListingFields, 'venue' | 'year'>): string {
 	return `${d.venue}, ${d.year}`;
+}
+
+/** Publish line for dispatch cards and listings (full month name). */
+export function formatPaperPublishedDisplayLine(
+	d: Pick<PublicationListingFields, 'published' | 'forthcoming'>,
+): string | undefined {
+	if (d.forthcoming) return 'Forthcoming';
+	const p = d.published;
+	if (p instanceof Date && !Number.isNaN(p.getTime())) {
+		return formatCalendarDateLongMonth(p);
+	}
+	return undefined;
 }
 
 /**

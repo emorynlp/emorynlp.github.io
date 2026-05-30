@@ -1,6 +1,13 @@
 /** Row accent + filter stats on theses & seminars index lists (PhD red · MS blue · undergrad green). */
 export type DegreeListKind = 'phd' | 'ms' | 'undergrad' | 'other';
 
+/** Dispatch issue section label — plural “Dissertations” only when a PhD entry is listed. */
+export function dispatchThesesSectionHeading(degrees: string[]): string {
+	return degrees.some((d) => thesisDegreeKind(d) === 'phd')
+		? 'Theses & Dissertations'
+		: 'Theses';
+}
+
 export function thesisDegreeKind(degree: string): DegreeListKind {
 	if (degree === 'PhD' || degree === 'Dissertation') return 'phd';
 	if (degree === 'MS' || degree === 'Masters Thesis') return 'ms';

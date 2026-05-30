@@ -39,7 +39,7 @@ export const peopleBioMapPart1 = {
 	'donghan-lee':
 		'Bridged NLP research with analytic training. Entered Harvard’s Computational Science & Engineering PhD afterward.',
 	'ellie-paek':
-		'Served as a research assistant on conversational NLP after interdisciplinary CS + mathematics + music work. Thesis: [honors thesis on the thesis site](/publications/theses/honors-thesis-2024-ellie-paek/).',
+		'Served as a research assistant on conversational NLP after interdisciplinary CS + mathematics + music work. Thesis: [honors thesis on the thesis site](/papers/theses/2024-honors-ellie-paek/).',
 	'ethan-zhou':
 		'Worked on conversational and applied NLP pipelines. Joined Meta (Facebook) as a software engineer.',
 	'gary-lai':

@@ -1,55 +1,10 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { legacyProjectSlugs } from '../../lib/legacyProjectSlugs';
 import { siteHref } from '../../lib/siteHref';
-import { getCollection, getEntry, render } from 'astro:content';
 
-export async function getStaticPaths() {
-	const entries = await getCollection('projects');
-	return entries.map((entry) => ({
-		params: { slug: entry.id },
-	}));
+export function getStaticPaths() {
+	return legacyProjectSlugs.map((slug) => ({ params: { slug } }));
 }
 
-const { slug } = Astro.params;
-const entry =
-	slug !== undefined
-		? ((await getEntry('projects', slug)) as CollectionEntry<'projects'> | undefined)
-		: undefined;
-
-if (entry === undefined) {
-	return Astro.redirect(siteHref('/projects/'));
-}
-
-const { Content } = await render(entry);
+return Astro.redirect(siteHref('/dispatch/'));
 ---
-
-<BaseLayout title={entry.data.title}>
-	<article class="container-narrow" style="padding-block: 2rem 4rem;">
-		<header class="detail-header">
-			<h1>{entry.data.title}</h1>
-			<p class="meta-line">
-				{
-					entry.data.status ? (
-						<span class="tag">{entry.data.status === 'completed' ? 'Completed' : 'Current'}</span>
-					) : null
-				}
-				{
-					entry.data.externalUrl ? (
-						<a href={entry.data.externalUrl}>Legacy project page →</a>
-					) : null
-				}
-			</p>
-			{
-				entry.data.summary ? (
-					<p style="margin: 0.75rem 0 0; font-size: 1.035rem;">
-						<strong>Summary:</strong> {entry.data.summary}
-					</p>
-				) : null
-			}
-		</header>
-		<div class="prose-slot">
-			<Content />
-		</div>
-	</article>
-</BaseLayout>

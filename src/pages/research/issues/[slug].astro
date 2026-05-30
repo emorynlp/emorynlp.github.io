@@ -1,0 +1,13 @@
+---
+import { listDispatchIssueSlugs } from '../../../lib/dispatch/issueSlugs';
+import { siteHref } from '../../../lib/siteHref';
+
+export async function getStaticPaths() {
+	const slugs = await listDispatchIssueSlugs();
+	return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+
+return Astro.redirect(siteHref(`/dispatch/issues/${slug}/`));
+---

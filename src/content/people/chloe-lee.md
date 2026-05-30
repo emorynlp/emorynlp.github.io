@@ -10,7 +10,7 @@ github: 'https://github.com/chloelee1230'
 achievements:
   - title: 'Highest Honor in Applied Mathematics and Statistics'
     when: '05/2020'
-    url: '/highlights/20200508-undergraduate-honors-2020/'
+    url: '/news/20200508-undergraduate-honors-2020/'
 
 education:
   - degree: BS in Applied Mathematics and Statistics; BBA

@@ -1,0 +1,66 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import DispatchLayout from '../../../layouts/DispatchLayout.astro';
+import DispatchEditionHeader from '../../../components/dispatch/DispatchEditionHeader.astro';
+import { buildDispatchEditionTickerItems, dispatchIssueTagline, formatDispatchVolumeIssueLine } from '../../../lib/dispatch/editionTicker';
+import DispatchPaperList from '../../../components/dispatch/DispatchPaperList.astro';
+import DispatchColumn from '../../../components/dispatch/DispatchColumn.astro';
+import DispatchStudentSpotlight from '../../../components/dispatch/DispatchStudentSpotlight.astro';
+import DispatchActivityBento from '../../../components/dispatch/DispatchActivityBento.astro';
+import DispatchDistinctions from '../../../components/dispatch/DispatchDistinctions.astro';
+import DispatchReadingList from '../../../components/dispatch/DispatchReadingList.astro';
+import DispatchThesesShowcase from '../../../components/dispatch/DispatchThesesShowcase.astro';
+import { listDispatchIssueSlugs } from '../../../lib/dispatch/issueSlugs';
+import { loadDispatchCatalog, resolveDispatchIssue } from '../../../lib/dispatch/resolveIssue';
+import { siteHref } from '../../../lib/siteHref';
+import { getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const slugs = await listDispatchIssueSlugs();
+	return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const entry =
+	slug !== undefined
+		? ((await getEntry('dispatch', slug)) as CollectionEntry<'dispatch'> | undefined)
+		: undefined;
+
+if (entry === undefined) {
+	return Astro.redirect(siteHref('/dispatch/'));
+}
+
+const catalog = await loadDispatchCatalog();
+const resolved = resolveDispatchIssue(entry, catalog);
+const d = entry.data;
+
+const issueTagline = dispatchIssueTagline(resolved);
+const tickerItems = buildDispatchEditionTickerItems(resolved);
+const columnArticles = await Promise.all(
+	resolved.columns.map(async (column) => {
+		if (column.format === 'external') return column;
+		return { ...column, ...(await render(column.entry)) };
+	}),
+);
+---
+
+<DispatchLayout title={formatDispatchVolumeIssueLine(d.volume, d.issue)} description={d.issueTitle}>
+	<article class="dispatch-issue">
+		<DispatchEditionHeader
+			variant="issue"
+			title={d.issueTitle}
+			tagline={issueTagline}
+			tickerItems={tickerItems}
+			tickerAriaLabel={`${formatDispatchVolumeIssueLine(d.volume, d.issue)} summary`}
+		/>
+		<DispatchDistinctions items={resolved.distinctions} featured={resolved.featuredDistinction} />
+		<DispatchPaperList papers={resolved.papers} featured={resolved.featuredPaper} />
+		<DispatchThesesShowcase theses={resolved.theses} featured={resolved.featuredThesis} />
+		<DispatchColumn articles={columnArticles} />
+		{d.studentSpotlight ? (
+			<DispatchStudentSpotlight spotlight={d.studentSpotlight} />
+		) : null}
+		<DispatchActivityBento items={resolved.activityNews} />
+		<DispatchReadingList items={resolved.readingList} />
+	</article>
+</DispatchLayout>

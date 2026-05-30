@@ -12,6 +12,10 @@ venue: 'Conference of the European Chapter of the Association for Computational 
 year: 2026
 published: '2026-03-10'
 publicationType: conference
+topics:
+  researchField: AI Safety
+  applicationDomain: Mental Health
+  task: Crisis/Risk Detection
 presenter: 'Grace Byun'
 venueUrl: 'https://2026.eacl.org'
 paperUrl: 'https://aclanthology.org/2026.eacl-long.73'

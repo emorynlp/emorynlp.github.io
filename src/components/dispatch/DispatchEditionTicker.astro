@@ -1,0 +1,39 @@
+---
+interface Props {
+	items: string[];
+	label?: string;
+	ariaLabel?: string;
+	/** Render as the bottom row of the edition header masthead. */
+	embedded?: boolean;
+}
+
+const {
+	items,
+	label,
+	ariaLabel = 'Latest from the Dispatch',
+	embedded = false,
+} = Astro.props;
+
+const showTicker = items.length > 0;
+---
+
+{
+	showTicker ? (
+		<div
+			class:list={['dispatch-edition-ticker', embedded && 'dispatch-edition-ticker--embedded']}
+			role="region"
+			aria-label={ariaLabel}
+		>
+			<div class="dispatch-wrap dispatch-ticker-inner">
+				<div class="dispatch-ticker-summary">
+					{label ? <span class="dispatch-ticker-label">{label}</span> : null}
+					<ul class="dispatch-ticker-items">
+						{items.map((item) => (
+							<li>{item}</li>
+						))}
+					</ul>
+				</div>
+			</div>
+		</div>
+	) : null
+}

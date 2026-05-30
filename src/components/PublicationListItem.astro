@@ -8,14 +8,14 @@ import {
 } from '../lib/publicationListing';
 
 interface Props {
-	entry: CollectionEntry<'publications'>;
+	entry: CollectionEntry<'papers'>;
 	authorSlugLookup: Map<string, string>;
 }
 
 const { entry, authorSlugLookup } = Astro.props;
 const d = entry.data;
 const listingKind = publicationListingKind(d);
-const href = siteHref(`/publications/${entry.id}/`);
+const href = siteHref(`/papers/${entry.id}/`);
 ---
 
 <article class:list={['publication-card', `publication-card--kind-${listingKind}`]}>

@@ -10,10 +10,10 @@ function navActive(linkHref: string, pathname: string): boolean {
 const linkDefs = [
 	{ path: '/', label: 'Home' },
 	{ path: '/people/', label: 'People' },
-	{ path: '/projects/', label: 'Projects' },
+	{ path: '/papers/', label: 'Papers' },
 	{ path: '/seminars/', label: 'Seminars' },
-	{ path: '/publications/', label: 'Publications' },
-	{ path: '/highlights/', label: 'Highlights' },
+	{ path: '/news/', label: 'News' },
+	{ path: '/dispatch/', label: 'Dispatch' },
 ];
 
 const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
@@ -67,6 +67,7 @@ const links = linkDefs.map((l) => ({ ...l, href: siteHref(l.path) }));
 		top: 0;
 		z-index: 50;
 		background: var(--header-bg);
+		background-attachment: fixed;
 		border-bottom: 1px solid var(--on-banner-border);
 		box-shadow: 0 4px 24px rgb(15 23 42 / 0.35);
 	}

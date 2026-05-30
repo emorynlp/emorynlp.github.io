@@ -10,6 +10,10 @@ venue: 'Transactions of the Association for Computational Linguistics (TACL)'
 year: 2026
 published: '2026-01-12'
 publicationType: journal
+topics:
+  researchField: Conversational AI
+  applicationDomain: Task-oriented Dialogue
+  task: Schema Induction
 venueUrl: 'https://transacl.org'
 paperUrl: 'https://doi.org/10.1162/TACL.a.66'
 resourceUrl: 'https://github.com/emorynlp/UnifiedDSI'

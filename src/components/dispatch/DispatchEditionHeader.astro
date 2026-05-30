@@ -1,0 +1,35 @@
+---
+import DispatchEditionTicker from './DispatchEditionTicker.astro';
+
+interface Props {
+	title?: string;
+	tagline?: string;
+	/** Slightly smaller masthead title for long issue headlines. */
+	variant?: 'hub' | 'issue';
+	tickerItems?: string[];
+	tickerLabel?: string;
+	tickerAriaLabel?: string;
+}
+
+const {
+	title = 'Emory NLP Dispatch',
+	tagline = 'Challenging the Limit of Language Technology',
+	variant = 'hub',
+	tickerItems = [],
+	tickerLabel,
+	tickerAriaLabel,
+} = Astro.props;
+---
+
+<header class:list={['dispatch-edition-header', variant === 'issue' && 'dispatch-edition-header--issue']}>
+	<div class="dispatch-wrap dispatch-edition-header-mast">
+		<h1 class="dispatch-masthead-title">{title}</h1>
+		<p class="dispatch-masthead-tagline">{tagline}</p>
+	</div>
+	<DispatchEditionTicker
+		items={tickerItems}
+		label={tickerLabel}
+		ariaLabel={tickerAriaLabel}
+		embedded
+	/>
+</header>

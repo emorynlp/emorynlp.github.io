@@ -12,18 +12,18 @@ aliases:
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2021'
-    url: '/highlights/20210508-undergraduate-honors-2021/'
+    url: '/news/20210508-undergraduate-honors-2021/'
   - title: Alexa Prize Socialbot Grand Challenge 3 — 1st place (Emora)
     when: 08/2020
-    url: '/highlights/20200804-alexa-prize-winner-2020/'
+    url: '/news/20200804-alexa-prize-winner-2020/'
   - title: 'ICPC Southeast USA Region, Division 1: Bronze (M||E)'
     when: 11/2019
     issuer: ICPC Foundation
-    url: '/highlights/20191109-icpc-southeast-regional-2019/'
+    url: '/news/20191109-icpc-southeast-regional-2019/'
   - title: 'ICPC Southeast USA Region, Division 2: 1st Place (M||E)'
     when: 11/2018
     issuer: ICPC Foundation
-    url: '/highlights/20181103-icpc-southeast-regional-2018/'
+    url: '/news/20181103-icpc-southeast-regional-2018/'
 
 education:
   - degree: MS in Computer Science

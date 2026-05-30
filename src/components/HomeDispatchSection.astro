@@ -1,0 +1,95 @@
+---
+import type { ResolvedDispatchIssue } from '../lib/dispatch/resolveIssue';
+import { formatDispatchVolumeIssueLine } from '../lib/dispatch/editionTicker';
+import { siteHref } from '../lib/siteHref';
+
+interface Props {
+	resolved: ResolvedDispatchIssue;
+}
+
+const { resolved } = Astro.props;
+const d = resolved.entry.data;
+const highlights = resolved.homepageHighlights;
+const seasonLabel = d.periodLabel.toUpperCase();
+const volumeLine = formatDispatchVolumeIssueLine(d.volume, d.issue);
+const issueSummary = d.issueSummary?.trim();
+---
+
+<div class="home-dispatch">
+	<a class="home-dispatch-cover" href={resolved.issueHref} aria-label={`Read Emory NLP Dispatch, ${volumeLine}`}>
+		<p class="home-dispatch-cover-bar">{seasonLabel}</p>
+		<div class="home-dispatch-cover-main">
+			<h2 class="home-dispatch-cover-title">
+				<span class="home-dispatch-cover-title-line">Emory NLP</span>
+				<span class="home-dispatch-cover-title-line">Dispatch</span>
+			</h2>
+			<img
+				class="home-dispatch-cover-logo"
+				src={siteHref('/emorynlp-logo.png')}
+				alt=""
+				width="220"
+				height="220"
+				loading="lazy"
+				decoding="async"
+			/>
+			{issueSummary ? <p class="home-dispatch-cover-summary">{issueSummary}</p> : null}
+		</div>
+		<p class="home-dispatch-cover-vol">{volumeLine}</p>
+	</a>
+
+	<div class="home-dispatch-panel">
+		{
+			highlights.length > 0 ? (
+				<div class="home-dispatch-highlights">
+					<h3 class="home-dispatch-highlights-label">Highlights of this Issue</h3>
+					<ul class="home-dispatch-highlights-list" role="list">
+						{highlights.map((item) => (
+							<li class="home-dispatch-highlight">
+								{
+									item.coverImageSrc ? (
+										<a
+											class="home-dispatch-highlight-thumb"
+											href={item.href}
+											tabindex={item.href ? -1 : undefined}
+											aria-hidden={item.href ? 'true' : undefined}
+										>
+											<img
+												src={item.coverImageSrc}
+												alt=""
+												width="160"
+												height="120"
+												loading="lazy"
+												decoding="async"
+												style={
+													item.coverImagePosition
+														? `object-position: ${item.coverImagePosition}`
+														: undefined
+												}
+											/>
+										</a>
+									) : null
+								}
+								<div class="home-dispatch-highlight-body">
+									<h4 class="home-dispatch-highlight-title">
+										{item.href ? <a href={item.href}>{item.title}</a> : item.title}
+									</h4>
+									<p class="home-dispatch-highlight-meta">
+										<span class="home-dispatch-tag">{item.kind}</span>
+										{item.meta ? (
+											<>
+												<span class="home-dispatch-highlight-meta-sep" aria-hidden="true">
+													{' · '}
+												</span>
+												<span>{item.meta}</span>
+											</>
+										) : null}
+									</p>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			) : null
+		}
+	</div>
+</div>

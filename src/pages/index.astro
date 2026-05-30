@@ -1,47 +1,199 @@
 ---
 import FeaturedNewsSlideshow from '../components/FeaturedNewsSlideshow.astro';
 import FeaturedStar from '../components/FeaturedStar.astro';
+import HomeDispatchSection from '../components/HomeDispatchSection.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { formatDispatchVolumeIssue } from '../lib/dispatch/editionTicker';
+import { pickCurrentDispatchIssue } from '../lib/dispatch/issueSort';
+import { loadDispatchCatalog, resolveDispatchIssue } from '../lib/dispatch/resolveIssue';
 import { formatNewsDate } from '../lib/dates';
+import {
+	DEFAULT_SEMINAR_AGENDA_PAST_COUNT,
+	formatSeminarAgendaDate,
+	seminarAgendaDayKind,
+	seminarAgendaMeta,
+	seminarsForHomeAgenda,
+} from '../lib/seminarAgenda';
+import { buildPublicationAuthorSlugLookup, slugForPublicationAuthor } from '../lib/publicationAuthorLinks';
+import {
+	resolveSeminarCoverHref,
+	resolveSeminarSpeakerPhotoHrefs,
+} from '../lib/seminarCoverPhotos';
 import { teaserFromNewsBody } from '../lib/newsTeaser';
 import { siteHref } from '../lib/siteHref';
 
-const newsEntries = await getCollection('highlights');
+const newsEntries = await getCollection('news');
+const people = await getCollection('people');
+const seminarEntries = await getCollection('seminars');
+const dispatchCatalog = await loadDispatchCatalog();
+const currentDispatchIssue = pickCurrentDispatchIssue(dispatchCatalog.issues);
+const resolvedDispatch = currentDispatchIssue
+	? resolveDispatchIssue(currentDispatchIssue, dispatchCatalog)
+	: undefined;
+const dispatchHighlights = resolvedDispatch?.homepageHighlights ?? [];
+const authorSlugLookup = buildPublicationAuthorSlugLookup(people);
 const byDesc = (
-	a: (typeof newsEntries)[number],
-	b: (typeof newsEntries)[number],
+	a: { data: { date: Date } },
+	b: { data: { date: Date } },
 ) => b.data.date.valueOf() - a.data.date.valueOf();
 
 const featured = newsEntries.filter((n) => n.data.featured).sort(byDesc);
-/** Home carousel = most recent news by date (`SLIDESHOW_MAX` items). Increase if you want more slides (more dots / longer rotations). */
+/** Home carousel = featured news only, most recent first (`SLIDESHOW_MAX` items). */
 const SLIDESHOW_MAX = 5;
-const slideshowEntries = [...newsEntries].sort(byDesc).slice(0, SLIDESHOW_MAX);
-const rest = newsEntries.filter((n) => !n.data.featured).sort(byDesc);
-const bannerNews = [...featured, ...rest].slice(0, 8);
+const slideshowEntries = featured.slice(0, SLIDESHOW_MAX);
+/** Latest news strip = most recent items, featured and non-featured. */
+const BANNER_MAX = 8;
+const bannerNews = [...newsEntries].sort(byDesc).slice(0, BANNER_MAX);
+const seminarAgenda = seminarsForHomeAgenda(seminarEntries, DEFAULT_SEMINAR_AGENDA_PAST_COUNT);
+const agendaHasItems = seminarAgenda.upcoming !== null || seminarAgenda.past.length > 0;
+const agendaRows = [
+	...(seminarAgenda.upcoming ? [{ entry: seminarAgenda.upcoming, featured: true as const }] : []),
+	...seminarAgenda.past.map((entry) => ({ entry, featured: false as const })),
+];
+
+function seminarAgendaCoverHref(
+	entry: (typeof seminarEntries)[number],
+): string | undefined {
+	const speakers = entry.data.speakers ?? [];
+	const primarySpeakerSlug =
+		speakers.length === 1
+			? slugForPublicationAuthor(speakers[0]!, authorSlugLookup)
+			: undefined;
+	const coverHref = resolveSeminarCoverHref(
+		entry.id,
+		entry.data.coverImage,
+		speakers.length,
+		primarySpeakerSlug,
+		speakers.length === 1 ? speakers[0] : undefined,
+	);
+	if (coverHref) return coverHref;
+	if (speakers.length >= 2) {
+		return resolveSeminarSpeakerPhotoHrefs(speakers, authorSlugLookup)[0];
+	}
+	return undefined;
+}
 ---
 
 <BaseLayout title="Home">
-	<FeaturedNewsSlideshow entries={slideshowEntries} />
-
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero-inner">
-			<h1 id="hero-title">Challenging the limit of language technology</h1>
+			<h1 id="hero-title">Emory NLP Research Lab</h1>
 			<p class="hero-sub">
-				Research in natural language processing, dialogue, and NLP for societal impact at{' '}
-				<a href="https://www.emory.edu/" style="color: inherit;">Emory University</a>.
+				Challenging the Limit of Language Technology
 			</p>
+		</div>
+	</section>
+
+	<FeaturedNewsSlideshow entries={slideshowEntries} />
+
+	{
+		resolvedDispatch && dispatchHighlights.length > 0 ? (
+			<section class="section-block news-banner-section" aria-labelledby="dispatch-banner-heading">
+				<div class="container-narrow">
+					<h2 id="dispatch-banner-heading" class="page-title news-banner-heading">
+						Dispatch
+					</h2>
+					<p class="page-intro news-banner-intro">
+						Emory NLP publishes the <a href={resolvedDispatch.issueHref}>Dispatch</a> every semester, covering our latest research, activities, and perspectives.
+					</p>
+					<HomeDispatchSection resolved={resolvedDispatch} />
+				</div>
+			</section>
+		) : null
+	}
+
+	<section class="section-block news-banner-section" aria-labelledby="seminars-banner-heading">
+		<div class="container-narrow">
+			<h2 id="seminars-banner-heading" class="page-title news-banner-heading">
+				Seminar Agenda
+			</h2>
+			<p class="page-intro news-banner-intro">
+				Emory NLP hosts weekly <a href={siteHref('/seminars/')}>seminars</a> featuring presentations on its latest research.
+			</p>
+			{
+				agendaHasItems ? (
+					<ol class="banner-seminar-agenda" role="list">
+						{agendaRows.map(({ entry, featured }) => {
+							const dayKind = seminarAgendaDayKind(entry.data.date);
+							const dateParts = formatSeminarAgendaDate(entry.data.date);
+							const meta = seminarAgendaMeta(
+								entry.data.speakers,
+								entry.data.time,
+								entry.data.location,
+								entry.data.term,
+							);
+							const href = siteHref(`/seminars/${entry.id}/`);
+							const coverHref = seminarAgendaCoverHref(entry);
+
+							return (
+								<li
+									class:list={[
+										'banner-seminar-agenda-item',
+										`banner-seminar-agenda-item--${dayKind}`,
+										{ 'banner-seminar-agenda-item--featured': featured },
+									]}
+								>
+									<div class="banner-seminar-agenda-lead">
+										<a class="banner-seminar-agenda-media" href={href} tabindex="-1" aria-hidden="true">
+											{
+												coverHref ? (
+													<img
+														src={siteHref(coverHref)}
+														alt=""
+														width="68"
+														height="68"
+														loading="lazy"
+														decoding="async"
+													/>
+												) : (
+													<span class="banner-seminar-agenda-media-placeholder" />
+												)
+											}
+										</a>
+										<time
+											class="banner-seminar-agenda-date"
+											datetime={entry.data.date.toISOString()}
+										>
+											<span class="banner-seminar-agenda-date-line">{dateParts.primary}</span>
+											<span class="banner-seminar-agenda-date-line">{dateParts.secondary}</span>
+										</time>
+									</div>
+									<div class="banner-seminar-agenda-body">
+										<h3 class="banner-seminar-agenda-title">
+											<a href={href}>{entry.data.title}</a>
+										</h3>
+										{meta || featured ? (
+											<p class="banner-seminar-agenda-meta">
+												{featured ? (
+													<>
+														<span class="banner-seminar-agenda-label">Upcoming</span>
+														{meta ? ' · ' : null}
+													</>
+												) : null}
+												{meta}
+											</p>
+										) : null}
+									</div>
+								</li>
+							);
+						})}
+					</ol>
+				) : (
+					<div class="empty-state empty-state--on-dark">No seminar entries yet.</div>
+				)
+			}
 		</div>
 	</section>
 
 	<section class="section-block news-banner-section" aria-labelledby="news-banner-heading">
 		<div class="container-narrow">
 			<h2 id="news-banner-heading" class="page-title news-banner-heading">
-				Latest news
+				Latest News
 			</h2>
 			<p class="page-intro news-banner-intro">
-				Snapshots of lab highlights. Older items live on the{' '}
-				<a href={siteHref('/highlights/')}>news</a> page.
+				For all  news and events from Emory NLP, please visit the {' '}
+				<a href={siteHref('/news/')}>News</a> page.
 			</p>
 			{
 				bannerNews.length === 0 ? (
@@ -51,7 +203,7 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 						<div class="banner-row-inner" tabindex="0">
 							{bannerNews.map((entry) => (
 								<a class="banner-card"
-									href={siteHref(`/highlights/${entry.id}/`)}
+									href={siteHref(`/news/${entry.id}/`)}
 								>
 									{
 										entry.data.coverImage ? (
@@ -74,13 +226,6 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 									}
 									<div class="banner-card-body">
 										<span class="banner-meta">{formatNewsDate(entry.data.date)}</span>
-										{entry.data.labels?.length ? (
-											<span class="banner-label-row">
-												{entry.data.labels.map((label) => (
-													<span class="banner-label-pill">{label}</span>
-												))}
-											</span>
-										) : null}
 										<div class="banner-title-row">
 											<h3 class="banner-title">{entry.data.title}</h3>
 											{entry.data.featured ? (
@@ -98,23 +243,5 @@ const bannerNews = [...featured, ...rest].slice(0, 8);
 				)
 			}
 		</div>
-	</section>
-
-	<section class="section-block container-narrow" aria-labelledby="explore-heading">
-		<h2 id="explore-heading" class="page-title">Explore</h2>
-		<ul class="grid-cards" role="list" style="list-style: none; margin: 0; padding: 0;">
-			<li>
-				<a class="surface card-link" href={siteHref('/people/')}>People</a>
-			</li>
-			<li>
-				<a class="surface card-link" href={siteHref('/publications/')}>Publications</a>
-			</li>
-			<li>
-				<a class="surface card-link" href={siteHref('/projects/')}>Projects</a>
-			</li>
-			<li>
-				<a class="surface card-link" href={siteHref('/seminars/')}>Seminars</a>
-			</li>
-		</ul>
 	</section>
 </BaseLayout>

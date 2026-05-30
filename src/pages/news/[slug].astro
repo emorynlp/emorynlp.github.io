@@ -1,0 +1,156 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import FeaturedStar from '../../components/FeaturedStar.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatNewsDate } from '../../lib/dates';
+import { resolveNewsParticipants } from '../../lib/newsParticipants';
+import { siteHref } from '../../lib/siteHref';
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+	const entries = await getCollection('news');
+	return entries.map((entry) => ({
+		params: { slug: entry.id },
+	}));
+}
+
+const { slug } = Astro.params;
+const entry =
+	slug !== undefined ? ((await getEntry('news', slug)) as CollectionEntry<'news'> | undefined) : undefined;
+
+if (entry === undefined) {
+	return Astro.redirect(siteHref('/news/'));
+}
+
+const { Content } = await render(entry);
+const labels = entry.data.labels ?? [];
+const peopleAll = await getCollection('people');
+const participantRefs = resolveNewsParticipants(peopleAll, entry.data.participants, {
+	slug: entry.id,
+	title: entry.data.title,
+});
+---
+
+<BaseLayout title={entry.data.title}>
+	<article class="news-detail container-narrow">
+		<p class="news-detail-back">
+			<a href={siteHref('/news/')}>← News</a>
+		</p>
+		<header class="news-detail-header">
+			<div class="news-detail-title-row">
+				<h1 class="news-detail-title">{entry.data.title}</h1>
+				{entry.data.featured ? <FeaturedStar /> : null}
+			</div>
+			<div class="news-detail-meta">
+				<time datetime={entry.data.date.toISOString()}>{formatNewsDate(entry.data.date)}</time>
+				{labels.length ? (
+					<span class="news-label-group">
+						{labels.map((label) => (
+							<a href={siteHref(`/news/label/${label}/`)} class="news-label-pill">
+								{label}
+							</a>
+						))}
+					</span>
+				) : null}
+			</div>
+		</header>
+
+		<div class="news-detail-body prose-slot">
+			<Content />
+		</div>
+
+		{
+			participantRefs.length ? (
+				<section
+					class="news-detail-participants"
+					aria-label={`Participants, ${participantRefs.length}${participantRefs.length === 1 ? ' person' : ' people'}`}
+				>
+					<details class="news-detail-participants-disclosure">
+						<summary class="news-detail-participants-summary">
+							Participants
+							<span class="news-detail-participants-count">({participantRefs.length})</span>
+						</summary>
+						<p class="news-detail-participant-roster">
+							{
+								participantRefs.flatMap((p, i) => {
+									const slot = p.href ? (
+										<a class="news-detail-participant-link" href={p.href}>{p.name}</a>
+									) : (
+										<span class="news-participant-unlinked">{p.name}</span>
+									);
+									return i === 0 ? [slot] : [', ', slot];
+								})
+							}
+						</p>
+					</details>
+				</section>
+			) : null
+		}
+	</article>
+</BaseLayout>
+
+<style is:global>
+	.news-detail-body .highlight-md-figure {
+		margin: 1.35rem 0;
+		max-width: 100%;
+	}
+
+	.news-detail-body .highlight-md-figure img {
+		display: block;
+		width: 100%;
+		height: auto;
+		margin: 0;
+		border-radius: calc(var(--radius) + 2px);
+	}
+
+	.news-detail-body .highlight-md-caption {
+		margin: 0.25rem 0 0;
+		font-size: 0.94rem;
+		line-height: 1.55;
+		color: var(--muted);
+		text-align: center;
+	}
+
+	/* Optional raw HTML in highlight markdown (YouTube, Vimeo, etc.) */
+	.news-detail-body .highlight-md-embed {
+		position: relative;
+		width: 100%;
+		max-width: min(100%, 960px);
+		margin: 1.35rem 0;
+		aspect-ratio: 16 / 9;
+		border-radius: calc(var(--radius) + 2px);
+		overflow: hidden;
+		border: 1px solid var(--border);
+		background: #0f172a;
+	}
+
+	.news-detail-body .highlight-md-embed iframe {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		display: block;
+	}
+
+	.news-detail-body .highlight-md-embed.highlight-md-embed--audio {
+		aspect-ratio: auto;
+		height: 166px;
+		margin: 1rem 0;
+		border: 0;
+		background: transparent;
+	}
+
+	.news-detail-body .highlight-md-embed.highlight-md-embed--audio:has(iframe[src*='open.spotify.com']) {
+		height: 152px;
+	}
+
+	/* Embed + sibling caption: same vertical rhythm as figure (img → figcaption is 0.25rem; figure margin 1.35rem wraps whole block). */
+	.news-detail-body .highlight-md-embed:has(+ .highlight-md-caption) {
+		margin-bottom: 0;
+	}
+
+	.news-detail-body .highlight-md-embed + .highlight-md-caption {
+		margin: 0.25rem 0 1.35rem 0;
+	}
+</style>

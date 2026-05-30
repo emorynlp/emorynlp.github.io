@@ -11,7 +11,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/145079952'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2015'
-    url: '/highlights/20150508-undergraduate-honors-2015/'
+    url: '/news/20150508-undergraduate-honors-2015/'
 
 education:
   - degree: BS in Computer Science; BA in Linguistics

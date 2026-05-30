@@ -1,4 +1,6 @@
-/** Year for sorting and filters when thesis entries have no calendar `date`. Prefers a year in `term`, otherwise the thesis year encoded in `entryId` (e.g. `honors-thesis-2024-foo`). */
+import { thesisDegreeKind } from './degreeListKind';
+
+/** Year for sorting and filters when thesis entries have no calendar `date`. Prefers a year in `term`, otherwise the thesis year encoded in `entryId` (e.g. `2024-honors-foo`). */
 export function thesisSortYear(term: string | undefined, entryId: string): number {
 	if (term) {
 		const m = term.match(/\b((?:19|20)\d{2})\b/);
@@ -57,6 +59,34 @@ export function compareThesesListingOrder(
 
 	const fa = thesisAuthorNameSortKeys(a.data.author);
 	const fb = thesisAuthorNameSortKeys(b.data.author);
+	const lastCmp = localeCompareThesis(fa.last, fb.last);
+	if (lastCmp !== 0) return lastCmp;
+	return localeCompareThesis(fa.first, fb.first);
+}
+
+/** Dispatch issue list: PhD → MS → undergraduate, then author last name, then first name. */
+export function thesisDegreeTierRank(degree: string): number {
+	switch (thesisDegreeKind(degree)) {
+		case 'phd':
+			return 0;
+		case 'ms':
+			return 1;
+		case 'undergrad':
+			return 2;
+		default:
+			return 3;
+	}
+}
+
+export function compareDispatchThesesOrder(
+	a: { entry: { data: { degree: string; author: string } } },
+	b: { entry: { data: { degree: string; author: string } } },
+): number {
+	const tierCmp = thesisDegreeTierRank(a.entry.data.degree) - thesisDegreeTierRank(b.entry.data.degree);
+	if (tierCmp !== 0) return tierCmp;
+
+	const fa = thesisAuthorNameSortKeys(a.entry.data.author);
+	const fb = thesisAuthorNameSortKeys(b.entry.data.author);
 	const lastCmp = localeCompareThesis(fa.last, fb.last);
 	if (lastCmp !== 0) return lastCmp;
 	return localeCompareThesis(fa.first, fb.first);

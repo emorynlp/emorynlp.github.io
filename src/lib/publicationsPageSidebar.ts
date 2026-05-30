@@ -69,10 +69,10 @@ function pickCanonicalDisplayName(prev: string, next: string): string {
 }
 
 /**
- * Per-year stacked counts and author index for the `/publications/` sidebar.
+ * Per-year stacked counts and author index for the `/papers/` sidebar.
  */
 export function buildPublicationsSidebarModel(
-	papers: CollectionEntry<'publications'>[],
+	papers: CollectionEntry<'papers'>[],
 	authorSlugLookup: Map<string, string>,
 	people: CollectionEntry<'people'>[],
 ): {
@@ -119,7 +119,7 @@ export function buildPublicationsSidebarModel(
 		row.total += 1;
 		totalsByBucket[bucket] += 1;
 
-		const href = siteHref(`/publications/${entry.id}/`);
+		const href = siteHref(`/papers/${entry.id}/`);
 		const railAbbrev = publicationVenueAbbrev(d);
 
 		for (const rawName of d.authors) {

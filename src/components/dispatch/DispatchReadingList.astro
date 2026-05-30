@@ -1,0 +1,45 @@
+---
+import type { ResolvedReadingItem } from '../../lib/dispatch/resolveIssue';
+
+interface Props {
+	items: ResolvedReadingItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{
+	items.length > 0 ? (
+		<section class="dispatch-section dispatch-wrap" id="reading" aria-labelledby="dispatch-reading-heading">
+			<h2 class="dispatch-section-label" id="dispatch-reading-heading">Reading list</h2>
+			<ol class="dispatch-reading-list">
+				{items.map((item) => (
+					<li class="dispatch-reading-item">
+						<p class="dispatch-reading-title">
+							{item.href ? (
+								<a href={item.href}>{item.title}</a>
+							) : (
+								item.title
+							)}
+						</p>
+						{
+							item.authorsLine || item.venueLine ? (
+								<p class="dispatch-reading-citation">
+									{[item.authorsLine, item.venueLine].filter(Boolean).join(' · ')}
+								</p>
+							) : null
+						}
+						<p class="dispatch-reading-why">{item.why}</p>
+						{
+							item.url && item.url !== item.href ? (
+								<p style="margin: 0.35rem 0 0; font-size: 0.82rem;">
+									<a href={item.url}>External link →</a>
+								</p>
+							) : null
+						}
+					</li>
+				))}
+			</ol>
+		</section>
+	) : null
+}

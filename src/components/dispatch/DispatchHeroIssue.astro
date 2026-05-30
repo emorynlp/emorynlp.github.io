@@ -1,0 +1,28 @@
+---
+import { formatDispatchVolumeIssue } from '../../lib/dispatch/editionTicker';
+import type { ResolvedDispatchIssue } from '../../lib/dispatch/resolveIssue';
+import { heroDiagramSvg } from '../../lib/dispatch/heroDiagram';
+
+interface Props {
+	resolved: ResolvedDispatchIssue;
+}
+
+const { resolved } = Astro.props;
+const d = resolved.entry.data;
+const diagram = heroDiagramSvg(resolved.heroVisual, 'dispatch-hero-card-diagram');
+---
+
+<article class="dispatch-hero-card">
+	<p class="dispatch-hero-card-meta">
+		{formatDispatchVolumeIssue(d.volume, d.issue, d.periodLabel)}
+	</p>
+	<div set:html={diagram} />
+	<h2 class="dispatch-hero-card-title">{d.issueTitle}</h2>
+	<p class="dispatch-hero-card-stats">
+		<span>{resolved.counts.papers} papers</span>
+		{resolved.counts.theses > 0 ? <span>{resolved.counts.theses} theses</span> : null}
+	</p>
+	<a class="dispatch-hero-card-cta" href={resolved.issueHref}>
+		Read issue →
+	</a>
+</article>

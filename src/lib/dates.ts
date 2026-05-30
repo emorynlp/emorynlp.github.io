@@ -29,6 +29,16 @@ export function formatNewsDate(d: Date): string {
 	});
 }
 
+/** Like `formatNewsDate`, but spells the month in full (e.g. March 10, 2026). */
+export function formatCalendarDateLongMonth(d: Date): string {
+	return d.toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+		timeZone: isUtcMidnight(d) ? 'UTC' : NEWS_WALL_ZONE,
+	});
+}
+
 /** `YYYY-MM-DD-HH:MM` (minutes; Eastern wall clock) — disambiguates same calendar day. */
 const NEWS_DATE_AND_TIME_RE = /^(\d{4})-(\d{2})-(\d{2})-(\d{2}):(\d{2})$/;
 

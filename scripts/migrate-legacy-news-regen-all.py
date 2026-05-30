@@ -23,7 +23,7 @@ PROTECTED = {
     "20260503-undergraduate-honors-2026",
 }
 
-HIGHLIGHTS_DIR = Path("/Users/jdchoi/Workspace/emorynlp.github.io/src/content/highlights")
+HIGHLIGHTS_DIR = Path("/Users/jdchoi/Workspace/emorynlp.github.io/src/content/news")
 
 import re, json
 import html as htmllib

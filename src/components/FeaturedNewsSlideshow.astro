@@ -1,11 +1,11 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { formatNewsDate } from '../lib/dates';
-import { teaserFromNewsBody } from '../lib/newsTeaser';
+import { teaserHtmlFromNewsBody } from '../lib/newsTeaser';
 import { siteHref } from '../lib/siteHref';
 
 interface Props {
-	entries: CollectionEntry<'highlights'>[];
+	entries: CollectionEntry<'news'>[];
 }
 
 const { entries } = Astro.props;
@@ -29,13 +29,13 @@ const uid = 'home-featured-slideshow';
 				>
 					<div class="featured-slideshow-viewport">
 						{entries.map((entry, slideIndex) => {
-							const href = siteHref(`/highlights/${entry.id}/`);
+							const href = siteHref(`/news/${entry.id}/`);
 						const imgSrc = entry.data.coverImage
 							? siteHref(entry.data.coverImage)
 							: null;
 						const imgPosition = entry.data.coverImagePosition ?? null;
-							const teaser =
-								teaserFromNewsBody(entry.body, 200) || 'Open for details.';
+							const teaserHtml =
+								teaserHtmlFromNewsBody(entry.body, 200) || 'Open for details.';
 
 							return (
 								<article
@@ -73,7 +73,7 @@ const uid = 'home-featured-slideshow';
 										<div class="featured-slide-caption">
 											<p class="featured-slide-meta">{formatNewsDate(entry.data.date)}</p>
 											<h3 class="featured-slide-title">{entry.data.title}</h3>
-											<p class="featured-slide-desc">{teaser}</p>
+											<p class="featured-slide-desc" set:html={teaserHtml} />
 										</div>
 									</a>
 								</article>
@@ -126,6 +126,7 @@ const uid = 'home-featured-slideshow';
 <style>
 	.home-featured-slideshow {
 		background: var(--banner);
+		background-attachment: fixed;
 		color: var(--on-banner);
 		padding-block: 1rem 1.35rem;
 		border-bottom: 1px solid var(--on-banner-border);
@@ -283,6 +284,14 @@ const uid = 'home-featured-slideshow';
 		-webkit-line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+	}
+
+	.featured-slide-desc :where(em) {
+		font-style: italic;
+	}
+
+	.featured-slide-desc :where(strong) {
+		font-weight: 700;
 	}
 
 	.featured-slideshow-controls {

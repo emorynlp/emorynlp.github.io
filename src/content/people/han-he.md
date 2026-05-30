@@ -12,10 +12,10 @@ googleScholar: 'https://scholar.google.com/citations?user=cxIOcsIAAAAJ'
 achievements:
   - title: 'PhD in Computer Science and Informatics'
     when: '05/2023'
-    url: '/highlights/20230508-doctor-of-philosophy-2023/'
+    url: '/news/20230508-doctor-of-philosophy-2023/'
   - title: Alexa Prize Socialbot Grand Challenge 4 — finalist (Emora)
     when: 07/2021
-    url: '/highlights/20210719-alexa-prize-finals-2021/'
+    url: '/news/20210719-alexa-prize-finals-2021/'
   - title: FLAIRS — Best Student Paper Award nominee
     when: 05/2020
   - title: IWPT Shared Task (Enhanced UD) — 3rd place

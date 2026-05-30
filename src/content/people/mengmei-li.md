@@ -12,7 +12,7 @@ aliases:
 achievements:
   - title: 'Honor in Computer Science'
     when: '05/2019'
-    url: '/highlights/20190508-undergraduate-honors-2019/'
+    url: '/news/20190508-undergraduate-honors-2019/'
 education:
   - degree: BS in Computer Science and Applied Mathematics
     institution: Emory University

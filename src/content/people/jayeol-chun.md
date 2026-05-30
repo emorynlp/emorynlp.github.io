@@ -11,7 +11,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/41124366'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2018'
-    url: '/highlights/20180508-undergraduate-honors-2018/'
+    url: '/news/20180508-undergraduate-honors-2018/'
 
 education:
   - degree: BS in Computer Science; BS in Physics

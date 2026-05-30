@@ -1,0 +1,36 @@
+---
+import type { ResolvedPaperTopic, TopicSlot } from '../../lib/dispatch/paperTopics';
+
+interface Props {
+	topics: ResolvedPaperTopic[];
+}
+
+const { topics } = Astro.props;
+
+const slotClass: Record<TopicSlot, string> = {
+	researchField: 'research-field',
+	applicationDomain: 'application-domain',
+	task: 'task',
+};
+---
+
+{
+	topics.length > 0 ? (
+		<ul class="dispatch-paper-topics">
+			{topics.map((topic) => (
+				<li>
+					<span
+						class:list={[
+							'dispatch-paper-topic-tag',
+							topic.slot
+								? `dispatch-paper-topic-tag--${slotClass[topic.slot]}`
+								: `dispatch-paper-topic-tag--${topic.tone}`,
+						]}
+					>
+						{topic.label}
+					</span>
+				</li>
+			))}
+		</ul>
+	) : null
+}

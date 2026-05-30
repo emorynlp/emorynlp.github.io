@@ -1,0 +1,108 @@
+---
+import type { ResolvedActivityItem } from '../../lib/dispatch/resolveIssue';
+import { formatCalendarDateLongMonth } from '../../lib/dates';
+import DispatchActivityLabels from './DispatchActivityLabels.astro';
+
+interface Props {
+	items: ResolvedActivityItem[];
+	heading?: string;
+}
+
+const { items, heading = 'Activities' } = Astro.props;
+const galleryItems = [...items].sort((a, b) => b.date.getTime() - a.date.getTime());
+---
+
+{
+	galleryItems.length > 0 ? (
+		<section
+			class="dispatch-section dispatch-wrap"
+			id="activity"
+			aria-labelledby="dispatch-activity-heading"
+		>
+			<h2 class="dispatch-section-label" id="dispatch-activity-heading">
+				{heading}
+			</h2>
+			<ul class="dispatch-activity-gallery" role="list">
+				{galleryItems.map((item, index) => (
+					<li class="dispatch-activity-gallery__item">
+						{
+							item.href ? (
+								<a class="dispatch-activity-gallery__card" href={item.href}>
+									<figure class="dispatch-activity-gallery__figure">
+										{
+											item.coverImageSrc ? (
+												<img
+													class="dispatch-activity-gallery__img"
+													src={item.coverImageSrc}
+													alt={item.imageAlt}
+													width={640}
+													height={360}
+													loading={index < 3 ? 'eager' : 'lazy'}
+													decoding="async"
+													style={
+														item.coverImagePosition
+															? `object-position: ${item.coverImagePosition}`
+															: undefined
+													}
+												/>
+											) : (
+												<div
+													class="dispatch-activity-gallery__placeholder"
+													aria-hidden="true"
+												/>
+											)
+										}
+									</figure>
+									<div class="dispatch-activity-gallery__body">
+										<p class="dispatch-activity-gallery__meta">
+											<DispatchActivityLabels labels={item.labels} />
+											<time datetime={item.date.toISOString()}>
+												{formatCalendarDateLongMonth(item.date)}
+											</time>
+										</p>
+										<h3 class="dispatch-activity-gallery__title">{item.title}</h3>
+										{item.text !== item.title ? (
+											<p class="dispatch-activity-gallery__dek">{item.text}</p>
+										) : null}
+									</div>
+								</a>
+							) : (
+								<div class="dispatch-activity-gallery__card">
+									<figure class="dispatch-activity-gallery__figure">
+										{
+											item.coverImageSrc ? (
+												<img
+													class="dispatch-activity-gallery__img"
+													src={item.coverImageSrc}
+													alt={item.imageAlt}
+													width={640}
+													height={360}
+													loading="lazy"
+													decoding="async"
+												/>
+											) : (
+												<div
+													class="dispatch-activity-gallery__placeholder"
+													aria-hidden="true"
+												/>
+											)
+										}
+									</figure>
+									<div class="dispatch-activity-gallery__body">
+										<p class="dispatch-activity-gallery__meta">
+											<DispatchActivityLabels labels={item.labels} />
+											<time datetime={item.date.toISOString()}>
+												{formatCalendarDateLongMonth(item.date)}
+											</time>
+										</p>
+										<h3 class="dispatch-activity-gallery__title">{item.title}</h3>
+									</div>
+								</div>
+							)
+						}
+					</li>
+				))}
+			</ul>
+		</section>
+	) : null
+}

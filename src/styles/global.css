@@ -30,7 +30,7 @@
 	--accent-soft: rgb(180 83 9 / 0.14);
 	--highlight: #f59e0b;
 
-	/* Publication venue left stripe (/publications/ cards); filter stats use readable mixes of the same hues. */
+	/* Publication venue left stripe (/papers/ cards); filter stats use readable mixes of the same hues. */
 	--pub-venue-conference: rgb(140 178 225);
 	--pub-venue-journal: rgb(215 155 162);
 	--pub-venue-workshop: rgb(125 188 152);
@@ -112,6 +112,10 @@ main#main {
 
 /* Detail articles carry their own padding; avoid stretching short pages above the footer. */
 main#main:has(> .news-detail) {
+	min-height: 0;
+}
+
+main#main:has(> .hero:first-child) {
 	min-height: 0;
 }
 
@@ -298,32 +302,53 @@ main#main:has(> .news-detail) {
 }
 
 .hero {
+	position: relative;
+	--hero-masthead-min-height: 9.5rem;
 	background: var(--banner);
+	background-attachment: fixed;
 	color: var(--on-banner);
-	padding: 3rem 0 3.25rem;
-	margin-bottom: 2rem;
+	border-bottom: none;
+	margin-bottom: 0;
 }
 
 .hero-inner {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--hero-masthead-min-height);
+	text-align: center;
 	width: min(100%, var(--narrow));
 	margin-inline: auto;
-	padding-inline: 1.25rem;
+	padding: 2.25rem clamp(1rem, 4vw, 1.5rem) 1.35rem;
 }
 
 .hero h1 {
-	margin: 0 0 0.6rem;
+	margin: 0 0 0.5rem;
 	font-size: clamp(1.85rem, 4.2vw, 2.65rem);
 	font-weight: 800;
 	line-height: 1.18;
-	color: inherit;
+	color: var(--brand-warm);
 }
 
 .hero-sub {
-	margin: 0;
-	font-size: 1.055rem;
-	max-width: 46ch;
-	color: var(--on-banner-muted);
-	line-height: 1.55;
+	margin: 0.35rem 0 0;
+	font-size: 1.3rem;
+	font-weight: 500;
+	line-height: 1.45;
+	letter-spacing: 0.02em;
+	color: var(--brand-warm-dark);
+	max-width: none;
+	font-variant-numeric: tabular-nums;
+}
+
+.hero-sub a {
+	color: inherit;
+}
+
+body:has(main > .hero:first-child) .site-header {
+	box-shadow: none;
 }
 
 .section-block {
@@ -338,6 +363,14 @@ main#main:has(> .news-detail) {
 	margin-inline: 0;
 }
 
+.news-banner-section + .news-banner-section {
+	padding-top: 2.5rem;
+}
+
+.news-banner-section:has(+ .news-banner-section) {
+	padding-bottom: 2.5rem;
+}
+
 .news-banner-section .news-banner-heading {
 	color: var(--on-banner);
 	margin-bottom: 0.85rem;
@@ -349,19 +382,281 @@ main#main:has(> .news-detail) {
 	margin-bottom: 1.35rem;
 }
 
-.news-banner-section .news-banner-intro a {
-	color: var(--banner-meta);
+.news-banner-section .news-banner-intro a:link,
+.news-banner-section .news-banner-intro a:visited,
+.news-banner-section .news-banner-intro a:any-link {
+	color: var(--brand-warm);
+	text-decoration: none;
+	transition: color 0.15s ease;
 }
 
-.news-banner-section .news-banner-intro a:hover {
-	color: var(--on-banner);
+.news-banner-section .news-banner-intro a:hover,
+.news-banner-section .news-banner-intro a:active {
+	color: var(--brand-warm-dark);
 	text-decoration: none;
+}
+
+.news-banner-section .news-banner-intro a:focus-visible {
+	outline: 2px solid var(--brand-warm-dark);
+	outline-offset: 3px;
 }
 
 .empty-state--on-dark {
 	background: var(--on-banner-card);
 	border-color: var(--on-banner-border);
 	color: var(--on-banner-muted);
+}
+
+/* Home — Emory NLP Dispatch magazine strip */
+.home-dispatch {
+	display: grid;
+	grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+	gap: clamp(1.25rem, 3vw, 2.25rem);
+	align-items: start;
+	margin-top: 0.15rem;
+}
+
+.home-dispatch-cover {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 300px;
+	aspect-ratio: 5 / 7;
+	border-radius: var(--radius);
+	overflow: hidden;
+	text-decoration: none;
+	color: var(--on-banner);
+	background:
+		radial-gradient(circle at 50% 40%, rgb(245 191 134 / 0.1), transparent 16%),
+		radial-gradient(
+			ellipse 95% 85% at 50% 48%,
+			rgb(44 56 80) 0%,
+			rgb(30 41 59) 20%,
+			rgb(15 23 42) 48%,
+			rgb(8 12 22) 100%
+		);
+	box-shadow:
+		0 18px 40px rgb(0 0 0 / 0.35),
+		0 0 0 1px rgb(255 255 255 / 0.08);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-dispatch-cover:hover {
+	transform: translateY(-3px);
+	box-shadow:
+		0 22px 48px rgb(0 0 0 / 0.4),
+		0 0 0 1px rgb(255 255 255 / 0.12);
+}
+
+.home-dispatch-cover-bar {
+	margin: 0;
+	padding: 0.42rem 0.85rem;
+	font-size: 0.58rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-align: center;
+	text-transform: uppercase;
+	color: rgb(15 23 42);
+	background: var(--brand-warm);
+}
+
+.home-dispatch-cover-main {
+	flex: 1;
+	min-height: 0;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	align-items: center;
+	justify-items: center;
+	gap: 0.85rem;
+	padding: 1.15rem 1.25rem 0.5rem;
+	text-align: center;
+}
+
+.home-dispatch-cover-title {
+	margin: 0;
+	font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.12;
+	color: var(--brand-warm);
+}
+
+.home-dispatch-cover-title-line {
+	display: block;
+}
+
+.home-dispatch-cover-title-line:first-child {
+	font-size: clamp(1.55rem, 3.6vw, 1.95rem);
+}
+
+.home-dispatch-cover-title-line:last-child {
+	margin-top: 0.12rem;
+	font-size: clamp(1.35rem, 3.1vw, 1.7rem);
+}
+
+.home-dispatch-cover-logo {
+	display: block;
+	grid-row: 2;
+	align-self: center;
+	width: min(75%, 10rem);
+	height: auto;
+}
+
+.home-dispatch-cover-summary {
+	margin: 0;
+	max-width: 16rem;
+	font-size: 0.8rem;
+	font-weight: 500;
+	line-height: 1.45;
+	text-align: center;
+	color: var(--on-banner-muted);
+}
+
+.home-dispatch-cover-vol {
+	position: relative;
+	z-index: 1;
+	margin: 0;
+	padding: 0.75rem 1rem 1rem;
+	font-size: 0.62rem;
+	font-weight: 600;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	text-align: center;
+	color: var(--on-banner-muted);
+}
+
+.home-dispatch-highlights-label {
+	margin: 0 0 0.85rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--banner-meta);
+}
+
+.home-dispatch-highlights-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+}
+
+.home-dispatch-highlight {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.85rem 1rem;
+	padding: 0.95rem 0;
+	border-top: 1px solid var(--on-banner-border);
+	align-items: start;
+}
+
+.home-dispatch-highlight:has(.home-dispatch-highlight-thumb) {
+	grid-template-columns: auto minmax(0, 1fr);
+}
+
+.home-dispatch-highlight:first-child {
+	border-top: none;
+	padding-top: 0;
+}
+
+.home-dispatch-highlight-body {
+	min-width: 0;
+}
+
+.home-dispatch-tag {
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--on-banner-muted);
+}
+
+.home-dispatch-highlight-title {
+	margin: 0 0 0.28rem;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.home-dispatch-highlight-title a {
+	color: var(--on-banner);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.home-dispatch-highlight-title a:hover,
+.home-dispatch-highlight-title a:active {
+	color: var(--brand-warm);
+}
+
+.home-dispatch-highlight-meta {
+	margin: 0;
+	font-size: 0.82rem;
+	line-height: 1.45;
+	color: var(--on-banner-muted);
+	word-break: break-word;
+}
+
+.home-dispatch-highlight-thumb {
+	display: block;
+	width: 5.5rem;
+	aspect-ratio: 4 / 3;
+	flex-shrink: 0;
+	border-radius: 4px;
+	overflow: hidden;
+	border: 1px solid var(--on-banner-border);
+	background: rgb(0 0 0 / 0.25);
+}
+
+.home-dispatch-highlight-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+@media (max-width: 820px) {
+	.home-dispatch {
+		grid-template-columns: minmax(0, 1fr);
+		justify-items: stretch;
+	}
+
+	.home-dispatch-cover {
+		max-width: min(100%, 280px);
+		justify-self: center;
+	}
+
+	.home-dispatch-panel {
+		width: 100%;
+		min-width: 0;
+	}
+}
+
+@media (max-width: 540px) {
+	.home-dispatch-highlights-label {
+		font-size: 0.7rem;
+		letter-spacing: 0.1em;
+	}
+
+	.home-dispatch-highlight {
+		grid-template-columns: auto minmax(0, 1fr);
+		gap: 0.75rem;
+		padding: 0.85rem 0;
+		align-items: start;
+	}
+
+	.home-dispatch-highlight-thumb {
+		width: 4.75rem;
+	}
+
+	.home-dispatch-highlight-title {
+		font-size: 0.95rem;
+	}
+
+	.home-dispatch-highlight-meta {
+		font-size: 0.78rem;
+		line-height: 1.4;
+	}
 }
 
 .banner-row {
@@ -471,6 +766,166 @@ main#main:has(> .news-detail) {
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
+}
+
+.banner-seminar-agenda {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+}
+
+.banner-seminar-agenda-item {
+	display: grid;
+	grid-template-columns: 8.5rem minmax(0, 1fr);
+	gap: 0.85rem 1rem;
+	padding: 0.9rem 0;
+	border-top: 1px solid var(--on-banner-border);
+	align-items: center;
+}
+
+.banner-seminar-agenda-lead {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.banner-seminar-agenda-media {
+	display: block;
+	width: 4.25rem;
+	height: 4.25rem;
+	border-radius: 50%;
+	overflow: hidden;
+	background: rgb(0 0 0 / 0.25);
+	border: 1px solid var(--on-banner-border);
+	flex-shrink: 0;
+}
+
+.banner-seminar-agenda-media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.banner-seminar-agenda-media-placeholder {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(145deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03));
+}
+
+.banner-seminar-agenda-item--past .banner-seminar-agenda-media {
+	opacity: 0.78;
+}
+
+.banner-seminar-agenda-item:first-child {
+	border-top: none;
+	padding-top: 0;
+}
+
+.banner-seminar-agenda-item:last-child {
+	padding-bottom: 0;
+}
+
+.banner-seminar-agenda-date {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	flex-shrink: 0;
+	flex: 0.9;
+	gap: 0.12rem;
+	font-size: 0.92rem;
+	font-weight: 700;
+	line-height: 1.25;
+	letter-spacing: 0.01em;
+	color: var(--banner-meta);
+	font-variant-numeric: tabular-nums;
+}
+
+.banner-seminar-agenda-date-line {
+	display: block;
+	font: inherit;
+	letter-spacing: inherit;
+	color: inherit;
+}
+
+.banner-seminar-agenda-item--featured .banner-seminar-agenda-media {
+	opacity: 1;
+}
+
+.banner-seminar-agenda-item--featured .banner-seminar-agenda-date {
+	color: var(--brand-warm);
+	opacity: 1;
+}
+
+.banner-seminar-agenda-item--featured .banner-seminar-agenda-meta {
+	opacity: 1;
+}
+
+.banner-seminar-agenda-item--today .banner-seminar-agenda-date {
+	color: var(--brand-warm);
+}
+
+.banner-seminar-agenda-item--past .banner-seminar-agenda-date,
+.banner-seminar-agenda-item--past .banner-seminar-agenda-meta {
+	opacity: 0.78;
+}
+
+.banner-seminar-agenda-body {
+	min-width: 0;
+	align-self: center;
+}
+
+.banner-seminar-agenda-title {
+	margin: 0 0 0.28rem;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.banner-seminar-agenda-title a {
+	color: var(--on-banner);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+
+.banner-seminar-agenda-title a:hover,
+.banner-seminar-agenda-title a:active {
+	color: var(--brand-warm);
+}
+
+.banner-seminar-agenda-title a:focus-visible {
+	outline: 2px solid var(--brand-warm-dark);
+	outline-offset: 3px;
+	border-radius: 2px;
+}
+
+.banner-seminar-agenda-meta {
+	margin: 0;
+	font-size: 0.84rem;
+	line-height: 1.45;
+	color: var(--on-banner-muted);
+}
+
+.banner-seminar-agenda-label {
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--brand-warm-dark);
+}
+
+@media (max-width: 540px) {
+	.banner-seminar-agenda-item {
+		grid-template-columns: minmax(0, 1fr);
+		align-items: start;
+	}
+
+	.banner-seminar-agenda-lead {
+		width: 100%;
+	}
 }
 
 .detail-header {
@@ -773,7 +1228,7 @@ a.news-label-pill.news-label-pill--active {
 }
 
 /*
- * Publications listing — same chrome as News (/highlights/): `publications-page container-narrow`,
+ * Publications listing — same chrome as News (/news/): `publications-page container-narrow`,
  * single-column card stack (`publications-cards`), surface cards aligned with `.news-card`.
  */
 .publications-cards {
@@ -1182,7 +1637,7 @@ a.news-label-pill.news-label-pill--active {
 		0 10px 26px rgb(41 37 36 / 0.05);
 }
 
-/* Venue type → left accent (replacing acronym/year rail on `/publications/` cards) */
+/* Venue type → left accent (replacing acronym/year rail on `/papers/` cards) */
 .publication-card--kind-conference {
 	border-inline-start-color: color-mix(in srgb, var(--pub-venue-conference) 88%, transparent);
 	background:
@@ -1302,8 +1757,8 @@ a.news-label-pill.news-label-pill--active {
 	}
 }
 
-/* ——— Publication detail (`/publications/[slug]/`) ———
-   Same horizontal band as `/publications/`: `.publications-page.container-narrow` */
+/* ——— Publication detail (`/papers/[slug]/`) ———
+   Same horizontal band as `/papers/`: `.publications-page.container-narrow` */
 
 .publications-detail-back {
 	margin: 0 0 1.35rem;

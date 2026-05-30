@@ -10,11 +10,11 @@ github: 'https://github.com/XinmanZ'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2021'
-    url: '/highlights/20210508-undergraduate-honors-2021/'
+    url: '/news/20210508-undergraduate-honors-2021/'
   - title: Outstanding Student Award
     when: 04/2021
     issuer: Emory Computer Science
-    url: '/highlights/20210420-annual-awards-2021/'
+    url: '/news/20210420-annual-awards-2021/'
 
 education:
   - degree: BS in Computer Science and Applied Mathematics

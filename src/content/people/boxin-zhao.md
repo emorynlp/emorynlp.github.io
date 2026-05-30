@@ -14,7 +14,7 @@ semanticScholar: 'https://www.semanticscholar.org/author/2307453939'
 achievements:
   - title: 'Highest Honor in Computer Science'
     when: '05/2024'
-    url: '/highlights/20240508-undergraduate-honors-2024/'
+    url: '/news/20240508-undergraduate-honors-2024/'
 education:
   - degree: BS in Computer Science; BA in Music
     institution: Emory University
