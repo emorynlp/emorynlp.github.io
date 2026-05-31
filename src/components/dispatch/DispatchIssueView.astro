@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import DispatchLayout from '../../layouts/DispatchLayout.astro';
+import DispatchEditionHeader from './DispatchEditionHeader.astro';
+import {
+	buildDispatchEditionTickerItems,
+	dispatchIssueTagline,
+	formatDispatchVolumeIssueLine,
+} from '../../lib/dispatch/editionTicker';
+import DispatchPaperList from './DispatchPaperList.astro';
+import DispatchColumn from './DispatchColumn.astro';
+import DispatchStudentSpotlight from './DispatchStudentSpotlight.astro';
+import DispatchActivityBento from './DispatchActivityBento.astro';
+import DispatchDistinctions from './DispatchDistinctions.astro';
+import DispatchReadingList from './DispatchReadingList.astro';
+import DispatchThesesShowcase from './DispatchThesesShowcase.astro';
+import { loadDispatchCatalog, resolveDispatchIssue } from '../../lib/dispatch/resolveIssue';
+
+interface Props {
+	entry: CollectionEntry<'dispatch'>;
+}
+
+const { entry } = Astro.props;
+
+const catalog = await loadDispatchCatalog();
+const resolved = resolveDispatchIssue(entry, catalog);
+const d = entry.data;
+
+const issueTagline = dispatchIssueTagline(resolved);
+const tickerItems = buildDispatchEditionTickerItems(resolved);
+const columnArticles = await Promise.all(
+	resolved.columns.map(async (column) => {
+		if (column.format === 'external') return column;
+		return { ...column, ...(await render(column.entry)) };
+	}),
+);
+const volumeLine = formatDispatchVolumeIssueLine(d.volume, d.issue);
+---
+
+<DispatchLayout title={volumeLine} description={d.issueTitle}>
+	<article class="dispatch-issue">
+		<DispatchEditionHeader
+			variant="issue"
+			title={d.issueTitle}
+			tagline={issueTagline}
+			tickerItems={tickerItems}
+			tickerAriaLabel={`${volumeLine} summary`}
+		/>
+		<DispatchDistinctions items={resolved.distinctions} featured={resolved.featuredDistinction} />
+		<DispatchPaperList papers={resolved.papers} featured={resolved.featuredPaper} />
+		<DispatchThesesShowcase theses={resolved.theses} featured={resolved.featuredThesis} />
+		<DispatchColumn articles={columnArticles} />
+		{d.studentSpotlight ? (
+			<DispatchStudentSpotlight spotlight={d.studentSpotlight} />
+		) : null}
+		<DispatchActivityBento items={resolved.activityNews} />
+		<DispatchReadingList items={resolved.readingList} />
+	</article>
+</DispatchLayout>

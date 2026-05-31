@@ -1,14 +1,21 @@
 ---
 import { getCollection } from 'astro:content';
+import DispatchIssueView from '../../components/dispatch/DispatchIssueView.astro';
+import DispatchLayout from '../../layouts/DispatchLayout.astro';
 import { pickCurrentDispatchIssue } from '../../lib/dispatch/issueSort';
-import { siteHref } from '../../lib/siteHref';
 
 const issues = await getCollection('dispatch');
 const current = pickCurrentDispatchIssue(issues);
-
-if (current) {
-	return Astro.redirect(siteHref(`/dispatch/issues/${current.id}/`));
-}
-
-return Astro.redirect(siteHref('/'));
 ---
+
+{
+	current ? (
+		<DispatchIssueView entry={current} />
+	) : (
+		<DispatchLayout title="Emory NLP Dispatch" description="Emory NLP Dispatch — research magazine from Emory NLP.">
+			<div class="dispatch-wrap" style="padding: 3rem 0;">
+				<div class="empty-state surface">No Dispatch issues published yet.</div>
+			</div>
+		</DispatchLayout>
+	)
+}
