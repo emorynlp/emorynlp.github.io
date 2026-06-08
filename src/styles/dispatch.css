@@ -33,7 +33,7 @@
 	justify-content: center;
 	min-height: var(--dispatch-masthead-min-height);
 	text-align: center;
-	padding: 2.25rem 0 1.35rem;
+	padding-block: 2.25rem 1.35rem;
 }
 
 /* Match site header brand: “Emory NLP” / “Atlanta GA, USA” */
@@ -305,7 +305,7 @@
 
 /* Archive */
 .dispatch-archive {
-	padding: 2rem 0;
+	padding-block: 2rem;
 	border-top: 1px solid var(--border);
 }
 
@@ -662,7 +662,7 @@
 }
 
 .dispatch-section {
-	padding: 2.5rem 0;
+	padding-block: 2.5rem;
 	border-bottom: 1px solid var(--border);
 }
 
