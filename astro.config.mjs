@@ -26,7 +26,7 @@ export default defineConfig({
 	},
 	// When using a verified custom domain in GitHub Pages, set site to https://emorynlp.org
 	// so canonical URLs match your public hostname.
-	site: 'https://emorynlp.github.io',
+	site: 'https://emorynlp.org',
 	/** ASCII slug replaced earlier Unicode path; keep old links and bookmarks working. */
 	redirects: {
 		'/faculty/jinho-choi/': '/people/jinho-choi/',

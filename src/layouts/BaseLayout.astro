@@ -2,16 +2,17 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { siteHref } from '../lib/siteHref';
+import { absoluteSiteUrl, siteHref } from '../lib/siteHref';
 
 interface Props {
 	title: string;
 	description?: string;
 }
 
-const { title, description = 'Emory NLP — research lab in natural language processing at Emory University.' } =
+const { title, description = 'Natural Language Processing and Conversational AI Research at Emory University.' } =
 	Astro.props;
 const fullTitle = title === 'Home' ? 'Emory NLP' : `${title} · Emory NLP`;
+const ogImage = absoluteSiteUrl('/emorynlp-logo.png', Astro.site);
 ---
 
 <html lang="en">
@@ -24,6 +25,17 @@ const fullTitle = title === 'Home' ? 'Emory NLP' : `${title} · Emory NLP`;
 		<meta name="theme-color" content="#92400e" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Emory NLP" />
+		<meta property="og:title" content={fullTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:alt" content="Emory NLP logo" />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={fullTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+		<meta name="twitter:image:alt" content="Emory NLP logo" />
 		<title>{fullTitle}</title>
 	</head>
 	<body>

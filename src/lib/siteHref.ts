@@ -16,6 +16,11 @@ export function publicAssetUrl(path: string): string {
 	return path;
 }
 
+/** Absolute URL for Open Graph / Twitter cards (crawlers require `https://…`). */
+export function absoluteSiteUrl(path: string, site: string | URL): string {
+	return new URL(siteHref(path), site).href;
+}
+
 /**
  * `http(s)` URLs for this site’s GitHub Pages host (and localhost for dev).
  * Legacy `emorynlp.org` is excluded — do not treat it as first-party for auto-linking.
@@ -26,7 +31,7 @@ export function isLabSiteHttpUrl(href: string): boolean {
 		if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
 		const host = u.hostname.toLowerCase();
 		if (host === 'localhost' || host === '127.0.0.1') return true;
-		return host === 'emorynlp.github.io';
+		return host === 'emorynlp.github.io' || host === 'emorynlp.org';
 	} catch {
 		return false;
 	}
