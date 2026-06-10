@@ -15,6 +15,7 @@ achievements:
   - title: Undergraduate Research Award
     when: 05/2026
     issuer: Emory Computer Science
+    url: '/news/20260506-annual-awards-2026/'
   - title: "Dean's List"
     when: 2022 Fall, 2023 Spring, 2024 Spring, 2024 Fall
   - title: NSF Research Experiences for Undergraduates

@@ -16,7 +16,7 @@ const PEOPLE = path.join(ROOT, 'src/content/people');
 function hasAchievementsLabel(raw) {
 	const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
 	if (!m) return false;
-	return /\n  - achievements\r?\n/.test(m[1]);
+	return /\n  - achievements(?:\r?\n|$)/.test(m[1]);
 }
 
 function frontmatterDate(raw) {

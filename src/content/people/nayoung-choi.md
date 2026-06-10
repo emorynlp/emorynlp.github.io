@@ -11,6 +11,7 @@ achievements:
   - title: Excellence in Research Assistance
     when: 05/2026
     issuer: Emory Computer Science
+    url: '/news/20260506-annual-awards-2026/'
   - title: Innovation of the Year
     when: 04/2026
     issuer: Emory Office of Technology Transfer
